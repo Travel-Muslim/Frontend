@@ -14,7 +14,7 @@ function HeroSection() {
   return (
     <section className="hero-section">
       <div className="hero-bg">
-        <img src="../assets/hero-bg.png" alt="Hero Background" className="hero-bg-image" />
+        <img src="../../src/assets/hero-bg.png" alt="Hero Background" className="hero-bg-image" />
         <div className="hero-overlay" />
       </div>
       <div className="hero-content">
@@ -104,7 +104,7 @@ function CTASection() {
   return (
     <section className="cta-section">
       <div className="cta-bg">
-        <img src="../assets/2.png" alt="CTA Background" />
+        <img src="../../src/assets/2.png" alt="CTA Background" />
         <div className="cta-overlay" />
       </div>
       <div className="cta-content">
