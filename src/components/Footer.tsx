@@ -11,6 +11,7 @@ export default function Footer() {
           <div className="lp-footer-col">
             <h4>Halaman</h4>
             <Link to="/home">Home</Link>
+            <Link to="/cari-destinasi">Destinasi</Link>
             <Link to="/wishlist">Wishlist</Link>
             <Link to="/riwayat">Riwayat</Link>
             <Link to="/artikel">Artikel</Link>

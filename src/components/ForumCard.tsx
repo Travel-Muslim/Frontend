@@ -1,5 +1,6 @@
 import React from "react";
 import starIcon from "../assets/icon/star.png";
+import "./ForumCard.css";
 
 interface ForumCardProps {
   avatar: string;
@@ -12,139 +13,35 @@ interface ForumCardProps {
 
 function Star() {
   return (
-    <div className="relative shrink-0 size-[21.516px]">
-      <img
-        src={starIcon}
-        alt="star"
-        className="w-full h-full object-contain"
-      />
-    </div>
-  );
-}
-
-function TitleSection({ title }: { title: string }) {
-  return (
-    <div className="relative shrink-0 w-full">
-      <div className="flex flex-row items-center justify-center size-full">
-        <div className="flex items-center justify-center p-[10px] w-full">
-          <p className="font-['Inter:Bold',sans-serif] font-bold text-[#444444] text-[24px]">
-            {title}
-          </p>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function DescriptionSection({ description }: { description: string }) {
-  return (
-    <div className="relative shrink-0 w-full">
-      <div className="flex flex-row items-center justify-center size-full">
-        <div className="flex items-center justify-center p-[10px] w-full">
-          <p className="font-['Inter:Medium',sans-serif] font-medium text-[#444444] text-[20px] text-justify">
-            {description}
-          </p>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function ContentSection({ title, description }: { title: string; description: string }) {
-  return (
-    <div className="flex flex-col gap-[7px] items-start w-[603px]">
-      <TitleSection title={title} />
-      <DescriptionSection description={description} />
-    </div>
-  );
-}
-
-function ProfileImage({ avatar, name }: { avatar: string; name: string }) {
-  return (
-    <div className="relative shrink-0 size-[61px]">
-      <img
-        alt={name}
-        className="absolute inset-0 object-cover rounded-full w-full h-full"
-        src={avatar}
-      />
-    </div>
-  );
-}
-
-function NameSection({ name }: { name: string }) {
-  return (
-    <div className="relative shrink-0 w-full">
-      <div className="flex flex-row items-center size-full">
-        <div className="flex items-center p-[10px] w-full">
-          <p className="font-['Inter:Bold',sans-serif] font-bold text-[#444444] text-[24px]">
-            {name}
-          </p>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function RatingSection({ rating }: { rating: number }) {
-  return (
-    <div className="flex items-center">
-      <div className="flex items-center p-[6.148px]">
-        <Star />
-      </div>
-      <div className="flex items-center justify-center p-[6.148px]">
-        <p className="font-['Inter:Medium',sans-serif] font-medium text-[#444444] text-[20px]">
-          {(typeof rating === 'number' ? rating : (Number(rating) || 0)).toFixed(1)}
-        </p>
-      </div>
-    </div>
-  );
-}
-
-function TimeAgoSection({ timeAgo }: { timeAgo: string }) {
-  return (
-    <div className="flex items-center justify-center p-[10px]">
-      <p className="font-['Inter:Medium',sans-serif] font-medium text-[#a0a0a0] text-[20px]">
-        {timeAgo}
-      </p>
-    </div>
-  );
-}
-
-function RatingAndTime({ rating, timeAgo }: { rating: number; timeAgo: string }) {
-  return (
-    <div className="flex gap-[6px] items-center w-full">
-      <RatingSection rating={rating} />
-      <TimeAgoSection timeAgo={timeAgo} />
-    </div>
-  );
-}
-
-function ProfileDetails({ name, rating, timeAgo }: { name: string; rating: number; timeAgo: string }) {
-  return (
-    <div className="flex flex-col items-start w-[238px]">
-      <NameSection name={name} />
-      <RatingAndTime rating={rating} timeAgo={timeAgo} />
-    </div>
-  );
-}
-
-function ProfileSection({ avatar, name, rating, timeAgo }: { avatar: string; name: string; rating: number; timeAgo: string }) {
-  return (
-    <div className="flex gap-[10px] items-center">
-      <ProfileImage avatar={avatar} name={name} />
-      <ProfileDetails name={name} rating={rating} timeAgo={timeAgo} />
+    <div className="forum-card__star">
+      <img src={starIcon} alt="star" />
     </div>
   );
 }
 
 export default function ForumCard({ avatar, name, rating, timeAgo, title, description }: ForumCardProps) {
   return (
-    <div className="bg-white relative rounded-[20px] w-full">
-      <div className="absolute border-2 border-[#ffb4c4] inset-0 rounded-[20px] pointer-events-none" />
-      <div className="flex flex-row items-center w-full">
-        <div className="flex gap-[65px] items-center pl-[24px] py-[15px] w-full">
-          <ContentSection title={title} description={description} />
-          <ProfileSection avatar={avatar} name={name} rating={rating} timeAgo={timeAgo} />
+    <div className="forum-card">
+      <div className="forum-card__body">
+        <div className="forum-card__text">
+          <p className="forum-card__title">{title}</p>
+          <p className="forum-card__desc">{description}</p>
+        </div>
+
+        <div className="forum-card__profile">
+          <div className="forum-card__avatar">
+            <img src={avatar} alt={name} />
+          </div>
+          <div className="forum-card__meta">
+            <p className="forum-card__name">{name}</p>
+            <div className="forum-card__rating-row">
+              <div className="forum-card__rating">
+                <Star />
+                <span>{(typeof rating === "number" ? rating : Number(rating) || 0).toFixed(1)}</span>
+              </div>
+              <span className="forum-card__time">{timeAgo}</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>

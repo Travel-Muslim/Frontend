@@ -1,151 +1,153 @@
-import React, { useState } from "react";
-import arrowIcon from "../assets/icon/arrow.png";
-import searchIcon from "../assets/icon/search.png";
+import { useState, useEffect, useRef, useMemo } from "react";
+import type { Destination } from "../api/destinations";
 
 interface SearchBarProps {
+  destinations?: Destination[];
+  loading?: boolean;
   onSearch?: (from: string, to: string, date: string) => void;
   className?: string;
 }
 
-export default function SearchBar({ onSearch, className = "" }: SearchBarProps) {
-  const [from, setFrom] = useState("Jakarta");
-  const [to, setTo] = useState("Seoul");
-  const [departDate, setDepartDate] = useState("15 Jan 2024");
+export default function SearchBar({ destinations = [], loading = false, onSearch, className = "" }: SearchBarProps) {
+  const [from, setFrom] = useState("");
+  const [to, setTo] = useState("");
+  const [departDate, setDepartDate] = useState("");
+  const [openField, setOpenField] = useState<"from" | "to" | "date" | null>(null);
+  const rootRef = useRef<HTMLDivElement>(null);
 
-  const [showFromDropdown, setShowFromDropdown] = useState(false);
-  const [showToDropdown, setShowToDropdown] = useState(false);
-  const [showDateDropdown, setShowDateDropdown] = useState(false);
+  const { fromOptions, toOptions, dateOptions } = useMemo(() => {
+    const unique = <T,>(arr: T[]) => Array.from(new Set(arr));
+    const toOpts = unique(
+      (destinations || [])
+        .map((d) => d.location)
+        .filter((v): v is string => Boolean(v))
+    );
+    const fromOpts = unique(
+      (destinations || [])
+        .map((d) => d.airport)
+        .filter((v): v is string => Boolean(v))
+    );
+    const dateOpts = unique(
+      (destinations || [])
+        .flatMap((d) => d.period ?? [])
+        .filter((v): v is string => Boolean(v))
+    );
+    return {
+      fromOptions: fromOpts,
+      toOptions: toOpts,
+      dateOptions: dateOpts,
+    };
+  }, [destinations]);
 
-  const cities = ["Jakarta", "Bandung", "Surabaya", "Yogyakarta", "Bali", "Medan"];
-  const dates = ["15 Jan 2024", "20 Jan 2024", "25 Jan 2024", "30 Jan 2024"];
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (rootRef.current && !rootRef.current.contains(event.target as Node)) {
+        setOpenField(null);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const handleSearch = () => {
     onSearch?.(from, to, departDate);
-    console.log("Searching:", { from, to, departDate });
+  };
+
+  const renderDropdown = (
+    field: "from" | "to" | "date",
+    items: string[],
+    setter: (value: string) => void
+  ) => {
+    if (openField !== field) return null;
+    if (!items.length) {
+      return (
+        <div className="search-dropdown-menu empty" role="listbox">
+          <div className="search-dropdown-option" aria-disabled>
+            {loading ? "Memuat data..." : "Belum ada data"}
+          </div>
+        </div>
+      );
+    }
+    return (
+      <div className="search-dropdown-menu" role="listbox">
+        {items.map((item) => (
+          <button
+            key={item}
+            type="button"
+            className="search-dropdown-option"
+            onClick={() => {
+              setter(item);
+              setOpenField(null);
+            }}
+          >
+            {item}
+          </button>
+        ))}
+      </div>
+    );
   };
 
   return (
-    <div className={`bg-white rounded-[20px] shadow-md ${className}`}>
-      <div className="flex flex-col md:flex-row items-center gap-6 md:gap-8 lg:gap-12 xl:gap-16 px-4 py-4 md:px-6 md:py-4 lg:px-8 lg:py-4">
-
-        {/* ================== FROM ================== */}
-        <div className="flex items-center gap-4 md:gap-6 lg:gap-8">
-          <p className="text-xl md:text-2xl lg:text-[30px] font-medium text-black whitespace-nowrap">Dari</p>
-
-          <div className="relative">
-            <button
-              onClick={() => {
-                setShowFromDropdown(!showFromDropdown);
-                setShowToDropdown(false);
-                setShowDateDropdown(false);
-              }}
-              className="bg-[#b49de4] flex items-center justify-center rounded-[20px] hover:bg-[#a589d9] transition-colors size-[50px] lg:size-[59px]"
-            >
-              <img src={arrowIcon} alt="open" className="w-[20px] lg:w-[24px] pointer-events-none" />
-            </button>
-
-            {showFromDropdown && (
-              <div className="absolute top-full mt-2 bg-white rounded-[10px] shadow-lg border border-gray-200 z-10 min-w-[150px]">
-                {(cities || []).map((city) => (
-                  <button
-                    key={city}
-                    onClick={() => {
-                      setFrom(city);
-                      setShowFromDropdown(false);
-                    }}
-                    className="block w-full text-left px-4 py-2 hover:bg-[#f5f0ff] transition-colors first:rounded-t-[10px] last:rounded-b-[10px]"
-                  >
-                    {city}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
+    <div ref={rootRef} className={`search-bar-wrapper ${className}`.trim()}>
+      <div className="search-bar">
+        <div className="search-field">
+          <span className="search-label">{from || "Dari"}</span>
+          <button
+            type="button"
+            className="search-dropdown"
+            aria-haspopup="listbox"
+            aria-expanded={openField === "from"}
+            onClick={() => setOpenField(openField === "from" ? null : "from")}
+          >
+            <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M6 9L12 15L18 9" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
+          {renderDropdown("from", fromOptions, setFrom)}
         </div>
 
-        <div className="hidden md:block bg-[#d9d9d9] h-[60px] lg:h-[85px] w-[2px]" />
+        <div className="search-divider" />
 
-        {/* ================== TO ================== */}
-        <div className="flex items-center gap-4 md:gap-6 lg:gap-8">
-          <p className="text-xl md:text-2xl lg:text-[30px] font-medium text-black whitespace-nowrap">Ke</p>
-
-          <div className="relative">
-            <button
-              onClick={() => {
-                setShowToDropdown(!showToDropdown);
-                setShowFromDropdown(false);
-                setShowDateDropdown(false);
-              }}
-              className="bg-[#b49de4] flex items-center justify-center rounded-[20px] hover:bg-[#a589d9] transition-colors size-[50px] lg:size-[59px]"
-            >
-              <img src={arrowIcon} alt="open" className="w-[20px] lg:w-[24px] pointer-events-none" />
-            </button>
-
-            {showToDropdown && (
-              <div className="absolute top-full mt-2 bg-white rounded-[10px] shadow-lg border border-gray-200 z-10 min-w-[150px]">
-                {(cities || []).map((city) => (
-                  <button
-                    key={city}
-                    onClick={() => {
-                      setTo(city);
-                      setShowToDropdown(false);
-                    }}
-                    className="block w-full text-left px-4 py-2 hover:bg-[#f5f0ff] transition-colors first:rounded-t-[10px] last:rounded-b-[10px]"
-                  >
-                    {city}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
+        <div className="search-field">
+          <span className="search-label">{to || "Ke"}</span>
+          <button
+            type="button"
+            className="search-dropdown"
+            aria-haspopup="listbox"
+            aria-expanded={openField === "to"}
+            onClick={() => setOpenField(openField === "to" ? null : "to")}
+          >
+            <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M6 9L12 15L18 9" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
+          {renderDropdown("to", toOptions, setTo)}
         </div>
 
-        <div className="hidden md:block bg-[#d9d9d9] h-[60px] lg:h-[85px] w-[2px]" />
+        <div className="search-divider" />
 
-        {/* ================== DATE ================== */}
-        <div className="flex items-center gap-4 md:gap-6 lg:gap-8">
-          <p className="text-xl md:text-2xl lg:text-[30px] font-medium text-black whitespace-nowrap">Pergi</p>
-
-          <div className="relative">
-            <button
-              onClick={() => {
-                setShowDateDropdown(!showDateDropdown);
-                setShowFromDropdown(false);
-                setShowToDropdown(false);
-              }}
-              className="bg-[#b49de4] flex items-center justify-center rounded-[20px] hover:bg-[#a589d9] transition-colors size-[50px] lg:size-[59px]"
-            >
-              <img src={arrowIcon} alt="open" className="w-[20px] lg:w-[24px] pointer-events-none" />
-            </button>
-
-            {showDateDropdown && (
-              <div className="absolute top-full mt-2 bg-white rounded-[10px] shadow-lg border border-gray-200 z-10 min-w-[150px]">
-                {(dates || []).map((date) => (
-                  <button
-                    key={date}
-                    onClick={() => {
-                      setDepartDate(date);
-                      setShowDateDropdown(false);
-                    }}
-                    className="block w-full text-left px-4 py-2 hover:bg-[#f5f0ff] transition-colors first:rounded-t-[10px] last:rounded-b-[10px]"
-                  >
-                    {date}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
+        <div className="search-field">
+          <span className="search-label">{departDate || "Pergi"}</span>
+          <button
+            type="button"
+            className="search-dropdown"
+            aria-haspopup="listbox"
+            aria-expanded={openField === "date"}
+            onClick={() => setOpenField(openField === "date" ? null : "date")}
+          >
+            <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M6 9L12 15L18 9" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
+          {renderDropdown("date", dateOptions, setDepartDate)}
         </div>
 
-        <div className="hidden lg:block flex-grow" />
-
-        {/* ================== SEARCH BUTTON ================== */}
-        <button
-          onClick={handleSearch}
-          className="bg-[#b49de4] flex items-center justify-center gap-3 rounded-[20px] hover:bg-[#a589d9] transition-all hover:shadow-lg w-full md:w-auto px-6 py-3 lg:px-8 lg:py-4 h-[56px] lg:h-[69px] lg:min-w-[261px]"
-        >
-          <img src={searchIcon} alt="search" className="w-[22px] lg:w-[28px]" />
-          <p className="text-lg lg:text-[24px] font-semibold text-white whitespace-nowrap">Cari Destinasi</p>
+        <button type="button" className="search-btn" aria-label="Cari Destinasi" onClick={handleSearch}>
+          <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="11" cy="11" r="8" stroke="white" strokeWidth="2" />
+            <path d="M21 21L16.65 16.65" stroke="white" strokeWidth="2" strokeLinecap="round" />
+          </svg>
+          <span>Cari Destinasi</span>
         </button>
       </div>
     </div>

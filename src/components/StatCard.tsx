@@ -1,5 +1,6 @@
 // src/components/StatCard.tsx
 import React from "react";
+import "./StatCard.css";
 
 interface StatCardProps {
   value: string;

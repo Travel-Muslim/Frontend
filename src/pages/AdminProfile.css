@@ -1,0 +1,184 @@
+.ap-main {
+  background: #fff6ec;
+}
+
+.ap-card {
+  background: #ffffff;
+  border: 1px solid #f0d8e0;
+  border-radius: 20px;
+  box-shadow: 0 20px 42px rgba(0, 0, 0, 0.08);
+  padding: 24px;
+  display: grid;
+  gap: 16px;
+  max-width: 1180px;
+  width: 100%;
+}
+
+.ap-card-head h2 {
+  margin: 0;
+  font-size: 22px;
+  color: #303030;
+}
+
+.ap-avatar-row {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.ap-avatar {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  border: 2px dashed #f2b7c3;
+  display: grid;
+  place-items: center;
+  background: #fff8f8;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.ap-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.ap-avatar-placeholder {
+  font-size: 32px;
+  color: #d77988;
+}
+
+.ap-avatar-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.ap-divider {
+  border-bottom: 1px solid #f0d8e0;
+  margin: 6px 0 2px;
+}
+
+.ap-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 14px 16px;
+}
+
+.ap-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-weight: 800;
+  color: #2f2f2f;
+}
+
+.ap-field input {
+  border: 1px solid #f5b5be;
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-size: 14px;
+  background: #fffdfd;
+  outline: none;
+}
+
+.ap-field input:focus {
+  border-color: #f28b95;
+  box-shadow: 0 0 0 2px rgba(242, 139, 149, 0.14);
+}
+
+.ap-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.ap-btn {
+  border: none;
+  border-radius: 10px;
+  padding: 12px 18px;
+  font-weight: 800;
+  cursor: pointer;
+  min-width: 200px;
+}
+
+.ap-btn-save {
+  background: #22c6b6;
+  color: #ffffff;
+  box-shadow: 0 12px 24px rgba(34, 198, 182, 0.2);
+}
+
+.ap-btn-danger {
+  background: #f87171;
+  color: #ffffff;
+}
+
+.ap-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  z-index: 90;
+}
+
+.ap-modal-card {
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 24px 20px 22px;
+  max-width: 420px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+}
+
+.ap-modal-icon {
+  width: 92px;
+  height: 92px;
+  border-radius: 50%;
+  background: #f5a5b8;
+  display: grid;
+  place-items: center;
+  margin: 0 auto 10px;
+  font-size: 46px;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.ap-modal h3 {
+  margin: 0 0 12px;
+  font-size: 22px;
+  color: #3a3a3a;
+}
+
+.ap-modal-actions {
+  display: flex;
+  justify-content: center;
+}
+
+.ap-modal-btn {
+  border: none;
+  border-radius: 12px;
+  padding: 12px 22px;
+  font-weight: 800;
+  cursor: pointer;
+  color: #ffffff;
+  min-width: 140px;
+  font-size: 15px;
+}
+
+.ap-modal-btn.confirm {
+  background: #f5a5b8;
+}
+
+@media (max-width: 900px) {
+  .ap-card {
+    padding: 18px;
+  }
+
+  .ap-btn {
+    width: 100%;
+  }
+}

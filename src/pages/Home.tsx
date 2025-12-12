@@ -1,10 +1,16 @@
-import React from "react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./Home.css";
 import Header from "../components/Header";
 import Button from "../components/Button";
 import StatCard from "../components/StatCard";
+import SearchBar from "../components/SearchBar";
+import { fetchDestinations, type Destination } from "../api/destinations";
+import { fetchArticles, type Article } from "../api/articles";
+import { pushRecentDestination } from "../utils/recentDestinations";
 
 function HeroSection() {
+  const navigate = useNavigate();
   return (
     <section className="hero-section">
       <div className="hero-bg">
@@ -18,7 +24,12 @@ function HeroSection() {
           Jelajahi dunia dengan rasa tenang, penuh keyakinan, dan tetap menjaga nilai-nilai sebagai muslimah.
         </p>
         <div className="hero-btn-wrapper">
-          <Button className="btn purple-light" variant="purple-light" showArrows={false}>
+          <Button
+            className="btn purple-light"
+            variant="purple-light"
+            showArrows={false}
+            onClick={() => navigate("/cari-destinasi")}
+          >
             Cari Sekarang
           </Button>
         </div>
@@ -27,74 +38,12 @@ function HeroSection() {
   );
 }
 
-function SearchBar() {
-  return (
-    <div className="search-bar-wrapper">
-      <div className="search-bar">
-        <div className="search-field">
-          <span className="search-label">Dari</span>
-          <button className="search-dropdown" aria-label="Pilih asal">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path d="M6 9L12 15L18 9" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </button>
-        </div>
-
-        <div className="search-divider" />
-
-        <div className="search-field">
-          <span className="search-label">Ke</span>
-          <button className="search-dropdown" aria-label="Pilih tujuan">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path d="M6 9L12 15L18 9" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </button>
-        </div>
-
-        <div className="search-divider" />
-
-        <div className="search-field">
-          <span className="search-label">Pergi</span>
-          <button className="search-dropdown" aria-label="Pilih tanggal pergi">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path d="M6 9L12 15L18 9" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </button>
-        </div>
-
-        <button className="search-btn" aria-label="Cari Destinasi">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <circle cx="11" cy="11" r="8" stroke="white" strokeWidth="2"/>
-            <path d="M21 21L16.65 16.65" stroke="white" strokeWidth="2" strokeLinecap="round"/>
-          </svg>
-          <span>Cari Destinasi</span>
-        </button>
-      </div>
-    </div>
-  );
-}
-
-function DestinationsSection() {
-  const cards = [
-    {
-      id: 1,
-      date: "Paket Desember 2025",
-      title: "Korea Halal Tour",
-      img: "/src/assets/dest1.png",
-    },
-    {
-      id: 2,
-      date: "Paket November 2025",
-      title: "Uzbekistan Halal Tour",
-      img: "/src/assets/dest2.png",
-    },
-    {
-      id: 3,
-      date: "Paket Oktober 2025",
-      title: "Japan Halal Tour",
-      img: "/src/assets/dest3.png",
-    },
-  ];
+function DestinationsSection({ destinations, loading }: { destinations: Destination[]; loading: boolean }) {
+  const navigate = useNavigate();
+  const handleCardClick = (dest: Destination) => {
+    pushRecentDestination(dest);
+    navigate(`/destinasi/${dest.id}`, { state: { dest } });
+  };
 
   return (
     <section className="destinations-section new-destinations-section">
@@ -111,19 +60,39 @@ function DestinationsSection() {
           </div>
         </div>
 
-        <div className="dest-grid new-dest-grid" role="list">
-          {cards.map((c) => (
-            <article className="dest-card new-dest-card" key={c.id} role="listitem" aria-label={c.title}>
-              <div className="dest-card-media">
-                <img src={c.img} alt={c.title} />
-              </div>
-              <div className="dest-card-body">
-                <p className="dest-card-date">{c.date}</p>
-                <h3 className="dest-card-title">{c.title}</h3>
-              </div>
-            </article>
-          ))}
-        </div>
+        {loading ? (
+          <div className="dest-grid new-dest-grid" role="list">
+            <div className="dest-card new-dest-card skeleton" aria-busy="true">
+              Memuat destinasi...
+            </div>
+          </div>
+        ) : destinations.length === 0 ? (
+          <div className="dest-grid new-dest-grid" role="list">
+            <div className="dest-card new-dest-card empty">Belum ada destinasi</div>
+          </div>
+        ) : (
+          <div className="dest-grid new-dest-grid" role="list">
+            {destinations.map((dest) => (
+              <article
+                className="dest-card new-dest-card"
+                key={dest.id}
+                role="listitem"
+                aria-label={dest.title}
+                onClick={() => handleCardClick(dest)}
+              >
+                <div className="dest-card-media">
+                  {dest.image ? <img src={dest.image} alt={dest.title} /> : <div className="image-placeholder" />}
+                </div>
+                <div className="dest-card-body">
+                  <p className="dest-card-date">
+                    {dest.period?.[0] ? `Paket ${dest.period[0]}` : "Periode belum tersedia"}
+                  </p>
+                  <h3 className="dest-card-title">{dest.title}</h3>
+                </div>
+              </article>
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );
@@ -131,6 +100,7 @@ function DestinationsSection() {
 
 // CTA Section
 function CTASection() {
+  const navigate = useNavigate();
   return (
     <section className="cta-section">
       <div className="cta-bg">
@@ -143,7 +113,7 @@ function CTASection() {
           Temukan pilihan destinasi halal dengan akomodasi aman, makanan halal terjamin, 
           dan fasilitas ibadah yang mudah dijangkau.
         </h2>
-        <Button variant="purple-light" showArrows={false}>
+        <Button variant="purple-light" showArrows={false} onClick={() => navigate("/cari-destinasi")}>
           Temukan Destinasi
         </Button>
       </div>
@@ -152,11 +122,12 @@ function CTASection() {
 }
 
 // Article Card
-function ArticleCard({ date, title, excerpt }: { date: string; title: string; excerpt: string }) {
+function ArticleCard({ date, title, excerpt, image }: { date: string; title: string; excerpt: string; image?: string }) {
+  const imageContent = image ? <img src={image} alt={title} /> : <div className="article-image-placeholder" />;
   return (
     <article className="article-card">
       <div className="article-image">
-        <img src="" alt={title} />
+        {imageContent}
       </div>
       <div className="article-content">
         <p className="article-date">{date}</p>
@@ -168,28 +139,40 @@ function ArticleCard({ date, title, excerpt }: { date: string; title: string; ex
 }
 
 // Articles Section
-function ArticlesSection() {
+function ArticlesSection({ articles, loading }: { articles: Article[]; loading: boolean }) {
+  const displayed = articles.slice(0, 2);
   return (
     <section className="articles-section">
       <p className="section-subtitle">Aritkel Panduan Travelling</p>
       <h2 className="section-title">Tips dan Artikel Perjalanan</h2>
-      <div className="articles-grid">
-        <ArticleCard 
-          date="01 Des 2025"
-          title="5 Tips Packing Syar'i: Apa yang Wajib Ada di Koper Muslimah?"
-          excerpt="Packing yang efisien dan sesuai kebutuhan adalah kunci. Persiapan bukan hanya pakaian..."
-        />
-        <ArticleCard 
-          date="25 Nov 2025"
-          title="Eksplorasi Kota Tua Jakarta: Destinasi Halal-Friendly dan Penuh Sejarah"
-          excerpt="Wisata sejarah tak harus menguras energi. Kota Tua menawarkan spot yang ramah Muslimah..."
-        />
-      </div>
-      <div className="articles-btn-wrapper">
-        <Button variant="purple-light" showArrows={false}>
-          Lihat Selengkapnya
-        </Button>
-      </div>
+      {loading ? (
+        <div className="articles-grid">
+          <ArticleCard date="..." title="Memuat artikel..." excerpt="" />
+        </div>
+      ) : displayed.length === 0 ? (
+        <div className="articles-grid">
+          <ArticleCard date="" title="Belum ada artikel" excerpt="Artikel akan tampil di sini setelah tersedia." />
+        </div>
+      ) : (
+        <>
+          <div className="articles-grid">
+            {displayed.map((article) => (
+              <ArticleCard
+                key={article.id}
+                date={article.displayDate || article.date || ""}
+                title={article.title}
+                excerpt={article.content?.slice(0, 160) || ""}
+                image={article.image}
+              />
+            ))}
+          </div>
+          <div className="articles-btn-wrapper">
+            <Button variant="purple-light" showArrows={false}>
+              Lihat Selengkapnya
+            </Button>
+          </div>
+        </>
+      )}
     </section>
   );
 }
@@ -213,7 +196,7 @@ function StatsSection() {
         </div>
 
         <div className="stats-image" aria-hidden="true">
-          {/* gambar optional: hapus atau biarkan kosong jika belum ada */}
+          <img src="/desher1.png" alt="Destinasi unggulan" />
         </div>
       </div>
     </section>
@@ -234,13 +217,22 @@ function TestimonialSection() {
       </div>
       <div className="testimonial-photos">
         <div className="testimonial-photo testimonial-photo-side">
-          <img src="" alt="Testimonial 1" />
+          <img
+            src="/muslimah1.png"
+            alt="Testimonial 1"
+          />
         </div>
         <div className="testimonial-photo testimonial-photo-main">
-          <img src="" alt="Testimonial Main" />
+          <img
+            src="/muslimah2.png"
+            alt="Testimonial Main"
+          />
         </div>
         <div className="testimonial-photo testimonial-photo-side">
-          <img src="" alt="Testimonial 2" />
+          <img
+            src="/muslimah%203.png"
+            alt="Testimonial 2"
+          />
         </div>
       </div>
       <div className="testimonial-author">
@@ -253,6 +245,47 @@ function TestimonialSection() {
 
 // Main HomePage Component
 export default function HomePage() {
+  const navigate = useNavigate();
+  const [destinations, setDestinations] = useState<Destination[]>([]);
+  const [destLoading, setDestLoading] = useState(true);
+  const [articles, setArticles] = useState<Article[]>([]);
+  const [articleLoading, setArticleLoading] = useState(true);
+
+  const handleSearch = (from: string, to: string, date: string) => {
+    const params = new URLSearchParams();
+    if (to) params.set("q", to);
+    if (from) params.set("from", from);
+    if (date) params.set("date", date);
+    const qs = params.toString();
+    navigate(qs ? `/cari-destinasi?${qs}` : "/cari-destinasi");
+  };
+
+  useEffect(() => {
+    let active = true;
+    setDestLoading(true);
+    fetchDestinations()
+      .then((data) => {
+        if (active) setDestinations(data);
+      })
+      .finally(() => active && setDestLoading(false));
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+    setArticleLoading(true);
+    fetchArticles()
+      .then((data) => {
+        if (active) setArticles(data);
+      })
+      .finally(() => active && setArticleLoading(false));
+    return () => {
+      active = false;
+    };
+  }, []);
+
   return (
     <div className="homepage">
       <Header />
@@ -261,14 +294,14 @@ export default function HomePage() {
         <HeroSection />
         
         <div className="search-bg-wrapper">
-          <SearchBar />
+          <SearchBar destinations={destinations} loading={destLoading} onSearch={handleSearch} />
         </div>
 
-        <DestinationsSection />
+        <DestinationsSection destinations={destinations} loading={destLoading} />
         
         <CTASection />
         
-        <ArticlesSection />
+        <ArticlesSection articles={articles} loading={articleLoading} />
         
         <StatsSection />
         

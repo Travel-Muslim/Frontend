@@ -1,335 +1,267 @@
-import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import React, { useEffect, useMemo, useState } from "react";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
+import type { Destination } from "../api/destinations";
+import { fetchDestination } from "../api/destinations";
+import { pushRecentDestination } from "../utils/recentDestinations";
+import { readReviews } from "../utils/reviews";
+import type { UserReview } from "../utils/reviews";
+import BookingForm, { type BookingFormData } from "../components/BookingForm";
+import SuccessModal from "../components/SuccessModal";
 import "./DestinationPage.css";
+import mapPinIcon from "../assets/icon/map-pin.png";
+import clockIcon from "../assets/icon/clock.png";
+import calendarIcon from "../assets/icon/calendar.png";
+import planeIcon from "../assets/icon/plane.png";
+import airportIcon from "../assets/icon/airport.png";
+import wishlistIcon from "../assets/icon/Heart.png";
+import transportIcon from "../assets/icon/transport.png";
+import mosqueIcon from "../assets/icon/mosque.png";
+import foodIcon from "../assets/icon/food.png";
+import starIcon from "../assets/icon/star.png";
+import avatarDefault from "../assets/icon/avatar-default.svg";
 
-type Dest = {
-  id: number;
-  title: string;
-  location: string;
-  price?: number;
-  image: string;
-  period?: string[];
-  duration?: string;
-  airline?: string;
-  airport?: string;
-};
-
-const DESTS: Dest[] = [
-  {
-    id: 1,
-    title: "Korea Halal Tour",
-    location: "Korea Selatan",
-    price: 14000000,
-    image: "/Dest1.png",
-    period: ["10 Desember 2025", "20 Desember 2025", "30 Desember 2025"],
-    duration: "6 Hari 4 Malam",
-    airline: "Garuda Indonesia",
-    airport: "Soekarno-Hatta International Airport (GCK)",
-  },
-  {
-    id: 2,
-    title: "Japan Halal Tour",
-    location: "Jepang",
-    price: 17000000,
-    image: "/Dest2.png",
-    period: ["05 November 2025", "15 November 2025"],
-    duration: "7 Hari 5 Malam",
-    airline: "ANA",
-    airport: "Narita (NRT)",
-  },
-  {
-    id: 3,
-    title: "Uzbekistan Halal Tour",
-    location: "Uzbekistan",
-    price: 18000000,
-    image: "/Dest3.png",
-    period: ["01 Oktober 2025", "12 Oktober 2025"],
-    duration: "8 Hari 6 Malam",
-    airline: "Uzbekistan Airways",
-    airport: "Tashkent (TAS)",
-  },
-];
-
-const TESTIMONIALS = [
-  {
-    id: 1,
-    name: "Anisya Putri",
-    rating: 4.8,
-    text: "Banyak hal-hal baru yang tidak kami temukan pada perjalanan kami sebelumnya dengan travel lain. Sukses selalu untuk Saleema Tour!",
-    image: "/muslimah2.png",
-  },
-  {
-    id: 2,
-    name: "Aisya Bella Dwi Ramadhani",
-    rating: 4.8,
-    text: "Sangat berkesan dengan layanan prima dan profesional Saleema Tour dari awal pengurusan dokumen hingga tour berakhir. Sangat recommended.",
-    image: "/muslimah1.png",
-  },
-  {
-    id: 3,
-    name: "Cyntia Nurul Fajrianti",
-    rating: 4.8,
-    text: "Pelayanan yang sangat memuaskan. Pengalaman tour yang tak terlupakan saat tour ke Korea bersama Saleema Tour.",
-    image: "/muslimah 3.png",
-  },
-];
+type TabKey = "itenary" | "booking" | "testimoni";
 
 const STORAGE_WISHLIST = "wishlist-liked-ids";
-const STORAGE_BOOKINGS = "bookings";
+const WHATSAPP_LINK = "https://wa.me/628113446846";
 
-const formatPrice = (v?: number) =>
-  v ? v.toLocaleString("id-ID", { style: "currency", currency: "IDR" }) : "";
+type ItineraryDay = {
+  day: string;
+  destinasi: string[];
+  makan: string[];
+  masjid: string[];
+  transportasi: string[];
+};
+
+const DEFAULT_ITINERARY: ItineraryDay[] = [
+  {
+    day: "Hari 1",
+    destinasi: ["Rincian itinerary belum tersedia"],
+    makan: [],
+    masjid: [],
+    transportasi: [],
+  },
+];
+
+const formatPrice = (v?: number) => (v ? `Rp ${v.toLocaleString("id-ID")}` : "");
+
+const formatPeriod = (period?: string[]) => {
+  if (!period?.length) return "-";
+  if (period.length === 1) return period[0];
+  const first = period[0];
+  const last = period[period.length - 1];
+  return `${first.split(" ").slice(0, 3).join(" ")} - ${last.split(" ").slice(0, 3).join(" ")}`;
+};
 
 export default function DestinationPage() {
-  const { id } = useParams<{ id: string }>();
+  const { id } = useParams();
+  const location = useLocation();
   const navigate = useNavigate();
-  const dest = DESTS.find((d) => String(d.id) === String(id)) ?? DESTS[0];
+  const stateDest = (location.state as { dest?: Destination } | undefined)?.dest;
 
-  const [activeTab, setActiveTab] = useState<"itenary" | "booking" | "testimoni">(
-    "itenary"
-  );
+  const [destination, setDestination] = useState<Destination | null>(stateDest ?? null);
+  const [loading, setLoading] = useState(!stateDest);
+  const [activeTab, setActiveTab] = useState<TabKey>("itenary");
   const [liked, setLiked] = useState(false);
-
-  const [form, setForm] = useState({
-    name: "",
-    dob: "",
-    email: "",
-    phone: "",
-    pax: 1,
-    departDate: "",
-    passportNo: "",
-    passportExpiry: "",
-    passportCountry: "",
-    passportFileName: "",
-  } as {
-    name: string;
-    dob: string;
-    email: string;
-    phone: string;
-    pax: number;
-    departDate: string;
-    passportNo: string;
-    passportExpiry: string;
-    passportCountry: string;
-    passportFileName: string;
-  });
-
-  const [passportFile, setPassportFile] = useState<File | null>(null);
-
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [submitted, setSubmitted] = useState(false);
+  const [userReviews, setUserReviews] = useState<UserReview[]>([]);
+  const [wishlistAlertOpen, setWishlistAlertOpen] = useState(false);
 
   useEffect(() => {
-    document.title = dest.title + " — Saleema Tour";
-  }, [dest.title]);
+    if (destination?.title) {
+      document.title = `${destination.title} | Saleema Tour`;
+    }
+  }, [destination?.title]);
 
   useEffect(() => {
+    if (!id || stateDest) {
+      setLoading(false);
+      return;
+    }
+    let active = true;
+    setLoading(true);
+    fetchDestination(id)
+      .then((data) => {
+        if (active) setDestination(data);
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [id, stateDest]);
+
+  useEffect(() => {
+    if (!destination) return;
     const saved = localStorage.getItem(STORAGE_WISHLIST);
     if (saved) {
       try {
-        const arr = JSON.parse(saved) as number[];
-        setLiked(arr.includes(dest.id));
+        const arr = JSON.parse(saved) as Array<string | number>;
+        setLiked(arr.some((val) => String(val) === String(destination.id)));
       } catch {
         setLiked(false);
       }
     } else {
       setLiked(false);
     }
+  }, [destination?.id]);
 
-    if (dest.period && dest.period.length && !form.departDate) {
-      const p = dest.period[0];
-      const months: Record<string, string> = {
-        Januari: "01",
-        Februari: "02",
-        Maret: "03",
-        April: "04",
-        Mei: "05",
-        Juni: "06",
-        Juli: "07",
-        Agustus: "08",
-        September: "09",
-        Oktober: "10",
-        November: "11",
-        Desember: "12",
-      };
-      const parts = p.split(" ");
-      if (parts.length === 3 && months[parts[1]]) {
-        const iso = `${parts[2]}-${months[parts[1]]}-${parts[0].padStart(2, "0")}`;
-        setForm((s) => ({ ...s, departDate: iso }));
-      }
+  useEffect(() => {
+    if (!destination) return;
+    pushRecentDestination(destination);
+  }, [destination]);
+
+  useEffect(() => {
+    if (!destination) return;
+    const destId = Number(destination.id);
+    setUserReviews(readReviews(destId));
+    const handler = () => setUserReviews(readReviews(destId));
+    window.addEventListener("storage", handler);
+    return () => window.removeEventListener("storage", handler);
+  }, [destination?.id]);
+
+  const itinerary = useMemo(() => {
+    if (destination?.itinerary?.length) {
+      return destination.itinerary.map((item, idx) => ({
+        day: item.day || `Hari ${idx + 1}`,
+        destinasi: item.destinasi?.length ? item.destinasi : ["Destinasi belum tersedia"],
+        makan: item.makan ?? [],
+        masjid: item.masjid ?? [],
+        transportasi: item.transportasi ?? [],
+      }));
     }
-  }, [dest.id]);
+    return DEFAULT_ITINERARY;
+  }, [destination?.itinerary]);
 
   const toggleWishlist = () => {
+    if (!destination) return;
     const saved = localStorage.getItem(STORAGE_WISHLIST);
-    let arr: number[] = saved ? JSON.parse(saved) : [];
-    if (arr.includes(dest.id)) {
-      arr = arr.filter((x) => x !== dest.id);
+    let arr: Array<string | number> = saved ? JSON.parse(saved) : [];
+    if (arr.some((val) => String(val) === String(destination.id))) {
+      arr = arr.filter((val) => String(val) !== String(destination.id));
       setLiked(false);
     } else {
-      arr = [dest.id, ...arr];
+      arr = [destination.id, ...arr];
       setLiked(true);
+      setWishlistAlertOpen(true);
     }
     localStorage.setItem(STORAGE_WISHLIST, JSON.stringify(arr));
   };
 
-  const change = (k: string, v: any) => {
-    setForm((s) => ({ ...s, [k]: v }));
-    setErrors((e) => ({ ...e, [k]: "" }));
-  };
-
-  const validate = () => {
-    const e: Record<string, string> = {};
-    if (!form.name.trim()) e.name = "Nama wajib diisi";
-    if (!form.email.trim() || !/^\S+@\S+\.\S+$/.test(form.email))
-      e.email = "Email tidak valid";
-    if (!form.phone.trim()) e.phone = "Nomor telepon wajib diisi";
-    if (!form.departDate.trim()) e.departDate = "Tanggal keberangkatan wajib diisi";
-    if (!form.passportNo.trim()) e.passportNo = "No paspor wajib diisi";
-    if (!form.passportExpiry.trim())
-      e.passportExpiry = "Tanggal kadaluarsa paspor wajib diisi";
-    if (!form.passportCountry.trim())
-      e.passportCountry = "Negara paspor wajib diisi";
-    setErrors(e);
-    return Object.keys(e).length === 0;
-  };
-
-  const submitBooking = (e?: any) => {
-    e?.preventDefault();
-    if (!validate()) return;
-
-    const saved = localStorage.getItem(STORAGE_BOOKINGS);
-    const arr = saved ? JSON.parse(saved) : [];
-    arr.unshift({
-      id: Date.now(),
-      destId: dest.id,
-      destTitle: dest.title,
-      createdAt: new Date().toISOString(),
-      data: form,
-      passportFileName: form.passportFileName || (passportFile ? passportFile.name : null),
+  const handleBooking = (data?: BookingFormData) => {
+    if (!destination) return;
+    navigate("/pembayaran", {
+      state: {
+        formData: data,
+        dest: destination,
+      },
     });
-    localStorage.setItem(STORAGE_BOOKINGS, JSON.stringify(arr));
-    setSubmitted(true);
-    setTimeout(() => {
-      navigate("/wishlist");
-    }, 900);
   };
 
-  const handleBookingClick = () => {
-    setActiveTab("booking");
-    setTimeout(() => {
-      const el = document.querySelector(".dp-booking");
-      if (el) {
-        el.scrollIntoView({ behavior: "smooth", block: "start" });
-      } else {
-        window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
-      }
-    }, 150);
+  const handleContact = () => {
+    window.open(WHATSAPP_LINK, "_blank");
   };
 
-  const onPassportFileChange = (file?: File | null) => {
-    if (!file) {
-      setPassportFile(null);
-      change("passportFileName", "");
-      return;
-    }
-    setPassportFile(file);
-    change("passportFileName", file.name);
-  };
+  const reviewsToShow = useMemo(
+    () =>
+      userReviews.map((r) => ({
+        id: `u-${r.id}`,
+        name: r.title || "Pengguna",
+        rating: r.rating,
+        text: r.text,
+        image: r.image || "/avatar.jpg",
+      })),
+    [userReviews]
+  );
+
+  if (loading) {
+    return (
+      <div className="dp-page">
+        <div className="dp-empty">Memuat detail destinasi...</div>
+      </div>
+    );
+  }
+
+  if (!destination) {
+    return (
+      <div className="dp-page">
+        <div className="dp-empty">
+          Destinasi tidak ditemukan.
+          <div className="dp-cta-row">
+            <button className="dp-btn dp-btn-primary" onClick={() => navigate("/cari-destinasi")}>
+              Kembali ke pencarian
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="dp-root">
-      <div className="dp-hero" style={{ backgroundImage: `url(${dest.image})` }}>
-        <div className="dp-hero-inner">
-          <div className="dp-hero-card" aria-hidden="true">
-            <img src={dest.image} alt={dest.title} />
+    <div className="dp-page">
+      <section className="dp-hero-new">
+        <div className="dp-hero-card">
+          <div className="dp-hero-left">
+            {destination.image ? <img src={destination.image} alt={destination.title} /> : <div className="dp-image-placeholder" />}
           </div>
+          <div className="dp-hero-right">
+            <h1 className="dp-title">{destination.title}</h1>
 
-          <div className="dp-hero-detail" role="region" aria-labelledby="dp-title">
-            <h1 id="dp-title">{dest.title}</h1>
-
-            <div className="dp-meta-top">
-              <div className="meta-block">
-                <div className="meta-icon">📍</div>
-                <div className="meta-text">{dest.location}</div>
-              </div>
-
-              <div className="meta-block">
-                <div className="meta-icon">⏱</div>
-                <div className="meta-text">{dest.duration}</div>
-              </div>
-            </div>
-
-            <div className="dp-mid-grid">
-              <div className="mid-left">
-                <div className="dp-period">
-                  <strong>Periode</strong>
-                  <ul>
-                    {dest.period?.map((p, i) => (
-                      <li key={i}>{p}</li>
-                    ))}
-                  </ul>
+            <div className="dp-meta-list">
+              <div className="dp-meta-row">
+                <div className="dp-meta-item">
+                  <img src={mapPinIcon} alt="" />
+                  <span>{destination.location}</span>
+                </div>
+                <div className="dp-meta-item">
+                  <img src={clockIcon} alt="" />
+                  <span>{destination.duration || "-"}</span>
                 </div>
               </div>
 
-              <div className="mid-right">
-                <div className="info-row">
-                  <div className="info-item">
-                    <div className="info-icon">✈️</div>
-                    <div className="info-text">
-                      <div className="muted">Maskapai</div>
-                      <div className="bold">{dest.airline}</div>
-                    </div>
-                  </div>
+              <div className="dp-meta-row">
+                <div className="dp-meta-item">
+                  <img src={calendarIcon} alt="" />
+                  <span>{destination.period?.slice(0, 3).join(", ") || "-"}</span>
+                </div>
+              </div>
 
-                  <div className="info-item">
-                    <div className="info-icon">🏢</div>
-                    <div className="info-text">
-                      <div className="muted">Bandara</div>
-                      <div className="bold">{dest.airport}</div>
-                    </div>
-                  </div>
+              <div className="dp-meta-row">
+                <div className="dp-meta-item">
+                  <img src={planeIcon} alt="" />
+                  <span>{destination.airline || "-"}</span>
+                </div>
+                <div className="dp-meta-item">
+                  <img src={airportIcon} alt="" />
+                  <span>{destination.airport || "-"}</span>
                 </div>
               </div>
             </div>
 
             <div className="dp-price-row">
-              <div className="dp-price">{formatPrice(dest.price)}</div>
-              <div className="per-pax">/ pax</div>
+              <div className="dp-price-label">Harga</div>
+              <div className="dp-price-value">{formatPrice(destination.price)} / pax</div>
             </div>
 
-            <div className="dp-actions">
-              <button className="dp-btn dp-btn-primary" onClick={handleBookingClick}>
+            <div className="dp-cta-row">
+              <button className={`dp-btn dp-btn-wishlist ${liked ? "active" : ""}`} onClick={toggleWishlist}>
+                <img src={wishlistIcon} alt="" />
+                {liked ? "Tersimpan di Wishlist" : "Tambahkan Ke Wishlist"}
+              </button>
+              <button className="dp-btn dp-btn-primary" onClick={() => handleBooking()}>
                 Booking
               </button>
-              <button
-                className="dp-btn dp-btn-outline"
-                onClick={() =>
-                  window.scrollTo({
-                    top: document.body.scrollHeight,
-                    behavior: "smooth",
-                  })
-                }
-              >
+              <button className="dp-btn dp-btn-ghost" onClick={handleContact}>
                 Hubungi CS
-              </button>
-            </div>
-
-            <div className="dp-wishlist-cta">
-              <button
-                className={`dp-btn dp-btn-wishlist ${liked ? "active" : ""}`}
-                onClick={toggleWishlist}
-              >
-                {liked ? "Tersimpan di Wishlist" : "Tambahkan Ke Wishlist"}
               </button>
             </div>
           </div>
         </div>
-      </div>
+      </section>
 
-      <div className="dp-tabs" role="tablist" aria-label="Konten destinasi">
+      <div className="dp-tabs-new" role="tablist" aria-label="Konten destinasi">
         <button
-          className={`dp-tab ${activeTab === "itenary" ? "dp-tab--active" : ""}`}
+          className={`dp-tab-new ${activeTab === "itenary" ? "active" : ""}`}
           onClick={() => setActiveTab("itenary")}
           role="tab"
           aria-selected={activeTab === "itenary"}
@@ -337,7 +269,7 @@ export default function DestinationPage() {
           Itenary
         </button>
         <button
-          className={`dp-tab ${activeTab === "booking" ? "dp-tab--active" : ""}`}
+          className={`dp-tab-new ${activeTab === "booking" ? "active" : ""}`}
           onClick={() => setActiveTab("booking")}
           role="tab"
           aria-selected={activeTab === "booking"}
@@ -345,7 +277,7 @@ export default function DestinationPage() {
           Booking
         </button>
         <button
-          className={`dp-tab ${activeTab === "testimoni" ? "dp-tab--active" : ""}`}
+          className={`dp-tab-new ${activeTab === "testimoni" ? "active" : ""}`}
           onClick={() => setActiveTab("testimoni")}
           role="tab"
           aria-selected={activeTab === "testimoni"}
@@ -354,205 +286,98 @@ export default function DestinationPage() {
         </button>
       </div>
 
-      <div className="dp-content">
+      <main className="dp-content-new">
         {activeTab === "itenary" && (
-          <div className="dp-itenary" role="tabpanel">
-            <p>Itinerary belum tersedia untuk destinasi ini.</p>
-          </div>
-        )}
+          <section className="dp-itinerary-card" role="tabpanel">
+            <h2 className="dp-section-title">{destination.title}</h2>
+            <p className="dp-section-sub">{formatPeriod(destination.period)}</p>
 
-        {activeTab === "booking" && (
-          <div className="dp-booking" role="tabpanel">
-            {!submitted ? (
-              <form
-                className="dp-booking-form"
-                onSubmit={submitBooking}
-                encType="multipart/form-data"
-              >
-                <div className="booking-card">
-                  <div className="booking-header">Pengisian Form Booking</div>
-
-                  <div className="booking-grid">
-                    <div className="field">
-                      <label>Nama*</label>
-                      <input
-                        placeholder="Masukkan nama anda"
-                        value={form.name}
-                        onChange={(e) => change("name", e.target.value)}
-                      />
-                      {errors.name && <div className="dp-err">{errors.name}</div>}
-                    </div>
-
-                    <div className="field">
-                      <label>Tanggal Lahir*</label>
-                      <input
-                        type="date"
-                        value={form.dob as any}
-                        onChange={(e) => change("dob", e.target.value)}
-                      />
-                    </div>
-
-                    <div className="field">
-                      <label>Email*</label>
-                      <input
-                        placeholder="Masukkan email anda"
-                        value={form.email}
-                        onChange={(e) => change("email", e.target.value)}
-                      />
-                      {errors.email && <div className="dp-err">{errors.email}</div>}
-                    </div>
-
-                    <div className="field">
-                      <label>Nomor Telepon*</label>
-                      <input
-                        placeholder="Masukkan nomor telepon"
-                        value={form.phone}
-                        onChange={(e) => change("phone", e.target.value)}
-                      />
-                      {errors.phone && <div className="dp-err">{errors.phone}</div>}
-                    </div>
-
-                    <div className="field">
-                      <label>Tanggal Keberangkatan*</label>
-                      <input
-                        type="date"
-                        value={form.departDate as any}
-                        onChange={(e) => change("departDate", e.target.value)}
-                      />
-                      {errors.departDate && (
-                        <div className="dp-err">{errors.departDate}</div>
-                      )}
-                    </div>
-
-                    <div className="field">
-                      <label>Jumlah Booking*</label>
-                      <div className="dp-pax" aria-label="Jumlah peserta">
-                        <button
-                          type="button"
-                          onClick={() => change("pax", Math.max(1, form.pax - 1))}
-                        >
-                          -
-                        </button>
-                        <span>{form.pax}</span>
-                        <button
-                          type="button"
-                          onClick={() => change("pax", form.pax + 1)}
-                        >
-                          +
-                        </button>
-                      </div>
-                    </div>
-
-                    <div className="field">
-                      <label>No Paspor*</label>
-                      <input
-                        placeholder="Masukkan nomor paspor"
-                        value={form.passportNo}
-                        onChange={(e) => change("passportNo", e.target.value)}
-                      />
-                      {errors.passportNo && (
-                        <div className="dp-err">{errors.passportNo}</div>
-                      )}
-                    </div>
-
-                    <div className="field">
-                      <label>Tanggal Kadaluarsa*</label>
-                      <input
-                        type="date"
-                        value={form.passportExpiry as any}
-                        onChange={(e) => change("passportExpiry", e.target.value)}
-                      />
-                      {errors.passportExpiry && (
-                        <div className="dp-err">{errors.passportExpiry}</div>
-                      )}
-                    </div>
-
-                    <div className="field">
-                      <label>Negara Paspor*</label>
-                      <input
-                        placeholder="Masukkan negara paspor"
-                        value={form.passportCountry}
-                        onChange={(e) => change("passportCountry", e.target.value)}
-                      />
-                      {errors.passportCountry && (
-                        <div className="dp-err">{errors.passportCountry}</div>
-                      )}
-                    </div>
-
-                    <div className="field">
-                      <label>Upload Paspor</label>
-                      <label className="file-input" aria-label="Upload paspor">
-                        <input
-                          type="file"
-                          accept="image/*,application/pdf"
-                          onChange={(e) => {
-                            const f = e.target.files?.[0];
-                            onPassportFileChange(f || null);
-                          }}
-                        />
-                        <span className="file-placeholder">
-                          {form.passportFileName || "Upload paspor anda"}
-                        </span>
-                      </label>
-                    </div>
-                  </div>
-
-                  <div className="booking-note">
-                    <small>
-                      Informasi Identitas
-                      <br />
-                      Pastikan masa berlaku paspor setidaknya 6 bulan dari tanggal
-                      keberangkatan
-                    </small>
-                  </div>
-
-                  <div className="booking-submit">
-                    <button type="submit" className="dp-btn dp-btn-primary">
-                      Booking
-                    </button>
-                  </div>
+            <div className="dp-itinerary-grid">
+              <div className="dp-itinerary-head">
+                <div className="head-cell">
+                  <img src={calendarIcon} alt="" /> Hari
                 </div>
-              </form>
-            ) : (
-              <div className="dp-booking-success" role="status">
-                <h3>Booking berhasil</h3>
-                <p>Data booking tersimpan. Kami akan menghubungi Anda.</p>
-                <button className="dp-btn" onClick={() => navigate("/wishlist")}>
-                  Lihat Wishlist
-                </button>
+                <div className="head-cell">
+                  <img src={mapPinIcon} alt="" /> Destinasi
+                </div>
+                <div className="head-cell">
+                  <img src={foodIcon} alt="" /> Makan
+                </div>
+                <div className="head-cell">
+                  <img src={mosqueIcon} alt="" /> Masjid
+                </div>
+                <div className="head-cell">
+                  <img src={transportIcon} alt="" /> Transportasi
+                </div>
               </div>
-            )}
-          </div>
-        )}
 
-        {activeTab === "testimoni" && (
-          <div className="dp-testimoni" role="tabpanel">
-            <div className="dp-test-grid">
-              {TESTIMONIALS.map((t) => (
-                <div key={t.id} className="dp-test-card--large">
-                  <div className="test-big-img">
-                    <img src={t.image} alt={t.name} />
-                  </div>
-
-                  <div className="test-info-wrap">
-                    <img
-                      className="test-avatar--large"
-                      src={t.image}
-                      alt={t.name}
-                    />
-                    <div className="test-meta">
-                      <div className="test-name--large">{t.name}</div>
-                      <div className="test-rating--large">★ {t.rating}</div>
-                    </div>
-                  </div>
-
-                  <div className="test-desc--large">{t.text}</div>
+              {itinerary.map((day) => (
+                <div className="dp-itinerary-row" key={day.day}>
+                  <div className="body-cell day-cell">{day.day}</div>
+                  <div className="body-cell">{day.destinasi.map((i) => <div key={i}>- {i}</div>)}</div>
+                  <div className="body-cell">{day.makan.map((i) => <div key={i}>- {i}</div>)}</div>
+                  <div className="body-cell">{day.masjid.map((i) => <div key={i}>- {i}</div>)}</div>
+                  <div className="body-cell">{day.transportasi.map((i) => <div key={i}>- {i}</div>)}</div>
                 </div>
               ))}
             </div>
-          </div>
+          </section>
         )}
-      </div>
+
+        {activeTab === "booking" && (
+          <section className="dp-booking-card" role="tabpanel">
+            <div className="dp-booking-header">
+              <h2>Booking Sekarang</h2>
+              <p>
+                Lengkapi proses booking Anda dengan melanjutkan ke tahap pembayaran. Pastikan data sudah sesuai sebelum melanjutkan.
+              </p>
+            </div>
+            <BookingForm onSubmit={handleBooking} />
+          </section>
+        )}
+
+        {activeTab === "testimoni" && (
+          <section className="dp-testimonial-card" role="tabpanel">
+            <h3 className="dp-test-title">Testimoni Pengguna</h3>
+            {reviewsToShow.length === 0 ? (
+              <p className="dp-empty">Belum ada testimoni, jadilah yang pertama!</p>
+            ) : (
+              <div className="dp-test-grid-gallery">
+                {reviewsToShow.map((t) => (
+                  <article key={t.id} className="dp-test-card-gallery">
+                    <div className="dp-test-image">
+                      <img src={t.image || "/avatar.jpg"} alt={t.name} />
+                    </div>
+                    <div className="dp-test-body">
+                      <div className="dp-test-meta-row">
+                        <div className="dp-test-avatar">
+                          <img src={t.image || avatarDefault} alt={t.name} />
+                        </div>
+                        <div className="dp-test-meta-text">
+                          <div className="dp-test-name">{t.name}</div>
+                          <div className="dp-test-rating">
+                            <img src={starIcon} alt="" /> {t.rating}
+                          </div>
+                        </div>
+                      </div>
+                      <p className="dp-test-text">{t.text}</p>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            )}
+          </section>
+        )}
+      </main>
+
+      <SuccessModal
+        isOpen={wishlistAlertOpen}
+        onClose={() => setWishlistAlertOpen(false)}
+        title="Berhasil Menambahkan Wishlist!"
+        message="Wishlist destinasi Anda berhasil ditambahkan"
+        primaryText="Selanjutnya"
+        type="success"
+      />
     </div>
   );
 }

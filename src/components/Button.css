@@ -1,158 +1,106 @@
-.btn {
+.ui-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
-  padding: 20px 40px;
+  gap: 10px;
+  padding: 14px 20px;
   border: none;
-  border-radius: 16px;
+  border-radius: 14px;
   font-size: 18px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
   text-decoration: none;
-  min-height: 60px;
-  font-family: 'Inter', sans-serif;
+  min-height: 52px;
+  font-family: "Inter", sans-serif;
+  box-shadow: 0 12px 24px rgba(15, 10, 38, 0.12);
 }
 
-.btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-.btn:active {
-  transform: translateY(0);
-}
-
-.btn:disabled {
+.ui-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
   transform: none;
+  box-shadow: none;
 }
 
-.btn--primary {
+.ui-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 32px rgba(15, 10, 38, 0.15);
+}
+
+.ui-btn__label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.ui-btn__arrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 6px;
+}
+
+.ui-btn__arrow img {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+}
+
+.ui-btn--primary {
   background-color: #6d4891;
   color: #ffffff;
 }
 
-.btn--primary:hover {
+.ui-btn--primary:hover:not(:disabled) {
   background-color: #5d3a7a;
 }
 
-.btn--secondary {
-  background-color: #b49de4;
-  color: #444444;
+.ui-btn--ghost {
+  background: transparent;
+  color: #6d4891;
+  border: 2px solid rgba(109, 72, 145, 0.3);
 }
 
-.btn--secondary:hover {
-  background-color: #a58dd4;
+.ui-btn--ghost:hover:not(:disabled) {
+  background-color: #efe6fb;
 }
 
-.btn--tertiary {
-  background-color: #8b6fb8;
+.ui-btn--pink-light {
+  background-color: #f87171;
   color: #ffffff;
 }
 
-.btn--tertiary:hover {
-  background-color: #7a5fa7;
+.ui-btn--pink-light:hover:not(:disabled) {
+  background-color: #ec5a5a;
 }
 
-/* Pink/Rose Variants */
-.btn--pink {
-  background-color: #f4b4c8;
+.ui-btn--teal-light {
+  background-color: #43d2c9;
   color: #ffffff;
 }
 
-.btn--pink:hover {
-  background-color: #e3a3b7;
+.ui-btn--teal-light:hover:not(:disabled) {
+  background-color: #2fb9ae;
 }
 
-.btn--rose {
-  background-color: #d89bb0;
+.ui-btn--teal-medium {
+  background-color: #1f9c95;
   color: #ffffff;
 }
 
-.btn--rose:hover {
-  background-color: #c78a9f;
+.ui-btn--teal-medium:hover:not(:disabled) {
+  background-color: #187772;
 }
 
-.btn--mauve {
-  background-color: #b07a91;
-  color: #ffffff;
+.ui-btn--purple-light {
+  background-color: #efe6fb;
+  color: #6d4891;
+  border: 1px solid rgba(109, 72, 145, 0.25);
+  box-shadow: 0 12px 24px rgba(109, 72, 145, 0.12);
 }
 
-.btn--mauve:hover {
-  background-color: #9f6980;
-}
-
-/* White Variant */
-.btn--white {
-  background-color: #ffffff;
-  color: #444444;
-}
-
-.btn--white:hover {
-  background-color: #f5f5f5;
-}
-
-/* Teal/Cyan Variants */
-.btn--teal-light {
-  background-color: #5dd9c1;
-  color: #ffffff;
-  border-radius: 50px;
-}
-
-.btn--teal-light:hover {
-  background-color: #4dc9b1;
-}
-
-.btn--teal {
-  background-color: #3ab89e;
-  color: #ffffff;
-  border-radius: 50px;
-}
-
-.btn--teal:hover {
-  background-color: #2aa88e;
-}
-
-.btn--teal-dark {
-  background-color: #2a7d6d;
-  color: #ffffff;
-  border-radius: 50px;
-}
-
-.btn--teal-dark:hover {
-  background-color: #1a6d5d;
-}
-
-/* Red/Pink Variants */
-.btn--red-light {
-  background-color: #ed8888;
-  color: #ffffff;
-  border-radius: 50px;
-}
-
-.btn--red-light:hover {
-  background-color: #dd7878;
-}
-
-.btn--red {
-  background-color: #c96969;
-  color: #ffffff;
-  border-radius: 50px;
-}
-
-.btn--red:hover {
-  background-color: #b95959;
-}
-
-.btn--red-dark {
-  background-color: #8b4949;
-  color: #ffffff;
-  border-radius: 50px;
-}
-
-.btn--red-dark:hover {
-  background-color: #7b3939;
+.ui-btn--purple-light:hover:not(:disabled) {
+  background-color: #e3ddf7;
 }

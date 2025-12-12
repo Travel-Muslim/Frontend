@@ -9,7 +9,12 @@ export default function Header() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const forceSolid = location.pathname === "/wishlist";
+  const forceSolid =
+    location.pathname === "/wishlist" ||
+    location.pathname.startsWith("/artikel/") ||
+    location.pathname === "/riwayat" ||
+    location.pathname === "/unduh" ||
+    location.pathname === "/review";
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 80);
@@ -38,6 +43,7 @@ export default function Header() {
 
         <nav className={`st-nav ${menuOpen ? "st-nav--open" : ""}`}>
           <NavLink to="/home" className="st-nav-link">Home</NavLink>
+          <NavLink to="/cari-destinasi" className="st-nav-link">Destinasi</NavLink>
           <NavLink to="/wishlist" className="st-nav-link">Wishlist</NavLink>
           <NavLink to="/riwayat" className="st-nav-link">Riwayat</NavLink>
           <NavLink to="/artikel" className="st-nav-link">Artikel</NavLink>

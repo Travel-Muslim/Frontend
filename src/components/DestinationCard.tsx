@@ -1,6 +1,7 @@
 import React from "react";
 import "./DestinationCard.css";
 import Icon from "./Icon";
+declare const require: any;
 
 interface Props {
   image: string;

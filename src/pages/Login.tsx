@@ -1,7 +1,8 @@
-import { FormEvent, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import type { FormEvent } from "react";
+import { useState } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import "./Login.css";
-import { login as loginApi } from "../api/auth"; // ⇐ pakai axios helper
+import { login as loginApi } from "../api/auth";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -9,6 +10,7 @@ export default function Login() {
   const [remember, setRemember] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -24,7 +26,12 @@ export default function Login() {
         localStorage.removeItem("remember_email");
       }
 
-      navigate("/home");
+      localStorage.setItem("isLoggedIn", "1");
+      const redirectTarget = email === "admin@saleema.test" ? "/admin" : location.state?.from;
+      const bookingIntent = location.state?.booking;
+      navigate(redirectTarget ?? "/home", {
+        state: bookingIntent ? { booking: true } : undefined,
+      });
     } catch (err: any) {
       alert(err.message || "Login gagal");
     } finally {
@@ -106,6 +113,7 @@ export default function Login() {
                 <button
                   type="button"
                   className="auth-link-button auth-forgot"
+                  onClick={() => navigate("/forgot-password")}
                 >
                   Lupa Password?
                 </button>

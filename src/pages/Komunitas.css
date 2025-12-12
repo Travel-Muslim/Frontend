@@ -1,0 +1,423 @@
+/* ============================================
+   KOMUNITAS PAGE - SALEEMA TOUR
+   ============================================ */
+
+.komunitas-page-wrapper {
+  background: #fff4ef;
+  width: 100%;
+  min-height: 100vh;
+  padding-bottom: 140px;
+}
+
+.komunitas-page-container {
+  width: 100%;
+  max-width: 1300px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 36px;
+}
+
+/* ============================================
+   HERO
+   ============================================ */
+.komunitas-hero-section {
+  position: relative;
+  width: 100vw;
+  max-width: 100%;
+  height: 577px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 0;
+  overflow: hidden;
+  margin-left: calc(50% - 50vw);
+}
+
+.komunitas-hero-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.komunitas-hero-bg-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.komunitas-hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.35));
+  z-index: 1;
+}
+
+.komunitas-hero-content {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 900px;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  padding: 0 40px;
+}
+
+.komunitas-hero-title {
+  font-family: "Inter", sans-serif;
+  font-weight: 800;
+  font-size: clamp(44px, 6vw, 64px);
+  margin: 0;
+  letter-spacing: 0.01em;
+  text-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+}
+
+.komunitas-hero-subtitle {
+  font-family: "Inter", sans-serif;
+  font-weight: 500;
+  font-size: 18px;
+  line-height: 1.6;
+  margin: 0;
+  max-width: 640px;
+  text-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+}
+
+.komunitas-search-wrapper {
+  width: 100%;
+  max-width: 650px;
+  padding: 10px;
+}
+
+.komunitas-search-bar {
+  width: 100%;
+  border-radius: 10px;
+}
+
+/* ============================================
+   STATS
+   ============================================ */
+.komunitas-stats-section {
+  width: 100%;
+  padding: 0 20px 60px;
+  margin-top: -90px;
+  z-index: 2;
+}
+
+.komunitas-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 24px;
+  max-width: 1240px;
+  margin: 0 auto;
+}
+
+/* ============================================
+   MAIN AREA
+   ============================================ */
+.komunitas-content-section {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 36px;
+  padding: 0 24px;
+  width: 100%;
+}
+
+.komunitas-left-column {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.komunitas-forum-panel {
+  background: #ffffff;
+  border-radius: 30px;
+  padding: 40px;
+  border: 1px solid #ffe7f2;
+  box-shadow: 0 32px 60px rgba(209, 152, 222, 0.25);
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.komunitas-forum-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.komunitas-forum-title {
+  font-family: "Inter", sans-serif;
+  font-weight: 700;
+  font-size: 36px;
+  color: #2f2f2f;
+  margin: 0;
+}
+
+.komunitas-month-filter-wrapper {
+  position: relative;
+}
+
+.komunitas-month-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: linear-gradient(90deg, #b49de4 0%, #a986d4 100%);
+  border: none;
+  color: white;
+  padding: 12px 22px;
+  border-radius: 22px;
+  font-family: "Inter", sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+  cursor: pointer;
+  box-shadow: 0 12px 28px rgba(30, 5, 33, 0.3);
+}
+
+.komunitas-month-caret {
+  display: flex;
+  width: 22px;
+  height: 22px;
+}
+
+.komunitas-month-dropdown {
+  position: absolute;
+  right: 0;
+  top: 110%;
+  margin-top: 12px;
+  background: white;
+  border: 1px solid #f8c4d8;
+  border-radius: 16px;
+  padding: 10px 0;
+  box-shadow: 0 12px 28px rgba(28, 14, 41, 0.2);
+  min-width: 200px;
+  z-index: 20;
+}
+
+.komunitas-month-item {
+  width: 100%;
+  text-align: left;
+  padding: 10px 20px;
+  border: none;
+  background: transparent;
+  font-family: "Inter", sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  color: #4a4a4a;
+  cursor: pointer;
+}
+
+.komunitas-month-item:hover {
+  background: #f5f0ff;
+}
+
+.komunitas-forum-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.komunitas-add-comment-panel {
+  background: #ffffff;
+  border-radius: 30px;
+  padding: 36px;
+  border: 1px solid #ffd7e0;
+  box-shadow: 0 30px 50px rgba(0, 0, 0, 0.1);
+}
+
+.komunitas-right-column {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  position: sticky;
+  top: 140px;
+  max-height: min(80vh, 100%);
+  align-self: flex-start;
+}
+
+.komunitas-recent-section .recent-card {
+  border-width: 0;
+  border-radius: 26px;
+  overflow: hidden;
+}
+
+.komunitas-cta-wrapper {
+  display: flex;
+  justify-content: center;
+}
+
+.komunitas-diskusi-button {
+  border-radius: 999px !important;
+  min-width: 260px;
+  background: #20c9b2 !important;
+  padding: 14px 24px !important;
+  font-size: 18px;
+}
+
+.komunitas-diskusi-button:hover {
+  background: #1aa89a !important;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 1240px) {
+  .komunitas-content-section {
+    grid-template-columns: 1fr;
+  }
+
+  .komunitas-right-column {
+    position: static;
+    max-height: none;
+  }
+}
+
+@media (max-width: 900px) {
+  .komunitas-hero-section {
+    height: 500px;
+    padding: 40px 30px;
+  }
+
+  .komunitas-hero-title {
+    font-size: 48px;
+  }
+
+  .komunitas-hero-subtitle {
+    font-size: 16px;
+  }
+
+  .komunitas-month-button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .komunitas-forum-panel,
+  .komunitas-add-comment-panel {
+    padding: 32px;
+  }
+
+  .komunitas-content-section {
+    padding: 0 16px;
+  }
+
+  .komunitas-right-column {
+    position: static;
+  }
+}
+
+@media (max-width: 640px) {
+  .komunitas-hero-section {
+    height: 400px;
+    padding: 30px 20px;
+  }
+
+  .komunitas-hero-title {
+    font-size: 36px;
+  }
+
+  .komunitas-hero-subtitle {
+    font-size: 15px;
+  }
+
+  .komunitas-stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .komunitas-forum-panel,
+  .komunitas-add-comment-panel {
+    border-radius: 24px;
+    padding: 24px;
+  }
+
+  .komunitas-forum-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .komunitas-month-dropdown {
+    right: 0;
+    left: 0;
+  }
+
+  .komunitas-right-column {
+    margin-top: 10px;
+  }
+}
+
+@media (max-width: 520px) {
+  .komunitas-hero-section {
+    height: 320px;
+    padding: 24px 18px;
+  }
+
+  .komunitas-stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .komunitas-left-column {
+    gap: 20px;
+  }
+
+  .komunitas-forum-panel,
+  .komunitas-add-comment-panel {
+    padding: 20px;
+  }
+
+  .komunitas-diskusi-button {
+    min-width: 100%;
+  }
+
+  .komunitas-content-section {
+    grid-template-columns: 1fr;
+  }
+}
+
+.komunitas-right-column,
+.komunitas-recent-section {
+  width: 100%;
+}
+
+.komunitas-month-button {
+  font-size: 15px;
+}
+
+.komunitas-search-wrapper {
+  padding: 0;
+}
+
+.komunitas-search-bar {
+  border-radius: 16px;
+}
+
+.komunitas-hero-section {
+  overflow: hidden;
+}
+
+@media (max-width: 768px) {
+  .komunitas-hero-section {
+    width: 100%;
+    padding: 60px 16px 40px;
+    min-height: 420px;
+    margin-left: 0;
+  }
+
+  .komunitas-hero-content {
+    padding: 0;
+  }
+
+  .komunitas-search-bar {
+    max-width: 100%;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+  }
+
+  .komunitas-stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+}

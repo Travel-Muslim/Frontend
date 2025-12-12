@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import "./StarRating.css";
 
 interface StarRatingProps {
   rating?: number;
@@ -39,7 +40,7 @@ export default function StarRating({
   const displayRating = interactive ? hoverRating || currentRating : rating;
 
   return (
-    <div className={`flex gap-2 ${className}`}>
+    <div className={`star-rating ${className}`}>
       {Array.from({ length: maxStars }, (_, index) => {
         const starIndex = index + 1;
         const isFilled = starIndex <= displayRating;
@@ -50,18 +51,18 @@ export default function StarRating({
             onClick={() => handleClick(starIndex)}
             onMouseEnter={() => handleMouseEnter(starIndex)}
             onMouseLeave={handleMouseLeave}
-            className={`${interactive ? 'cursor-pointer' : 'cursor-default'} transition-transform hover:scale-110`}
+            className={`star-rating-button ${interactive ? "star-rating-button--interactive" : ""}`}
             disabled={!interactive}
             type="button"
-            aria-label={`${starIndex} star${starIndex > 1 ? 's' : ''}`}
-            title={`${starIndex} star${starIndex > 1 ? 's' : ''}`}
+            aria-label={`${starIndex} star${starIndex > 1 ? "s" : ""}`}
+            title={`${starIndex} star${starIndex > 1 ? "s" : ""}`}
           >
             <svg
               width={size}
               height={size}
               viewBox="0 0 24 24"
-              fill={isFilled ? "#F5A623" : "none"}
-              stroke="#F5A623"
+              fill={isFilled ? "#FBBF24" : "none"}
+              stroke="#FBBF24"
               strokeWidth="1.5"
               strokeLinecap="round"
               strokeLinejoin="round"

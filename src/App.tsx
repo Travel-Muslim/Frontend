@@ -9,10 +9,28 @@ const Home = lazy(() => import("./pages/Home"));
 const Wishlist = lazy(() => import("./pages/Wishlist"));
 const Riwayat = lazy(() => import("./pages/Riwayat"));
 const Artikel = lazy(() => import("./pages/Artikel"));
+const ArtikelDetail = lazy(() => import("./pages/ArtikelDetail"));
 const Komunitas = lazy(() => import("./pages/Komunitas"));
 const Login = lazy(() => import("./pages/Login"));
+const AdminLogin = lazy(() => import("./pages/AdminLogin"));
 const SignUp = lazy(() => import("./pages/SignUp"));
 const DestinationPage = lazy(() => import("./pages/DestinationPage"));
+const ReviewDestinasi = lazy(() => import("./pages/ReviewDestinasi"));
+const UnduhPage = lazy(() => import("./pages/Unduh"));
+const CariDestinasi = lazy(() => import("./pages/CariDestinasi"));
+const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
+const PaymentSummary = lazy(() => import("./pages/PaymentSummary"));
+const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
+const AdminUsers = lazy(() => import("./pages/AdminUsers"));
+const AdminUserEdit = lazy(() => import("./pages/AdminUserEdit"));
+const AdminPackages = lazy(() => import("./pages/AdminPackages"));
+const AdminPackageDetail = lazy(() => import("./pages/AdminPackageDetail"));
+const AdminArticles = lazy(() => import("./pages/AdminArticles"));
+const AdminArticleForm = lazy(() => import("./pages/AdminArticleForm"));
+const AdminOrders = lazy(() => import("./pages/AdminOrders"));
+const AdminCommunity = lazy(() => import("./pages/AdminCommunity"));
+const Profile = lazy(() => import("./pages/Profile"));
+const AdminProfile = lazy(() => import("./pages/AdminProfile"));
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -25,32 +43,54 @@ function ScrollToTop() {
 function AppWrapper() {
   const location = useLocation();
 
-  const hideHeaderFooterPaths = ["/login", "/signup"];
-  const hideHeaderFooter = hideHeaderFooterPaths.some((p) => location.pathname.startsWith(p));
+  const hideHeaderPaths = ["/login", "/signup", "/forgot-password", "/admin"];
+  const hideFooterPaths = ["/login", "/signup", "/forgot-password", "/admin"];
+  const hideProfileHeader = location.pathname === "/profile";
+  const hideHeader = hideHeaderPaths.some((p) => location.pathname.startsWith(p));
+  const hideFooter = hideFooterPaths.some((p) => location.pathname.startsWith(p));
 
   return (
     <>
       <ScrollToTop />
-      {!hideHeaderFooter && <Header />}
+      {!hideHeader && !hideProfileHeader && <Header />}
 
       <Suspense fallback={<div style={{minHeight: '60vh'}}>Loading...</div>}>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/home" element={<Home />} />
+          <Route path="/cari-destinasi" element={<CariDestinasi />} />
 
           <Route path="/wishlist" element={<Wishlist />} />
           <Route path="/riwayat" element={<Riwayat />} />
           <Route path="/artikel" element={<Artikel />} />
+          <Route path="/artikel/:id" element={<ArtikelDetail />} />
           <Route path="/komunitas" element={<Komunitas />} />
+          <Route path="/review" element={<ReviewDestinasi />} />
+          <Route path="/unduh" element={<UnduhPage />} />
+          <Route path="/pembayaran" element={<PaymentSummary />} />
+          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/admin/users" element={<AdminUsers />} />
+          <Route path="/admin/users/:id/edit" element={<AdminUserEdit />} />
+          <Route path="/admin/packages" element={<AdminPackages />} />
+          <Route path="/admin/packages/:id" element={<AdminPackageDetail />} />
+          <Route path="/admin/articles" element={<AdminArticles />} />
+          <Route path="/admin/articles/new" element={<AdminArticleForm />} />
+          <Route path="/admin/articles/:id" element={<AdminArticleForm />} />
+          <Route path="/admin/orders" element={<AdminOrders />} />
+          <Route path="/admin/community" element={<AdminCommunity />} />
+          <Route path="/admin/profile" element={<AdminProfile />} />
           <Route path="/destinasi/:id" element={<DestinationPage />} />
+          <Route path="/profile" element={<Profile />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/admin/login" element={<AdminLogin />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/signup" element={<SignUp />} />
 
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Suspense>
 
-      {!hideHeaderFooter && <Footer />}
+      {!hideFooter && <Footer />}
     </>
   );
 }

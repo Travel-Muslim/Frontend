@@ -1,4 +1,5 @@
 import React from "react";
+declare const require: any;
 
 interface IconProps {
   name: string;
