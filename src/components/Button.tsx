@@ -10,7 +10,8 @@ interface Props extends ButtonHTMLAttributes<HTMLButtonElement> {
     | 'pink-light'
     | 'teal-light'
     | 'teal-medium'
-    | 'pink-danger';
+    | 'pink-danger'
+    | 'white-hover-purple';
   className?: string;
   showArrows?: boolean;
 }

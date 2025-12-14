@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import './Home.css';
+import './Home.css'; // Pastikan file CSS ini digunakan
 import Header from '../components/Header';
 import Button from '../components/Button';
 import StatCard from '../components/StatCard';
@@ -8,6 +8,7 @@ import SearchBar from '../components/SearchBar';
 import { fetchDestinations, type Destination } from '../api/destinations';
 import { fetchArticles, type Article } from '../api/articles';
 import { pushRecentDestination } from '../utils/recentDestinations';
+// Jika asset tidak ditempatkan di folder assets relatif terhadap file ini, sesuaikan pathnya
 import HeroBg from '../assets/hero-bg.png';
 import TourBg from '../assets/2.png';
 
@@ -15,21 +16,19 @@ function HeroSection() {
   const navigate = useNavigate();
   return (
     <section className="hero-section">
-      <div className="hero-bg">
-        <img src={HeroBg} alt="Hero Background" className="hero-bg-image" />
-        <div className="hero-overlay" />
-      </div>
+      {/* Gambar latar belakang sekarang ditangani oleh CSS */}
       <div className="hero-content">
-        <h1 className="hero-title">Mulailah Perjalanan Halalmu Sekarang</h1>
-        <p className="hero-desc">
-          Temukan destinasi, akomodasi, dan pengalaman perjalanan yang aman
-          serta sesuai syariah. Jelajahi dunia dengan rasa tenang, penuh
-          keyakinan, dan tetap menjaga nilai-nilai sebagai muslimah.
-        </p>
+        <div className="hero-text-content">
+          <h1 className="hero-title">Mulailah Perjalanan Halalmu Sekarang</h1>
+          <p className="hero-desc">
+            Temukan destinasi, akomodasi, dan pengalaman perjalanan yang aman
+            serta sesuai syariah. Jelajahi dunia dengan rasa tenang, penuh
+            keyakinan, dan tetap menjaga nilai-nilai sebagai muslimah.
+          </p>
+        </div>
         <div className="hero-btn-wrapper">
           <Button
-            className="btn purple-light"
-            variant="purple-light"
+            variant="white-hover-purple"
             showArrows={false}
             onClick={() => navigate('/cari-destinasi')}
           >
@@ -55,7 +54,7 @@ function DestinationsSection({
   };
 
   return (
-    <section className="destinations-section new-destinations-section">
+    <section className="destinations-section">
       <div className="destinations-inner">
         <div className="destinations-head">
           <div className="dest-left">
@@ -71,22 +70,20 @@ function DestinationsSection({
         </div>
 
         {loading ? (
-          <div className="dest-grid new-dest-grid" role="list">
-            <div className="dest-card new-dest-card skeleton" aria-busy="true">
+          <div className="new-dest-grid" role="list">
+            <div className="new-dest-card skeleton" aria-busy="true">
               Memuat destinasi...
             </div>
           </div>
         ) : destinations.length === 0 ? (
-          <div className="dest-grid new-dest-grid" role="list">
-            <div className="dest-card new-dest-card empty">
-              Belum ada destinasi
-            </div>
+          <div className="new-dest-grid" role="list">
+            <div className="new-dest-card empty">Belum ada destinasi</div>
           </div>
         ) : (
-          <div className="dest-grid new-dest-grid" role="list">
+          <div className="new-dest-grid" role="list">
             {destinations.map((dest) => (
               <article
-                className="dest-card new-dest-card"
+                className="new-dest-card"
                 key={dest.id}
                 role="listitem"
                 aria-label={dest.title}
@@ -94,9 +91,9 @@ function DestinationsSection({
               >
                 <div className="dest-card-media">
                   {dest.image ? (
-                    <img src={dest.image} alt={dest.title} />
+                    <img src={dest.image} alt={dest.title} loading="lazy" />
                   ) : (
-                    <div className="image-placeholder" />
+                    <div className="image-placeholder" /> // Anda mungkin ingin menambahkan class CSS untuk placeholder ini
                   )}
                 </div>
                 <div className="dest-card-body">
@@ -121,10 +118,7 @@ function CTASection() {
   const navigate = useNavigate();
   return (
     <section className="cta-section">
-      <div className="cta-bg">
-        <img src={TourBg} alt="CTA Background" />
-        <div className="cta-overlay" />
-      </div>
+      {/* Gambar latar belakang sekarang ditangani oleh CSS */}
       <div className="cta-content">
         <p className="cta-label">Paket Tour</p>
         <h2 className="cta-title">
@@ -156,9 +150,9 @@ function ArticleCard({
   image?: string;
 }) {
   const imageContent = image ? (
-    <img src={image} alt={title} />
+    <img src={image} alt={title} loading="lazy" />
   ) : (
-    <div className="article-image-placeholder" />
+    <div className="article-image-placeholder" /> // Anda mungkin ingin menambahkan class CSS untuk placeholder ini
   );
   return (
     <article className="article-card">
@@ -243,7 +237,7 @@ function StatsSection() {
         </div>
 
         <div className="stats-image" aria-hidden="true">
-          <img src="/desher1.png" alt="Destinasi unggulan" />
+          <img src="/desher1.png" alt="Destinasi unggulan" loading="lazy" />
         </div>
       </div>
     </section>
@@ -271,13 +265,13 @@ function TestimonialSection() {
       </div>
       <div className="testimonial-photos">
         <div className="testimonial-photo testimonial-photo-side">
-          <img src="/muslimah1.png" alt="Testimonial 1" />
+          <img src="/muslimah1.png" alt="Testimonial 1" loading="lazy" />
         </div>
         <div className="testimonial-photo testimonial-photo-main">
-          <img src="/muslimah2.png" alt="Testimonial Main" />
+          <img src="/muslimah2.png" alt="Testimonial Main" loading="lazy" />
         </div>
         <div className="testimonial-photo testimonial-photo-side">
-          <img src="/muslimah%203.png" alt="Testimonial 2" />
+          <img src="/muslimah%203.png" alt="Testimonial 2" loading="lazy" />
         </div>
       </div>
       <div className="testimonial-author">
@@ -339,11 +333,13 @@ export default function HomePage() {
         <HeroSection />
 
         <div className="search-bg-wrapper">
-          <SearchBar
-            destinations={destinations}
-            loading={destLoading}
-            onSearch={handleSearch}
-          />
+          <div className="search-bar-wrapper">
+            <SearchBar
+              destinations={destinations}
+              loading={destLoading}
+              onSearch={handleSearch}
+            />
+          </div>
         </div>
 
         <DestinationsSection
