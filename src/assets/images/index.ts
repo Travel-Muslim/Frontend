@@ -17,6 +17,6 @@ export { default as ForgotPasswordPng } from './forgot-password.jpg';
 export { default as ForgotPasswordEmailPng } from './forgot-password-email.jpg';
 export { default as StatsImage } from './stats-image.jpg';
 export { default as CariDestinasiImage } from './cari-destinasi.jpg';
-export { default as RekomendasiPaketImage } from './rekomendasi-paket.jpg';
+export { default as RekomendasiPaketImage } from './Rekomendasi-paket.jpg';
 export { default as HeroKomunitasImage } from './hero-komunitas.jpg';
 export { default as BgDetailDestinasiImage } from './bg-detail-destinasi.png';
