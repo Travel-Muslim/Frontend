@@ -88,14 +88,24 @@ export async function uploadAvatar(
   avatarFile: File
 ): Promise<UploadAvatarResponse> {
   try {
+    console.log('=== UPLOAD AVATAR FRONTEND DEBUG ===');
+    console.log('File:', avatarFile);
+    console.log('File name:', avatarFile.name);
+    console.log('File type:', avatarFile.type);
+    console.log('File size:', avatarFile.size);
+
     const formData = new FormData();
     formData.append('avatar', avatarFile);
 
-    const response = await api.put(apiRoutes.uploadAvatar, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
+    // Log FormData content
+    console.log('FormData entries:');
+    for (let pair of formData.entries()) {
+      console.log(pair[0], pair[1]);
+    }
+
+    // Jangan set Content-Type manual - biarkan axios yang handle dengan boundary
+    const response = await api.put(apiRoutes.uploadAvatar, formData);
+    console.log('Upload response:', response.data);
 
     return {
       success: true,
@@ -105,7 +115,10 @@ export async function uploadAvatar(
       },
     };
   } catch (error: any) {
-    console.error('Gagal mengunggah avatar', error);
+    console.error('=== UPLOAD ERROR ===');
+    console.error('Error:', error);
+    console.error('Error response:', error.response);
+    console.error('Error data:', error.response?.data);
     return {
       success: false,
       message:

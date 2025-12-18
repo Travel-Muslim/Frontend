@@ -100,6 +100,15 @@ export default function Profile() {
 
       const response = await uploadAvatar(file);
 
+      if (!response.success) {
+        setPopupVariant('error');
+        setPopupMessage(
+          response.message || 'Gagal mengunggah avatar. Silakan coba lagi.'
+        );
+        setPopupOpen(true);
+        return;
+      }
+
       // Ambil URL avatar baru dari response
       const avatarUrl = response.data?.avatarUrl;
       setAvatar(avatarUrl);
@@ -108,9 +117,16 @@ export default function Profile() {
       const userData = JSON.parse(localStorage.getItem('user') || '{}');
       userData.avatar_url = avatarUrl;
       localStorage.setItem('user', JSON.stringify(userData));
+
+      // Tampilkan success popup
+      setPopupVariant('success');
+      setPopupMessage('Avatar berhasil diunggah!');
+      setPopupOpen(true);
     } catch (error) {
       console.error('Gagal mengunggah avatar:', error);
-      alert('Gagal mengunggah avatar. Silakan coba lagi.');
+      setPopupVariant('error');
+      setPopupMessage('Gagal mengunggah avatar. Silakan coba lagi.');
+      setPopupOpen(true);
     } finally {
       setUploading(false);
     }
@@ -125,9 +141,16 @@ export default function Profile() {
       const userData = JSON.parse(localStorage.getItem('user') || '{}');
       userData.avatar_url = '';
       localStorage.setItem('user', JSON.stringify(userData));
+
+      // Tampilkan success popup
+      setPopupVariant('success');
+      setPopupMessage('Avatar berhasil dihapus!');
+      setPopupOpen(true);
     } catch (error) {
       console.error('Gagal menghapus avatar:', error);
-      alert('Gagal menghapus avatar. Silakan coba lagi.');
+      setPopupVariant('error');
+      setPopupMessage('Gagal menghapus avatar. Silakan coba lagi.');
+      setPopupOpen(true);
     }
   };
 
@@ -136,13 +159,17 @@ export default function Profile() {
     if (file) {
       // Validasi tipe file
       if (!file.type.match('image.*')) {
-        alert('Silakan pilih file gambar');
+        setPopupVariant('error');
+        setPopupMessage('Silakan pilih file gambar (JPG, PNG, GIF, dll)');
+        setPopupOpen(true);
         return;
       }
 
       // Validasi ukuran file (maksimal 5MB)
       if (file.size > 5 * 1024 * 1024) {
-        alert('File terlalu besar. Maksimal 5MB.');
+        setPopupVariant('error');
+        setPopupMessage('File terlalu besar. Maksimal 5MB.');
+        setPopupOpen(true);
         return;
       }
 
@@ -318,12 +345,16 @@ export default function Profile() {
             : 'Gagal Menyimpan'
         }
         description={popupMessage}
-        buttonText={popupVariant === 'success' ? 'Kembali ke Home' : 'Tutup'}
+        buttonText={popupVariant === 'success' ? 'Oke' : 'Tutup'}
         isOpen={popupOpen}
         onClose={() => setPopupOpen(false)}
         onButtonClick={() => {
           setPopupOpen(false);
-          if (popupVariant === 'success') {
+          // Hanya redirect ke home jika ini adalah success save profile (bukan upload avatar)
+          if (
+            popupVariant === 'success' &&
+            popupMessage.includes('profil berhasil disimpan')
+          ) {
             navigate('/');
           }
         }}
