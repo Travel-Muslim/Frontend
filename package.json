@@ -1,7 +1,7 @@
 {
   "name": "muslimah-travel",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -12,13 +12,19 @@
     "format": "prettier --write \"src/**/*.{ts,tsx,json,css,scss,md}\""
   },
   "dependencies": {
+    "@tailwindcss/vite": "^4.1.18",
     "axios": "^1.13.2",
+    "clsx": "^2.1.1",
+    "framer-motion": "^12.23.26",
+    "lucide-react": "^0.561.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
-    "react-router-dom": "^7.9.6"
+    "react-router-dom": "^7.9.6",
+    "tailwind-merge": "^3.4.0",
+    "tailwindcss": "^4.1.18"
   },
   "devDependencies": {
-    "@types/node": "^24.10.1",
+    "@types/node": "^24.10.4",
     "@types/prop-types": "^15.7.15",
     "@types/react": "^19.2.5",
     "@types/react-dom": "^19.2.3",

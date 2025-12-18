@@ -30,4 +30,6 @@ export const apiRoutes = {
   payments: `${API_PREFIX}/payments`, // Endpoint untuk pembayaran
   reviews: `${API_PREFIX}/reviews`, // Endpoint untuk review
   dashboard: `${API_PREFIX}/admin/dashboard`, // Endpoint yang lama, tetap untuk kompatibilitas
+  wishlists: `${API_PREFIX}/wishlists`, // Endpoint untuk wishlist
+  wishlist: (id: string | number) => `${API_PREFIX}/wishlists/${id}`, // Endpoint untuk hapus wishlist item
 };

@@ -1,10 +1,10 @@
-import api from "./axios";
-import { apiRoutes } from "./routes";
+import api from './axios';
+import { apiRoutes } from './routes';
 
-export type ArticleStatus = "Selesai" | "Draft" | string;
+export type ArticleStatus = 'Selesai' | 'Draft' | string;
 
 export interface ArticleBlock {
-  type: "text" | "image" | "link" | string;
+  type: 'text' | 'image' | 'link' | string;
   value: string;
   label?: string;
 }
@@ -48,19 +48,23 @@ export interface Article {
   tag?: string;
 }
 
-export type ArticlePayload = Partial<Omit<Article, "id">>;
+export type ArticlePayload = Partial<Omit<Article, 'id'>>;
 
 const toArray = <T>(value: unknown): T[] => {
   if (Array.isArray(value)) return value as T[];
-  if (typeof value === "string") return [value as unknown as T];
+  if (typeof value === 'string') return [value as unknown as T];
   return [];
 };
 
 const formatDisplayDate = (value?: string) => {
-  if (!value) return "";
+  if (!value) return '';
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
-  return new Intl.DateTimeFormat("id-ID", { day: "numeric", month: "long", year: "numeric" }).format(date);
+  return new Intl.DateTimeFormat('id-ID', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  }).format(date);
 };
 
 const normalizeArticle = (raw: any): Article => {
@@ -73,51 +77,79 @@ const normalizeArticle = (raw: any): Article => {
   const tags = toArray<any>(raw?.tags);
   const sections = toArray<any>(raw?.sections);
 
-  const date = raw?.date ?? raw?.published_at ?? raw?.createdAt ?? "";
-  const publishedAt = raw?.publishedAt ?? raw?.published_at;
+  // Prioritize date fields from API response
+  const date =
+    raw?.date ??
+    raw?.tanggal ??
+    raw?.published_at ??
+    raw?.createdAt ??
+    raw?.created_at ??
+    '';
+  const publishedAt =
+    raw?.publishedAt ?? raw?.published_at ?? raw?.tanggalTerbit;
 
   const id =
     raw?.id ??
     raw?._id ??
-    (globalThis.crypto && "randomUUID" in globalThis.crypto ? globalThis.crypto.randomUUID() : Date.now());
+    (globalThis.crypto && 'randomUUID' in globalThis.crypto
+      ? globalThis.crypto.randomUUID()
+      : `article-${Date.now()}`);
+
+  // Get image from multiple possible sources
+  const imageUrl =
+    raw?.image ??
+    raw?.imageUrl ??
+    raw?.cover_image_url ??
+    raw?.thumbnail ??
+    raw?.cover ??
+    gallery[0] ??
+    '';
+
+  // Get excerpt from multiple sources with fallback
+  const excerptText =
+    raw?.excerpt ??
+    raw?.preview ??
+    raw?.description ??
+    raw?.content?.slice(0, 160) ??
+    '';
 
   return {
     id,
-    title: raw?.title ?? raw?.judul ?? raw?.name ?? "Artikel Tanpa Judul",
+    title: raw?.title ?? raw?.judul ?? raw?.name ?? 'Artikel Tanpa Judul',
     slug: raw?.slug,
     category: raw?.category,
     categoryId: raw?.category_id,
-    content: raw?.content ?? raw?.body ?? "",
-    excerpt: raw?.excerpt ?? raw?.preview,
-    coverImage: raw?.coverImage ?? raw?.cover_image_url ?? raw?.imageUrl,
+    content: raw?.content ?? raw?.body ?? '',
+    excerpt: excerptText,
+    coverImage: imageUrl,
     tags,
-    authorId: raw?.author_id,
+    authorId: raw?.author_id ?? raw?.authorId,
     views: raw?.views ? Number(raw.views) : 0,
-    readTime: raw?.read_time,
+    readTime: raw?.read_time ?? raw?.readTime,
     isPublished: raw?.is_published ?? raw?.status === 'Selesai',
     createdAt: raw?.created_at ?? raw?.createdAt,
     updatedAt: raw?.updated_at ?? raw?.updatedAt,
     publishedAt,
 
     // API response fields
-    judul: raw?.judul,
-    tanggal: raw?.tanggal,
-    tanggalTerbit: raw?.tanggalTerbit,
-    imageUrl: raw?.imageUrl,
-    preview: raw?.preview,
+    judul: raw?.judul ?? raw?.title,
+    tanggal: raw?.tanggal ?? formatDisplayDate(date),
+    tanggalTerbit: raw?.tanggalTerbit ?? formatDisplayDate(publishedAt),
+    imageUrl,
+    preview: excerptText,
     sections,
 
     // Legacy fields for backward compatibility
-    displayDate: raw?.displayDate ?? formatDisplayDate(date),
+    displayDate: raw?.displayDate ?? raw?.tanggal ?? formatDisplayDate(date),
     date,
-    time: raw?.time ?? raw?.published_time ?? "",
-    status: raw?.status ?? raw?.state ?? "Draft",
-    image: raw?.image ?? raw?.thumbnail ?? raw?.cover ?? gallery[0],
+    time: raw?.time ?? raw?.published_time ?? '',
+    status: raw?.status ?? raw?.state ?? 'Draft',
+    image: imageUrl,
     gallery,
-    link: raw?.link ?? raw?.url ?? "",
+    link: raw?.link ?? raw?.url ?? '',
     blocks: blocks.length ? blocks : undefined,
-    author: raw?.author ?? raw?.created_by ?? "",
-    tag: raw?.tag ?? raw?.label ?? "",
+    author: raw?.author ?? raw?.created_by ?? raw?.authorName ?? '',
+    tag: raw?.tag ?? raw?.label ?? '',
   };
 };
 
@@ -145,12 +177,14 @@ export async function fetchArticles(): Promise<Article[]> {
     const articles = handlePaginatedResponse<Article>(res.data);
     return Array.isArray(articles) ? articles.map(normalizeArticle) : [];
   } catch (error) {
-    console.error("Gagal memuat artikel", error);
+    console.error('Gagal memuat artikel', error);
     return [];
   }
 }
 
-export async function fetchArticle(id: string | number): Promise<Article | null> {
+export async function fetchArticle(
+  id: string | number
+): Promise<Article | null> {
   try {
     const res = await api.get(apiRoutes.article(id));
     const payload = unwrapData<any>(res.data);
@@ -164,12 +198,15 @@ export async function fetchArticle(id: string | number): Promise<Article | null>
       return payload ? normalizeArticle(payload) : null;
     }
   } catch (error) {
-    console.error("Gagal memuat artikel", error);
+    console.error('Gagal memuat artikel', error);
     return null;
   }
 }
 
-export async function createArticle(payload: ArticlePayload, coverImageFile?: File): Promise<Article | null> {
+export async function createArticle(
+  payload: ArticlePayload,
+  coverImageFile?: File
+): Promise<Article | null> {
   try {
     let res;
 
@@ -187,15 +224,18 @@ export async function createArticle(payload: ArticlePayload, coverImageFile?: Fi
 
       // Tambahkan field lainnya jika ada
       Object.entries(payload).forEach(([key, value]) => {
-        if (value !== undefined && !['title', 'content', 'publishedAt'].includes(key)) {
+        if (
+          value !== undefined &&
+          !['title', 'content', 'publishedAt'].includes(key)
+        ) {
           formData.append(key, value as string | Blob);
         }
       });
 
       res = await api.post(apiRoutes.articles, formData, {
         headers: {
-          'Content-Type': 'multipart/form-data'
-        }
+          'Content-Type': 'multipart/form-data',
+        },
       });
     } else {
       // Jika tidak ada file, kirim sebagai JSON biasa
@@ -203,7 +243,7 @@ export async function createArticle(payload: ArticlePayload, coverImageFile?: Fi
         judul: payload.title,
         content: payload.content,
         tanggal: payload.publishedAt || payload.createdAt,
-        ...payload
+        ...payload,
       };
 
       // Pastikan field title diganti ke judul sesuai yang diharapkan backend
@@ -225,12 +265,16 @@ export async function createArticle(payload: ArticlePayload, coverImageFile?: Fi
       return data ? normalizeArticle(data) : null;
     }
   } catch (error) {
-    console.error("Gagal membuat artikel", error);
+    console.error('Gagal membuat artikel', error);
     throw error;
   }
 }
 
-export async function updateArticle(id: string | number, payload: ArticlePayload, coverImageFile?: File): Promise<Article | null> {
+export async function updateArticle(
+  id: string | number,
+  payload: ArticlePayload,
+  coverImageFile?: File
+): Promise<Article | null> {
   try {
     let res;
 
@@ -248,15 +292,18 @@ export async function updateArticle(id: string | number, payload: ArticlePayload
 
       // Tambahkan field lainnya jika ada
       Object.entries(payload).forEach(([key, value]) => {
-        if (value !== undefined && !['title', 'content', 'publishedAt'].includes(key)) {
+        if (
+          value !== undefined &&
+          !['title', 'content', 'publishedAt'].includes(key)
+        ) {
           formData.append(key, value as string | Blob);
         }
       });
 
       res = await api.put(apiRoutes.article(id), formData, {
         headers: {
-          'Content-Type': 'multipart/form-data'
-        }
+          'Content-Type': 'multipart/form-data',
+        },
       });
     } else {
       // Jika tidak ada file, kirim sebagai JSON biasa
@@ -264,7 +311,7 @@ export async function updateArticle(id: string | number, payload: ArticlePayload
         judul: payload.title,
         content: payload.content,
         tanggal: payload.publishedAt,
-        ...payload
+        ...payload,
       };
 
       // Pastikan field title diganti ke judul sesuai yang diharapkan backend
@@ -286,7 +333,7 @@ export async function updateArticle(id: string | number, payload: ArticlePayload
       return data ? normalizeArticle(data) : null;
     }
   } catch (error) {
-    console.error("Gagal memperbarui artikel", error);
+    console.error('Gagal memperbarui artikel', error);
     throw error;
   }
 }
@@ -296,12 +343,14 @@ export async function deleteArticle(id: string | number): Promise<boolean> {
     await api.delete(apiRoutes.article(id));
     return true;
   } catch (error) {
-    console.error("Gagal menghapus artikel", error);
+    console.error('Gagal menghapus artikel', error);
     return false;
   }
 }
 
-export async function toggleArticlePublish(id: string | number): Promise<Article | null> {
+export async function toggleArticlePublish(
+  id: string | number
+): Promise<Article | null> {
   try {
     const res = await api.patch(`${apiRoutes.article(id)}/publish`);
     const data = unwrapData<any>(res.data);
@@ -315,7 +364,7 @@ export async function toggleArticlePublish(id: string | number): Promise<Article
       return data ? normalizeArticle(data) : null;
     }
   } catch (error) {
-    console.error("Gagal mengganti status publikasi artikel", error);
+    console.error('Gagal mengganti status publikasi artikel', error);
     throw error;
   }
 }

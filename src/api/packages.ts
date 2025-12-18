@@ -1,29 +1,29 @@
-import api from "./axios";
-import { apiRoutes } from "./routes";
-import type { Destination } from "./destinations";
+import api from './axios';
+import { apiRoutes } from './routes';
+import type { Destination } from './destinations';
 
 export interface PackageDetail extends Destination {
-  continent?: string;      // benua in backend
-  departure?: string;      // periode in backend
-  destinationId?: string;  // destination_id in backend
-  slug?: string;          // slug in backend
-  durationDays?: number;   // duration_days in backend
+  continent?: string; // benua in backend
+  departure?: string; // periode in backend
+  destinationId?: string; // destination_id in backend
+  slug?: string; // slug in backend
+  durationDays?: number; // duration_days in backend
   durationNights?: number; // duration_nights in backend
-  maxParticipants?: number; // max_participants in backend
-  quota?: number;          // quota in backend
-  quotaFilled?: number;    // quota_filled in backend
-  facilities?: string[];   // facilities in backend
-  includes?: any;          // includes JSONB in backend
-  excludes?: any;          // excludes JSONB in backend
+  maxParticipants?: number; // max_participants in backendsa
+  quota?: number; // quota in backend
+  quotaFilled?: number; // quota_filled in backend
+  facilities?: string[]; // facilities in backend
+  includes?: any; // includes JSONB in backend
+  excludes?: any; // excludes JSONB in backend
   departureAirport?: string; // departure_airport in backend
-  arrivalAirport?: string;   // arrival_airport in backend
-  startDate?: string;        // start_date in backend
-  endDate?: string;          // end_date in backend
-  departureDates?: any;      // departure_dates JSONB in backend
-  isActive?: boolean;        // is_active in backend
-  isFeatured?: boolean;      // is_featured in backend
-  createdAt?: string;        // created_at in backend
-  updatedAt?: string;        // updated_at in backend
+  arrivalAirport?: string; // arrival_airport in backend
+  startDate?: string; // start_date in backend
+  endDate?: string; // end_date in backend
+  departureDates?: any; // departure_dates JSONB in backend
+  isActive?: boolean; // is_active in backend
+  isFeatured?: boolean; // is_featured in backend
+  createdAt?: string; // created_at in backend
+  updatedAt?: string; // updated_at in backend
   itinerary?: {
     day?: string;
     destinasi?: string[];
@@ -35,26 +35,26 @@ export interface PackageDetail extends Destination {
 
 // Type untuk payload saat create/update
 export interface PackagePayload {
-  name: string;             // nama paket
-  location: string;         // lokasi
-  benua?: string;           // benua
-  harga: number;            // harga (price)
-  periode?: string;         // periode (departure date)
-  maskapai?: string;        // airline
-  bandara?: string;         // airport
-  duration?: string;        // durasi
-  itinerary?: any;          // itinerary as JSON
-  image?: string;           // image URL
-  destinationId?: string;   // destination_id
-  description?: string;     // deskripsi
-  quota?: number;           // kuota
-  isActive?: boolean;       // status aktif
-  isFeatured?: boolean;     // apakah paket unggulan
+  name: string; // nama paket
+  location: string; // lokasi
+  benua?: string; // benua
+  harga: number; // harga (price)
+  periode?: string; // periode (departure date)
+  maskapai?: string; // airline
+  bandara?: string; // airport
+  duration?: string; // durasi
+  itinerary?: any; // itinerary as JSON
+  image?: string; // image URL
+  destinationId?: string; // destination_id
+  description?: string; // deskripsi
+  quota?: number; // kuota
+  isActive?: boolean; // status aktif
+  isFeatured?: boolean; // apakah paket unggulan
 }
 
 const toArray = <T>(value: unknown): T[] => {
   if (Array.isArray(value)) return value as T[];
-  if (typeof value === "string") return [value as unknown as T];
+  if (typeof value === 'string') return [value as unknown as T];
   return [];
 };
 
@@ -78,17 +78,29 @@ const handlePaginatedResponse = <T>(response: any): T[] => {
 
 const normalizePackage = (raw: any): PackageDetail => ({
   id: raw?.id ?? raw?._id ?? raw?.packageId ?? Date.now(),
-  title: raw?.name ?? raw?.title ?? raw?.package_name ?? "Paket Tanpa Nama",
-  location: raw?.location ?? raw?.country ?? raw?.city ?? "-",
-  price: typeof raw?.price === "number" ? raw.price : typeof raw?.harga === "number" ? raw.harga : Number(raw?.price ?? raw?.harga ?? 0) || undefined,
-  image: raw?.image ?? raw?.image_url ?? raw?.imageUrl ?? raw?.thumbnail ?? raw?.cover,
-  period: toArray<string>(raw?.period ?? raw?.departure_dates ?? raw?.departure ?? raw?.periode),
-  duration: raw?.duration ?? raw?.duration_text ?? "",
-  airline: raw?.airline ?? raw?.maskapai ?? "",
-  airport: raw?.airport ?? raw?.bandara ?? raw?.departure_airport ?? "",
-  description: raw?.description ?? raw?.details ?? "",
-  continent: raw?.continent ?? raw?.benua ?? raw?.region ?? "",
-  departure: raw?.departure ?? raw?.periode ?? "",
+  title: raw?.name ?? raw?.title ?? raw?.package_name ?? 'Paket Tanpa Nama',
+  location: raw?.location ?? raw?.country ?? raw?.city ?? '-',
+  price:
+    typeof raw?.price === 'number'
+      ? raw.price
+      : typeof raw?.harga === 'number'
+        ? raw.harga
+        : Number(raw?.price ?? raw?.harga ?? 0) || undefined,
+  image:
+    raw?.image ??
+    raw?.image_url ??
+    raw?.imageUrl ??
+    raw?.thumbnail ??
+    raw?.cover,
+  period: toArray<string>(
+    raw?.period ?? raw?.departure_dates ?? raw?.departure ?? raw?.periode
+  ),
+  duration: raw?.duration ?? raw?.duration_text ?? '',
+  airline: raw?.airline ?? raw?.maskapai ?? '',
+  airport: raw?.airport ?? raw?.bandara ?? raw?.departure_airport ?? '',
+  description: raw?.description ?? raw?.details ?? '',
+  continent: raw?.continent ?? raw?.benua ?? raw?.region ?? '',
+  departure: raw?.departure ?? raw?.periode ?? '',
   destinationId: raw?.destinationId ?? raw?.destination_id,
   slug: raw?.slug,
   durationDays: raw?.durationDays ?? raw?.duration_days,
@@ -108,13 +120,15 @@ const normalizePackage = (raw: any): PackageDetail => ({
   isFeatured: raw?.isFeatured ?? raw?.is_featured,
   createdAt: raw?.createdAt ?? raw?.created_at,
   updatedAt: raw?.updatedAt ?? raw?.updated_at,
-  itinerary: toArray<any>(raw?.itinerary || raw?.itineraries).map((item, idx) => ({
-    day: item?.day || `Hari ${idx + 1}`,
-    destinasi: toArray<string>(item?.destinasi ?? item?.destination),
-    makan: toArray<string>(item?.makan ?? item?.food),
-    masjid: toArray<string>(item?.masjid ?? item?.mosque),
-    transportasi: toArray<string>(item?.transportasi ?? item?.transport),
-  })),
+  itinerary: toArray<any>(raw?.itinerary || raw?.itineraries).map(
+    (item, idx) => ({
+      day: item?.day || `Hari ${idx + 1}`,
+      destinasi: toArray<string>(item?.destinasi ?? item?.destination),
+      makan: toArray<string>(item?.makan ?? item?.food),
+      masjid: toArray<string>(item?.masjid ?? item?.mosque),
+      transportasi: toArray<string>(item?.transportasi ?? item?.transport),
+    })
+  ),
 });
 
 export async function fetchPackages(): Promise<PackageDetail[]> {
@@ -123,12 +137,14 @@ export async function fetchPackages(): Promise<PackageDetail[]> {
     const packages = handlePaginatedResponse<PackageDetail>(res.data);
     return Array.isArray(packages) ? packages.map(normalizePackage) : [];
   } catch (error) {
-    console.error("Gagal memuat paket", error);
+    console.error('Gagal memuat paket', error);
     return [];
   }
 }
 
-export async function fetchPackage(id: string | number): Promise<PackageDetail | null> {
+export async function fetchPackage(
+  id: string | number
+): Promise<PackageDetail | null> {
   try {
     const res = await api.get(apiRoutes.package(id));
     const payload = unwrapData<any>(res.data);
@@ -142,12 +158,16 @@ export async function fetchPackage(id: string | number): Promise<PackageDetail |
       return payload ? normalizePackage(payload) : null;
     }
   } catch (error) {
-    console.error("Gagal memuat detail paket", error);
+    console.error('Gagal memuat detail paket', error);
     return null;
   }
 }
 
-export async function savePackage(payload: PackagePayload, id?: string | number, imageFile?: File): Promise<PackageDetail | null> {
+export async function savePackage(
+  payload: PackagePayload,
+  id?: string | number,
+  imageFile?: File
+): Promise<PackageDetail | null> {
   try {
     let res;
 
@@ -164,11 +184,15 @@ export async function savePackage(payload: PackagePayload, id?: string | number,
       if (payload.maskapai) formData.append('maskapai', payload.maskapai);
       if (payload.bandara) formData.append('bandara', payload.bandara);
       if (payload.duration) formData.append('duration', payload.duration);
-      if (payload.itinerary) formData.append('itinerary', JSON.stringify(payload.itinerary));
-      if (payload.description) formData.append('description', payload.description);
+      if (payload.itinerary)
+        formData.append('itinerary', JSON.stringify(payload.itinerary));
+      if (payload.description)
+        formData.append('description', payload.description);
       if (payload.quota) formData.append('quota', payload.quota.toString());
-      if (payload.isActive !== undefined) formData.append('is_active', payload.isActive.toString());
-      if (payload.isFeatured !== undefined) formData.append('is_featured', payload.isFeatured.toString());
+      if (payload.isActive !== undefined)
+        formData.append('is_active', payload.isActive.toString());
+      if (payload.isFeatured !== undefined)
+        formData.append('is_featured', payload.isFeatured.toString());
 
       // Tambahkan file gambar
       formData.append('image', imageFile);
@@ -176,14 +200,14 @@ export async function savePackage(payload: PackagePayload, id?: string | number,
       if (id) {
         res = await api.put(apiRoutes.package(id), formData, {
           headers: {
-            'Content-Type': 'multipart/form-data'
-          }
+            'Content-Type': 'multipart/form-data',
+          },
         });
       } else {
         res = await api.post(apiRoutes.packages, formData, {
           headers: {
-            'Content-Type': 'multipart/form-data'
-          }
+            'Content-Type': 'multipart/form-data',
+          },
         });
       }
     } else {
@@ -208,7 +232,7 @@ export async function savePackage(payload: PackagePayload, id?: string | number,
       return data ? normalizePackage(data) : null;
     }
   } catch (error) {
-    console.error("Gagal menyimpan paket", error);
+    console.error('Gagal menyimpan paket', error);
     throw error;
   }
 }
@@ -218,7 +242,7 @@ export async function deletePackage(id: string | number): Promise<boolean> {
     await api.delete(apiRoutes.package(id));
     return true;
   } catch (error) {
-    console.error("Gagal menghapus paket", error);
+    console.error('Gagal menghapus paket', error);
     return false;
   }
 }

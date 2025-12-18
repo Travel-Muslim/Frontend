@@ -1,6 +1,6 @@
 // src/App.tsx
-import './components/Footer.css';
 import React, { Suspense, lazy } from 'react';
+import './App.css';
 import {
   BrowserRouter,
   Routes,
@@ -8,35 +8,42 @@ import {
   useLocation,
   Navigate,
 } from 'react-router-dom';
-import Header from './components/Header';
-import Footer from './components/Footer';
+import Header from './components/section/header/Header';
+import Footer from './components/section/footer/Footer';
 
 const Home = lazy(() => import('./pages/Home'));
-const Wishlist = lazy(() => import('./pages/Wishlist'));
-const Riwayat = lazy(() => import('./pages/Riwayat'));
-const Artikel = lazy(() => import('./pages/Artikel'));
-const ArtikelDetail = lazy(() => import('./pages/ArtikelDetail'));
-const Komunitas = lazy(() => import('./pages/Komunitas'));
-const Login = lazy(() => import('./pages/Login'));
-const AdminLogin = lazy(() => import('./pages/AdminLogin'));
-const SignUp = lazy(() => import('./pages/SignUp'));
-const DestinationPage = lazy(() => import('./pages/DestinationPage'));
-const ReviewDestinasi = lazy(() => import('./pages/ReviewDestinasi'));
-const UnduhPage = lazy(() => import('./pages/Unduh'));
-const CariDestinasi = lazy(() => import('./pages/CariDestinasi'));
-const ForgotPassword = lazy(() => import('./pages/ForgotPassword'));
-const PaymentSummary = lazy(() => import('./pages/PaymentSummary'));
-const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
-const AdminUsers = lazy(() => import('./pages/AdminUsers'));
-const AdminUserEdit = lazy(() => import('./pages/AdminUserEdit'));
-const AdminPackages = lazy(() => import('./pages/AdminPackages'));
-const AdminPackageDetail = lazy(() => import('./pages/AdminPackageDetail'));
-const AdminArticles = lazy(() => import('./pages/AdminArticles'));
-const AdminArticleForm = lazy(() => import('./pages/AdminArticleForm'));
-const AdminOrders = lazy(() => import('./pages/AdminOrders'));
-const AdminCommunity = lazy(() => import('./pages/AdminCommunity'));
-const Profile = lazy(() => import('./pages/Profile'));
-const AdminProfile = lazy(() => import('./pages/AdminProfile'));
+const Wishlist = lazy(() => import('./pages/destinasi/WishlistDestinasi'));
+const Riwayat = lazy(() => import('./pages/pesanan/RiwayatPesanan'));
+const Artikel = lazy(() => import('./pages/artikel/Artikel'));
+const ArtikelDetail = lazy(() => import('./pages/artikel/DetailArtikel'));
+const Komunitas = lazy(() => import('./pages/komunitas/Komunitas'));
+const DetailDestinasi = lazy(() => import('./pages/destinasi/DetailDestinasi'));
+const Login = lazy(() => import('./pages/auth/Login'));
+const AdminLogin = lazy(() => import('./pages/admin/AdminLogin'));
+const SignUp = lazy(() => import('./pages/auth/Register'));
+const ReviewDestinasi = lazy(() => import('./pages/destinasi/ReviewDestinasi'));
+const TicketPage = lazy(() => import('./pages/pesanan/DetailTiket'));
+const CariDestinasi = lazy(() => import('./pages/destinasi/CariDestinasi'));
+const RekomendasiPaket = lazy(
+  () => import('./pages/destinasi/RekomendasiDestinasi')
+);
+const ForgotPassword = lazy(() => import('./pages/auth/LupaPassword'));
+const PembayaranPesanan = lazy(
+  () => import('./pages/pesanan/PembayaranPesanan')
+);
+const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
+const AdminUsers = lazy(() => import('./pages/admin/AdminUsers'));
+const AdminUserEdit = lazy(() => import('./pages/admin/AdminUserEdit'));
+const AdminPackages = lazy(() => import('./pages/admin/AdminPackages'));
+const AdminPackageDetail = lazy(
+  () => import('./pages/admin/AdminPackageDetail')
+);
+const AdminArticles = lazy(() => import('./pages/admin/AdminArticles'));
+const AdminArticleForm = lazy(() => import('./pages/admin/AdminArticleForm'));
+const AdminOrders = lazy(() => import('./pages/admin/AdminOrders'));
+const AdminCommunity = lazy(() => import('./pages/admin/AdminCommunity'));
+const Profile = lazy(() => import('./pages/profile/Profile'));
+const AdminProfile = lazy(() => import('./pages/admin/AdminProfile'));
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -69,15 +76,16 @@ function AppWrapper() {
           <Route path="/" element={<Home />} />
           <Route path="/home" element={<Home />} />
           <Route path="/cari-destinasi" element={<CariDestinasi />} />
-
+          <Route path="/rekomendasi-destinasi" element={<RekomendasiPaket />} />
           <Route path="/wishlist" element={<Wishlist />} />
           <Route path="/riwayat" element={<Riwayat />} />
           <Route path="/artikel" element={<Artikel />} />
           <Route path="/artikel/:id" element={<ArtikelDetail />} />
           <Route path="/komunitas" element={<Komunitas />} />
+          <Route path="/destinasi/:id" element={<DetailDestinasi />} />
+          <Route path="/pembayaran-pesanan" element={<PembayaranPesanan />} />
           <Route path="/review" element={<ReviewDestinasi />} />
-          <Route path="/unduh" element={<UnduhPage />} />
-          <Route path="/pembayaran" element={<PaymentSummary />} />
+          <Route path="/tiket" element={<TicketPage />} />
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/admin/users" element={<AdminUsers />} />
           <Route path="/admin/users/:id/edit" element={<AdminUserEdit />} />
@@ -88,11 +96,10 @@ function AppWrapper() {
           <Route path="/admin/articles/:id" element={<AdminArticleForm />} />
           <Route path="/admin/orders" element={<AdminOrders />} />
           <Route path="/admin/community" element={<AdminCommunity />} />
+          <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin/profile" element={<AdminProfile />} />
-          <Route path="/destinasi/:id" element={<DestinationPage />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/signup" element={<SignUp />} />
 

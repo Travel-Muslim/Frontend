@@ -1,0 +1,71 @@
+import CardBs from '@components/ui/card-pesanan/CardPesanan';
+import { PackageDetail } from '@api/packages';
+
+interface RiwayatPesananSectionProps {
+  packages: PackageDetail[];
+  loading?: boolean;
+  onReviewClick: (id: string | number) => void;
+}
+
+export default function RiwayatPesananSection({
+  packages,
+  loading = false,
+  onReviewClick,
+}: RiwayatPesananSectionProps) {
+  const formatPrice = (price: number | undefined): string => {
+    if (!price) return 'Hubungi kami';
+    return `Rp${price.toLocaleString('id-ID')}`;
+  };
+
+  const formatPeriod = (period: string[] | undefined): string => {
+    if (!period || period.length === 0) return 'Jadwal tersedia';
+    return period[0];
+  };
+
+  if (loading) {
+    return (
+      <div className="w-full max-w-[1200px] mx-auto px-4 mobile:px-3 xs:px-4 sm:px-6 md:px-8 py-8 mobile:py-6 xs:py-7 sm:py-8">
+        <p className="text-center text-gray-600 text-lg">
+          Memuat riwayat pesanan...
+        </p>
+      </div>
+    );
+  }
+
+  if (packages.length === 0) {
+    return (
+      <div className="w-full max-w-[1200px] mx-auto px-4 mobile:px-3 xs:px-4 sm:px-6 md:px-8 py-12 mobile:py-8 xs:py-10 sm:py-12">
+        <div className="text-center">
+          <p className="text-xl mobile:text-lg xs:text-lg sm:text-xl text-gray-600 mb-4">
+            Belum ada riwayat pesanan
+          </p>
+          <p className="text-base mobile:text-sm xs:text-sm sm:text-base text-gray-500">
+            Riwayat pesanan yang sudah selesai akan muncul di sini
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="w-full max-w-[1200px] mx-auto px-4 mobile:px-3 xs:px-4 sm:px-6 md:px-8 py-8 mobile:py-6 xs:py-7 sm:py-8">
+      <div className="space-y-6 mobile:space-y-4 xs:space-y-5 sm:space-y-6">
+        {packages.map((pkg) => (
+          <CardBs
+            key={pkg.id}
+            id={String(pkg.id)}
+            variant="with-review"
+            image={pkg.image}
+            title={pkg.title}
+            location={pkg.location}
+            date={formatPeriod(pkg.period)}
+            airline={pkg.airline || 'Airline tersedia'}
+            airport={pkg.airport || 'Airport tersedia'}
+            status="Selesai"
+            onReviewClick={() => onReviewClick(pkg.id)}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}

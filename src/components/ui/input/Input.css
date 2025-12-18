@@ -1,0 +1,34 @@
+/* Base input styling (already in your class, but override if needed) */
+.custom-date-input {
+  font-size: medium;
+}
+
+/* Style the calendar indicator (Chrome/Safari/Edge - WebKit/Blink) */
+.custom-date-input::-webkit-calendar-picker-indicator {
+  color: #444444;
+  padding: 4px;
+  border-radius: 4px;
+  cursor: pointer;
+  /* background-image: url('path/to/custom-calendar-icon.svg'); */
+  /* background-size: contain; */
+  /* width: 18px; */
+  /* height: 18px; */
+  /* opacity: 0.8; Semi-transparent */
+}
+
+/* Hide inner spin buttons if they appear (not common for date) */
+.custom-date-input::-webkit-inner-spin-button,
+.custom-date-input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox styling */
+.custom-date-input::-moz-calendar-picker {
+  color: #444444; /* Icon color */
+}
+
+/* General fallback for other browsers */
+.custom-date-input {
+  appearance: textfield;
+}

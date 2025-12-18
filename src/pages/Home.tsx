@@ -1,358 +1,75 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import './Home.css';
-import Header from '../components/Header';
-import Button from '../components/Button';
-import StatCard from '../components/StatCard';
-import SearchBar from '../components/SearchBar';
-import { fetchDestinations, type Destination } from '../api/destinations';
-import { fetchArticles, type Article } from '../api/articles';
-import { pushRecentDestination } from '../utils/recentDestinations';
-import { StatsImage } from '../assets/images';
-
-function HeroSection() {
-  const navigate = useNavigate();
-  return (
-    <section className="hero-section">
-      {/* Gambar latar belakang sekarang ditangani oleh CSS */}
-      <div className="hero-content">
-        <div className="hero-text-content">
-          <h1 className="hero-title">Mulailah Perjalanan Halalmu Sekarang</h1>
-          <p className="hero-desc">
-            Temukan destinasi, akomodasi, dan pengalaman perjalanan yang aman
-            serta sesuai syariah. Jelajahi dunia dengan rasa tenang, penuh
-            keyakinan, dan tetap menjaga nilai-nilai sebagai muslimah.
-          </p>
-        </div>
-        <div className="hero-btn-wrapper">
-          <Button
-            variant="white-hover-purple"
-            showArrows={false}
-            onClick={() => navigate('/cari-destinasi')}
-          >
-            Cari Sekarang
-          </Button>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function DestinationsSection({
-  destinations,
-  loading,
-}: {
-  destinations: Destination[];
-  loading: boolean;
-}) {
-  const navigate = useNavigate();
-  const handleCardClick = (dest: Destination) => {
-    pushRecentDestination(dest);
-    navigate(`/destinasi/${dest.id}`, { state: { dest } });
-  };
-
-  return (
-    <section className="destinations-section">
-      <div className="destinations-inner">
-        <div className="destinations-head">
-          <div className="dest-left">
-            <p className="section-subtitle">Perjalanan terbaik kami</p>
-            <h2 className="section-title">Wisata Halal Pilihan Muslimah</h2>
-          </div>
-          <div className="dest-right">
-            <p className="section-desc">
-              Nikmati setiap destinasi yang terjamin keamanannya, dan jelajahi
-              keindahan alam yang menenangkan
-            </p>
-          </div>
-        </div>
-
-        {loading ? (
-          <div className="new-dest-grid" role="list">
-            <div className="new-dest-card skeleton" aria-busy="true">
-              Memuat destinasi...
-            </div>
-          </div>
-        ) : destinations.length === 0 ? (
-          <div className="new-dest-grid" role="list">
-            <div className="new-dest-card empty">Belum ada destinasi</div>
-          </div>
-        ) : (
-          <div className="new-dest-grid" role="list">
-            {destinations.map((dest) => (
-              <article
-                className="new-dest-card"
-                key={dest.id}
-                role="listitem"
-                aria-label={dest.title}
-                onClick={() => handleCardClick(dest)}
-              >
-                <div className="dest-card-media">
-                  {dest.image ? (
-                    <img src={dest.image} alt={dest.title} loading="lazy" />
-                  ) : (
-                    <div className="image-placeholder" /> // Anda mungkin ingin menambahkan class CSS untuk placeholder ini
-                  )}
-                </div>
-                <div className="dest-card-body">
-                  <p className="dest-card-date">
-                    {dest.period?.[0]
-                      ? `Paket ${dest.period[0]}`
-                      : 'Periode belum tersedia'}
-                  </p>
-                  <h3 className="dest-card-title">{dest.title}</h3>
-                </div>
-              </article>
-            ))}
-          </div>
-        )}
-      </div>
-    </section>
-  );
-}
-
-// CTA Section
-function CTASection() {
-  const navigate = useNavigate();
-  return (
-    <section className="cta-section">
-      {/* Gambar latar belakang sekarang ditangani oleh CSS */}
-      <div className="cta-content">
-        <p className="cta-label">Paket Tour</p>
-        <h2 className="cta-title">
-          Temukan pilihan destinasi halal dengan akomodasi aman, makanan halal
-          terjamin, dan fasilitas ibadah yang mudah dijangkau.
-        </h2>
-        <Button
-          variant="white-hover-purple"
-          showArrows={false}
-          onClick={() => navigate('/cari-destinasi')}
-          style={{ fontSize: '15px' }}
-        >
-          Temukan Destinasi
-        </Button>
-      </div>
-    </section>
-  );
-}
-
-// Article Card
-function ArticleCard({
-  date,
-  title,
-  excerpt,
-  image,
-}: {
-  date: string;
-  title: string;
-  excerpt: string;
-  image?: string;
-}) {
-  const imageContent = image ? (
-    <img src={image} alt={title} loading="lazy" />
-  ) : (
-    <div className="article-image-placeholder" /> // Anda mungkin ingin menambahkan class CSS untuk placeholder ini
-  );
-  return (
-    <article className="article-card">
-      <div className="article-image">{imageContent}</div>
-      <div className="article-content">
-        <p className="article-date">{date}</p>
-        <h3 className="article-title">{title}</h3>
-        <p className="article-excerpt">{excerpt}</p>
-      </div>
-    </article>
-  );
-}
-
-// Articles Section
-function ArticlesSection({
-  articles,
-  loading,
-}: {
-  articles: Article[];
-  loading: boolean;
-}) {
-  const displayed = articles.slice(0, 2);
-  return (
-    <section className="articles-section">
-      <p className="section-subtitle">Aritkel Panduan Travelling</p>
-      <h2 className="section-title">Tips dan Artikel Perjalanan</h2>
-      {loading ? (
-        <div className="articles-grid">
-          <ArticleCard date="..." title="Memuat artikel..." excerpt="" />
-        </div>
-      ) : displayed.length === 0 ? (
-        <div className="articles-grid">
-          <ArticleCard
-            date=""
-            title="Belum ada artikel"
-            excerpt="Artikel akan tampil di sini setelah tersedia."
-          />
-        </div>
-      ) : (
-        <>
-          <div className="articles-grid">
-            {displayed.map((article) => (
-              <ArticleCard
-                key={article.id}
-                date={article.displayDate || article.date || ''}
-                title={article.title}
-                excerpt={article.content?.slice(0, 160) || ''}
-                image={article.image}
-              />
-            ))}
-          </div>
-          <div className="articles-btn-wrapper">
-            <Button variant="purple-light" showArrows={false}>
-              Lihat Selengkapnya
-            </Button>
-          </div>
-        </>
-      )}
-    </section>
-  );
-}
-
-function StatsSection() {
-  return (
-    <section className="stats-section">
-      <div className="stats-content">
-        <div className="stats-text">
-          <h2 className="stats-title">
-            Ketenangan dan Kenyamanan Perjalanan Anda, Prioritas Kami
-          </h2>
-          <p className="stats-desc">
-            Setiap paket perjalanan kami dirancang dengan cermat, menjamin
-            kenyamanan dan kesesuaian syariat. Ribuan Muslimah telah membuktikan
-            layanan kami yang berfokus pada pengalaman beribadah yang tenang.
-          </p>
-
-          <div className="stats-cards">
-            <StatCard value="500+" label="Destinasi Halal" />
-            <StatCard value="100K+" label="Muslimah yang Terlayani" />
-            <StatCard value="4.9" label="Rata-rata Rating Kepuasan" />
-          </div>
-        </div>
-
-        <div className="stats-image" aria-hidden="true">
-          <img src={StatsImage} alt="Destinasi unggulan" loading="lazy" />
-        </div>
-      </div>
-    </section>
-  );
-}
-
-// mmonial Section
-function TestimonialSection() {
-  return (
-    <section className="testimonial-section">
-      <p className="testimonial-label">Testimoni</p>
-      <div className="testimonial-quote">
-        <p>
-          <span className="text-black">
-            Ini bukan sekadar liburan, ini adalah perjalanan yang berbeda.
-            Setiap detail dirancang khusus{' '}
-          </span>
-          <span className="text-gray">
-            untuk kenyamanan kita, membawa pengalaman yang mendalam dan unik.
-          </span>{' '}
-          <span className="text-light-gray">
-            Mari segera wujudkan petualangan impian!
-          </span>
-        </p>
-      </div>
-      <div className="testimonial-photos">
-        <div className="testimonial-photo testimonial-photo-side">
-          <img src="/muslimah1.png" alt="Testimonial 1" loading="lazy" />
-        </div>
-        <div className="testimonial-photo testimonial-photo-main">
-          <img src="/muslimah2.png" alt="Testimonial Main" loading="lazy" />
-        </div>
-        <div className="testimonial-photo testimonial-photo-side">
-          <img src="/muslimah%203.png" alt="Testimonial 2" loading="lazy" />
-        </div>
-      </div>
-      <div className="testimonial-author">
-        <h3 className="testimonial-name">Virly Maryam</h3>
-        <p className="testimonial-role">Si Petualang Syar'i</p>
-      </div>
-    </section>
-  );
-}
+import HeroHomeSection from '@/components/section/home/HeroHomeSection';
+import CariDestinasiHomeSection from '@/components/section/home/CariDestinasiHomeSection';
+import WisataPilihanHomeSection from '@/components/section/home/WisataPilihanHomeSection';
+import PaketTourCtaHomeSection from '@/components/section/home/PaketTourCtaHomeSection';
+import ArtikelHomeSection from '@/components/section/home/ArtikelHomeSection';
+import SocialApproveHomeSection from '@/components/section/home/SocialApproveHomeSection';
+import TestimoniHomeSection from '@/components/section/home/TestimoniHomeSection';
+import { fetchPackages, type PackageDetail } from '@api/packages';
+import { fetchArticles, type Article } from '@api/articles';
 
 // Main HomePage Component
 export default function HomePage() {
-  const navigate = useNavigate();
-  const [destinations, setDestinations] = useState<Destination[]>([]);
-  const [destLoading, setDestLoading] = useState(true);
+  const [packages, setPackages] = useState<PackageDetail[]>([]);
+  const [packagesLoading, setPackagesLoading] = useState(true);
   const [articles, setArticles] = useState<Article[]>([]);
-  const [articleLoading, setArticleLoading] = useState(true);
+  const [articlesLoading, setArticlesLoading] = useState(true);
 
-  const handleSearch = (from: string, to: string, date: string) => {
-    const params = new URLSearchParams();
-    if (to) params.set('q', to);
-    if (from) params.set('from', from);
-    if (date) params.set('date', date);
-    const qs = params.toString();
-    navigate(qs ? `/cari-destinasi?${qs}` : '/cari-destinasi');
-  };
-
+  // Fetch packages data
   useEffect(() => {
     let active = true;
-    setDestLoading(true);
-    fetchDestinations()
+    setPackagesLoading(true);
+    fetchPackages()
       .then((data) => {
-        if (active) setDestinations(data);
+        if (active) setPackages(data);
       })
-      .finally(() => active && setDestLoading(false));
+      .finally(() => active && setPackagesLoading(false));
     return () => {
       active = false;
     };
   }, []);
 
+  // Fetch articles data
   useEffect(() => {
     let active = true;
-    setArticleLoading(true);
+    setArticlesLoading(true);
     fetchArticles()
       .then((data) => {
         if (active) setArticles(data);
       })
-      .finally(() => active && setArticleLoading(false));
+      .finally(() => active && setArticlesLoading(false));
     return () => {
       active = false;
     };
   }, []);
 
   return (
-    <div className="homepage">
-      <Header />
+    <div className="min-h-screen bg-white font-inter overflow-x-hidden w-full max-w-full relative">
+      <main className="relative overflow-x-hidden w-full max-w-full">
+        {/* Hero Section */}
+        <HeroHomeSection />
 
-      <main className="homepage-main">
-        <HeroSection />
+        {/* Cari Destinasi Section */}
+        <CariDestinasiHomeSection />
 
-        <div className="search-bg-wrapper">
-          <div className="search-bar-wrapper">
-            <SearchBar
-              destinations={destinations}
-              loading={destLoading}
-              onSearch={handleSearch}
-            />
-          </div>
-        </div>
-
-        <DestinationsSection
-          destinations={destinations}
-          loading={destLoading}
+        {/* Wisata Pilihan Section */}
+        <WisataPilihanHomeSection
+          packages={packages}
+          loading={packagesLoading}
         />
 
-        <CTASection />
+        {/* Paket Tour CTA Section */}
+        <PaketTourCtaHomeSection />
 
-        <ArticlesSection articles={articles} loading={articleLoading} />
+        {/* Artikel Section */}
+        <ArtikelHomeSection articles={articles} loading={articlesLoading} />
 
-        <StatsSection />
+        {/* Social Approve Section */}
+        <SocialApproveHomeSection />
 
-        <TestimonialSection />
+        {/* Testimoni Section */}
+        <TestimoniHomeSection />
       </main>
     </div>
   );
