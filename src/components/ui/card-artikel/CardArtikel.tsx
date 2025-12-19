@@ -29,11 +29,11 @@ export default function ArticleCard({
         className={`flex flex-col w-[380px] items-start gap-[9px] pt-[19px] pb-2 px-[17px] bg-white rounded-[15px] shadow-lg hover:shadow-xl transition-shadow ${className}`}
       >
         {/* Article Image */}
-        <div className="flex flex-col w-[350px] h-48 items-start gap-2.5 overflow-hidden">
+        <div className="flex flex-col w-full h-48 items-start gap-2.5 overflow-hidden">
           <div className="w-full h-full rounded-lg overflow-hidden">
             {image ? (
               <img
-                // src={image}
+                src={image}
                 alt={title}
                 className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                 loading="lazy"
@@ -53,13 +53,13 @@ export default function ArticleCard({
             </p>
           )}
 
-          {/* Title */}
-          <h3 className="font-sans font-bold text-xl text-gray-800 leading-snug">
+          {/* Title - Limited to 2 lines */}
+          <h3 className="font-sans font-bold text-xl text-gray-800 leading-snug line-clamp-2">
             {title}
           </h3>
 
-          {/* Description */}
-          <p className="font-sans font-normal text-sm text-gray-600 leading-relaxed">
+          {/* Description - Limited to 3 lines */}
+          <p className="font-sans font-normal text-sm text-gray-600 leading-relaxed line-clamp-3">
             {description}
           </p>
         </div>
@@ -70,7 +70,7 @@ export default function ArticleCard({
   // Variant With Button - Dengan button di tengah
   return (
     <div
-      className={`flex flex-col w-[380px] items-start gap-[9px] pt-[19px] pb-2 px-[17px] bg-white rounded-[15px] shadow-lg hover:shadow-xl transition-shadow ${className}`}
+      className={`flex flex-col w-[380px] h-full items-start gap-[9px] pt-[19px] pb-2 px-[17px] bg-white rounded-[15px] shadow-lg hover:shadow-xl transition-shadow ${className}`}
     >
       {/* Article Image */}
       <div className="flex flex-col w-full h-48 items-start gap-2.5 overflow-hidden">
@@ -88,19 +88,21 @@ export default function ArticleCard({
         </div>
       </div>
 
-      {/* Article Content */}
-      <div className="flex flex-col items-start justify-end self-stretch w-full flex-[0_0_auto] p-2.5 gap-3">
-        {/* Title */}
-        <h3 className="font-sans font-bold text-xl text-gray-800 leading-snug">
-          {title}
-        </h3>
+      {/* Article Content - Flex grow untuk button sejajar */}
+      <div className="flex flex-col items-start justify-between self-stretch w-full flex-1 p-2.5 gap-3">
+        <div className="flex flex-col gap-3 w-full">
+          {/* Title - Limited to 2 lines */}
+          <h3 className="font-sans font-bold text-xl text-gray-800 leading-snug line-clamp-2">
+            {title}
+          </h3>
 
-        {/* Description */}
-        <p className="font-sans font-normal text-sm text-gray-600 leading-relaxed">
-          {description}
-        </p>
+          {/* Description - Limited to 3 lines */}
+          <p className="font-sans font-normal text-sm text-gray-600 leading-relaxed line-clamp-3">
+            {description}
+          </p>
+        </div>
 
-        {/* Read Article Button - Centered */}
+        {/* Read Article Button - Centered and aligned */}
         {onReadClick && (
           <div className="flex justify-center self-stretch w-full mt-2">
             <Button

@@ -56,8 +56,20 @@ function ScrollToTop() {
 function AppWrapper() {
   const location = useLocation();
 
-  const hideHeaderPaths = ['/login', '/signup', '/forgot-password', '/admin'];
-  const hideFooterPaths = ['/login', '/signup', '/forgot-password', '/admin'];
+  const hideHeaderPaths = [
+    '/login',
+    '/signup',
+    '/forgot-password',
+    '/admin',
+    '/profile',
+  ];
+  const hideFooterPaths = [
+    '/login',
+    '/signup',
+    '/forgot-password',
+    '/admin',
+    '/profile',
+  ];
   const hideProfileHeader = location.pathname === '/profile';
   const hideHeader = hideHeaderPaths.some((p) =>
     location.pathname.startsWith(p)

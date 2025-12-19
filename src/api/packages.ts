@@ -76,6 +76,13 @@ const handlePaginatedResponse = <T>(response: any): T[] => {
   return [];
 };
 
+// Format date untuk menghilangkan T dan timezone
+const formatDate = (dateStr: string): string => {
+  if (!dateStr) return dateStr;
+  // Hilangkan T dan timezone (Z atau +00:00)
+  return dateStr.replace(/T.*$/, '').replace(/\.\d{3}Z$/, '');
+};
+
 const normalizePackage = (raw: any): PackageDetail => ({
   id: raw?.id ?? raw?._id ?? raw?.packageId ?? Date.now(),
   title: raw?.name ?? raw?.title ?? raw?.package_name ?? 'Paket Tanpa Nama',
@@ -93,11 +100,15 @@ const normalizePackage = (raw: any): PackageDetail => ({
     raw?.thumbnail ??
     raw?.cover,
   period: toArray<string>(
-    raw?.period ?? raw?.departure_dates ?? raw?.departure ?? raw?.periode
-  ),
+    raw?.period ??
+      raw?.departure_dates ??
+      raw?.departure ??
+      raw?.periode ??
+      raw?.departureDate
+  ).map(formatDate),
   duration: raw?.duration ?? raw?.duration_text ?? '',
-  airline: raw?.airline ?? raw?.maskapai ?? '',
-  airport: raw?.airport ?? raw?.bandara ?? raw?.departure_airport ?? '',
+  airline: raw?.airline ?? raw?.maskapai ?? 'Airline',
+  airport: raw?.airport ?? raw?.bandara ?? raw?.departure_airport ?? 'Airport',
   description: raw?.description ?? raw?.details ?? '',
   continent: raw?.continent ?? raw?.benua ?? raw?.region ?? '',
   departure: raw?.departure ?? raw?.periode ?? '',
@@ -111,7 +122,8 @@ const normalizePackage = (raw: any): PackageDetail => ({
   facilities: raw?.facilities,
   includes: raw?.includes,
   excludes: raw?.excludes,
-  departureAirport: raw?.departureAirport ?? raw?.departure_airport,
+  departureAirport:
+    raw?.departureAirport ?? raw?.departure_airport ?? raw?.bandara,
   arrivalAirport: raw?.arrivalAirport ?? raw?.arrival_airport,
   startDate: raw?.startDate ?? raw?.start_date,
   endDate: raw?.endDate ?? raw?.end_date,
@@ -131,9 +143,13 @@ const normalizePackage = (raw: any): PackageDetail => ({
   ),
 });
 
-export async function fetchPackages(): Promise<PackageDetail[]> {
+export async function fetchPackages(
+  limit: number = 100
+): Promise<PackageDetail[]> {
   try {
-    const res = await api.get(apiRoutes.packages);
+    const res = await api.get(apiRoutes.packages, {
+      params: { limit },
+    });
     const packages = handlePaginatedResponse<PackageDetail>(res.data);
     return Array.isArray(packages) ? packages.map(normalizePackage) : [];
   } catch (error) {

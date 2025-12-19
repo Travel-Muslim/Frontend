@@ -48,7 +48,7 @@ export default function SocialApproveHomeSection() {
                 >
                   <div className="text-center">
                     <div
-                      className="text-[clamp(2rem,5vw,3rem)] font-bold mb-2"
+                      className="text-[35px] font-bold mb-2"
                       style={{ color: '#444444' }}
                     >
                       {stat.value}

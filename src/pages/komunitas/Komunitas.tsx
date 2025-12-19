@@ -25,10 +25,14 @@ const MONTH_ALL = 'Semua Bulan';
 
 const formatMonthLabel = (value?: string) => {
   if (!value) return '';
+
+  // Try parsing as ISO date first
   const date = new Date(value);
   if (!Number.isNaN(date.getTime())) {
     return date.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
   }
+
+  // Try matching month name in string
   const match = value.match(
     /(januari|februari|maret|april|mei|juni|juli|agustus|september|oktober|november|desember)/i
   );
@@ -38,6 +42,7 @@ const formatMonthLabel = (value?: string) => {
     const year = yearMatch ? yearMatch[0] : String(new Date().getFullYear());
     return `${month.charAt(0).toUpperCase()}${month.slice(1).toLowerCase()} ${year}`;
   }
+
   return '';
 };
 
@@ -154,10 +159,16 @@ export default function Komunitas() {
   const monthOptions = useMemo(() => {
     const set = new Set<string>([MONTH_ALL]);
     discussions.forEach((d) => {
-      const label = formatMonthLabel(d.timeAgo);
+      // Use createdAt as primary source for date
+      const dateSource = d.createdAt || d.timeAgo;
+      const label = formatMonthLabel(dateSource);
       if (label) set.add(label);
     });
-    return Array.from(set);
+    return Array.from(set).sort((a, b) => {
+      if (a === MONTH_ALL) return -1;
+      if (b === MONTH_ALL) return 1;
+      return b.localeCompare(a); // Sort descending (newest first)
+    });
   }, [discussions]);
 
   useEffect(() => {
@@ -221,7 +232,9 @@ export default function Komunitas() {
         discussion.body.toLowerCase().includes(q) ||
         discussion.author.toLowerCase().includes(q);
 
-      const monthLabel = formatMonthLabel(discussion.timeAgo);
+      // Use createdAt as primary source
+      const dateSource = discussion.createdAt || discussion.timeAgo;
+      const monthLabel = formatMonthLabel(dateSource);
       const matchMonth =
         selectedMonth === MONTH_ALL || monthLabel === selectedMonth;
 
@@ -257,7 +270,7 @@ export default function Komunitas() {
         topicCount="100+"
         averageRating="4.9"
         responseRate="95%"
-        className="pt-10"
+        className="pt-8"
       />
 
       {/* Forum Discussion Section with Sidebar */}

@@ -22,29 +22,33 @@ export default function CardKomentar({
   comment,
   className = '',
 }: CardKomentarProps) {
+  // Format date to remove T and Z
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return '';
+    return dateString.replace('T', ' ').replace('Z', '').split('.')[0];
+  };
+
   // Full variant - with title, comment, and right-aligned profile
   if (variant === 'full') {
     return (
       <div
-        className={`bg-white rounded-[20px] border-2 border-[#FFC9D6] p-6 sm:p-8 ${className}`}
+        className={`bg-white w-full rounded-[20px] border-2 border-[#FFC9D6] p-3 sm:p-4 ${className}`}
       >
         <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
           {/* Left side - Comment content */}
           <div className="flex-1">
             {title && (
-              <h3 className="text-2xl font-bold text-gray-800 mb-4">{title}</h3>
+              <h3 className="text-lg font-bold text-gray-800 mb-2">{title}</h3>
             )}
             {comment && (
-              <p className="text-base text-gray-700 leading-relaxed">
-                {comment}
-              </p>
+              <p className="text-sm text-gray-700 leading-relaxed">{comment}</p>
             )}
           </div>
 
-          {/* Right side - User info */}
-          <div className="flex flex-col items-center lg:items-start gap-3 lg:min-w-[200px]">
+          {/* Right side - User info (horizontal layout) */}
+          <div className="flex items-center gap-3 lg:min-w-[280px]">
             {/* Avatar */}
-            <div className="w-20 h-20 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
+            <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
               <img
                 src={avatar}
                 alt={name}
@@ -52,16 +56,20 @@ export default function CardKomentar({
               />
             </div>
 
-            {/* Name and Rating */}
-            <div className="text-center lg:text-left">
-              <h4 className="text-xl font-bold text-gray-800 mb-2">{name}</h4>
-              <div className="flex items-center gap-2 justify-center lg:justify-start">
-                <Star className="w-5 h-5 fill-yellow-400 text-yellow-400" />
-                <span className="text-lg font-semibold text-gray-700">
-                  {rating}
-                </span>
+            {/* Name, Rating, and Date in horizontal layout */}
+            <div className="flex flex-col gap-1">
+              <h4 className="text-sm font-bold text-gray-800">{name}</h4>
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-1">
+                  <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                  <span className="text-sm font-semibold text-gray-700">
+                    {rating}
+                  </span>
+                </div>
                 {date && (
-                  <span className="text-sm text-gray-400 ml-2">{date}</span>
+                  <span className="text-xs text-gray-400">
+                    {formatDate(date)}
+                  </span>
                 )}
               </div>
             </div>
@@ -74,20 +82,20 @@ export default function CardKomentar({
   // Compact variant - horizontal layout with left-aligned profile
   return (
     <div
-      className={`bg-white rounded-[15px] border border-gray-200 p-4 ${className}`}
+      className={`bg-white h-20 rounded-[15px] border border-gray-200 p-4 ${className}`}
     >
       <div className="flex items-center gap-4">
         {/* Avatar */}
-        <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
+        <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
           <img src={avatar} alt={name} className="w-full h-full object-cover" />
         </div>
 
         {/* Name and Rating */}
         <div className="flex-1">
-          <h4 className="text-lg font-bold text-gray-800 mb-1">{name}</h4>
+          <h4 className="text-medium font-bold text-gray-800 mb-1">{name}</h4>
           <div className="flex items-center gap-2">
-            <Star className="w-5 h-5 fill-yellow-400 text-yellow-400" />
-            <span className="text-base font-semibold text-gray-700">
+            <Star className="w-2 h-2 fill-yellow-400 text-yellow-400" />
+            <span className="text-medium font-semibold text-gray-700">
               {rating}
             </span>
           </div>

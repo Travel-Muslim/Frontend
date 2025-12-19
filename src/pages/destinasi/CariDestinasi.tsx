@@ -6,6 +6,7 @@ import Header from '@/components/section/header/Header';
 import Footer from '@/components/section/footer/Footer';
 import HeroCariDestinasiSection from '@/components/section/cari-destinasi/HeroCariDestinasiSection';
 import CariDestinasiSection from '@/components/section/cari-destinasi/CariDestinasiSection';
+import Pagination from '@/components/ui/pagination/Pagination';
 import { pushRecentDestination } from '@utils/recentDestinations';
 import { CariDestinasiImage } from '@/assets/images';
 
@@ -99,6 +100,8 @@ export default function CariDestinasi() {
   const [dateFilter, setDateFilter] = useState(searchParams.get('date') ?? '');
   const [packages, setPackages] = useState<PackageDetail[]>([]);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 6;
 
   useEffect(() => {
     document.title = 'Cari Destinasi | Saleema Tour';
@@ -116,13 +119,11 @@ export default function CariDestinasi() {
   useEffect(() => {
     let active = true;
     setLoading(true);
-    fetchPackages()
+    fetchPackages(100)
       .then((list) => {
         if (active) {
-          // Gunakan dummy data jika API tidak mengembalikan data
-          // Atau comment ini untuk selalu menggunakan API data
-          const dataToUse = list && list.length > 0 ? list : dummyPackages;
-          setPackages(dataToUse);
+          // Gunakan data dari API, fallback ke dummy hanya jika error
+          setPackages(list && list.length > 0 ? list : dummyPackages);
         }
       })
       .catch(() => {
@@ -139,6 +140,7 @@ export default function CariDestinasi() {
 
   const handleInputChange = (value: string) => {
     setQuery(value);
+    setCurrentPage(1); // Reset ke halaman pertama saat search berubah
     const next = new URLSearchParams(searchParams);
     if (value.trim()) {
       next.set('q', value);
@@ -162,7 +164,7 @@ export default function CariDestinasi() {
     const q = query.trim().toLowerCase();
     const from = fromFilter.trim().toLowerCase();
     const date = dateFilter.trim().toLowerCase();
-    return packages.filter((pkg) => {
+    const filtered = packages.filter((pkg) => {
       const base = [pkg.title, pkg.location, pkg.airline]
         .filter(Boolean)
         .join(' ')
@@ -177,7 +179,28 @@ export default function CariDestinasi() {
       const matchDate = date ? dateMatch : true;
       return matchQ && matchFrom && matchDate;
     });
+
+    // Reset ke halaman pertama jika filter berubah
+    setCurrentPage(1);
+    return filtered;
   }, [query, fromFilter, dateFilter, packages]);
+
+  // Hitung total halaman
+  const totalPages = Math.ceil(filteredPackages.length / itemsPerPage);
+
+  // Ambil packages untuk halaman saat ini
+  const paginatedPackages = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    return filteredPackages.slice(startIndex, endIndex);
+  }, [filteredPackages, currentPage, itemsPerPage]);
+
+  // Handler untuk perubahan halaman
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    // Scroll ke atas saat pindah halaman
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   return (
     <div className="min-h-screen bg-white text-gray-900">
@@ -191,10 +214,31 @@ export default function CariDestinasi() {
 
       {/* Main Content Section */}
       <CariDestinasiSection
-        packages={filteredPackages}
+        packages={paginatedPackages}
         loading={loading}
         onPackageClick={handlePackageClick}
       />
+
+      {/* Pagination Section */}
+      {!loading && filteredPackages.length > 0 && (
+        <div className="container mx-auto px-4">
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+            itemsPerPage={itemsPerPage}
+            totalItems={filteredPackages.length}
+            // Custom purple theme
+            bgColor="#FFF8F0"
+            primaryColor="#B49DE4"
+            textColor="#6B7280"
+            activeTextColor="#FFFFFF"
+            disabledBgColor="#EDE9FE"
+            disabledTextColor="#A78BFA"
+            buttonBgColor="#FFFFFF"
+          />
+        </div>
+      )}
     </div>
   );
 }

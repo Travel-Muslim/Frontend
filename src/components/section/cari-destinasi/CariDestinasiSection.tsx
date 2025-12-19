@@ -23,8 +23,12 @@ export default function CariDestinasiSection({
 
     const formatPeriod = (period?: string[]) => {
       if (!period || period.length === 0) return 'Tanggal akan dikonfirmasi';
-      if (period.length === 1) return period[0];
-      return `${period[0]} - ${period[period.length - 1]}`;
+      // Format tanggal: hilangkan T dan timezone
+      const cleanDates = period.map((d) =>
+        d.replace(/T.*$/, '').replace(/\.\d{3}Z$/, '')
+      );
+      if (cleanDates.length === 1) return cleanDates[0];
+      return `${cleanDates[0]} - ${cleanDates[cleanDates.length - 1]}`;
     };
 
     return (

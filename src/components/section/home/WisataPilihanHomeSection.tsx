@@ -11,49 +11,37 @@ export default function WisataPilihanHomeSection({
   packages,
   loading,
 }: WisataPilihanHomeSectionProps) {
-  // Dummy data as fallback
-  const dummyPackages = [
-    {
-      id: 'dummy-1',
-      title: 'Korea Halal Tour',
-      subtitle: 'Paket Desember 2025',
-      country: 'Korea Selatan',
-      location: 'Korea Selatan',
-      airline: 'Garuda Indonesia',
-      dateRange: 'Januari - Februari 2026',
-      price: 'Rp14.000.000',
-      imageUrl:
-        'https://images.unsplash.com/photo-1517154421773-0529f29ea451?q=80&w=2070',
-    },
-    {
-      id: 'dummy-2',
-      title: 'Uzbekistan Halal Tour',
-      subtitle: 'Paket November 2025',
-      country: 'Uzbekistan',
-      location: 'Uzbekistan',
-      airline: 'Turkish Airlines',
-      dateRange: 'November - Desember 2025',
-      price: 'Rp18.000.000',
-      imageUrl:
-        'https://images.unsplash.com/photo-1586724237569-f3d0c1dee8c6?q=80&w=2070',
-    },
-    {
-      id: 'dummy-3',
-      title: 'Japan Halal Tour',
-      subtitle: 'Paket Oktober 2025',
-      country: 'Jepang',
-      location: 'Jepang',
-      airline: 'ANA Airlines',
-      dateRange: 'Oktober - November 2025',
-      price: 'Rp22.000.000',
-      imageUrl:
-        'https://images.unsplash.com/photo-1545569341-9eb8b30979d9?q=80&w=2070',
-    },
-  ];
+  // Format package data untuk card
+  const formatPackageForCard = (pkg: PackageDetail) => {
+    const formatPrice = (price?: number) =>
+      price ? `Rp${price.toLocaleString('id-ID')}` : undefined;
 
-  // Use API data if available, otherwise use dummy data
+    const formatPeriod = (period?: string[]) => {
+      if (!period || period.length === 0) return undefined;
+      // Format tanggal: hilangkan T dan timezone
+      const cleanDates = period.map((d) =>
+        d.replace(/T.*$/, '').replace(/\.\d{3}Z$/, '')
+      );
+      if (cleanDates.length === 1) return cleanDates[0];
+      return `${cleanDates[0]} - ${cleanDates[cleanDates.length - 1]}`;
+    };
+
+    return {
+      id: pkg.id,
+      title: pkg.title,
+      subtitle: pkg.period?.[0] || 'Paket Tour',
+      country: pkg.location,
+      location: pkg.location,
+      airline: pkg.airline,
+      dateRange: formatPeriod(pkg.period),
+      price: formatPrice(pkg.price),
+      imageUrl: pkg.image || '',
+    };
+  };
+
+  // Use API data with formatting
   const displayPackages =
-    packages.length > 0 ? packages.slice(0, 3) : dummyPackages;
+    packages.length > 0 ? packages.slice(0, 3).map(formatPackageForCard) : [];
 
   return (
     <section
@@ -86,15 +74,26 @@ export default function WisataPilihanHomeSection({
           </div>
         )}
 
+        {/* Empty State */}
+        {!loading && displayPackages.length === 0 && (
+          <div className="text-center py-12">
+            <p className="text-gray-500">Belum ada paket wisata tersedia</p>
+          </div>
+        )}
+
         {/* Cards Grid */}
-        {!loading && (
+        {!loading && displayPackages.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 lg:gap-12 justify-items-center">
             {displayPackages.map((pkg) => (
               <CardPackage
                 key={pkg.id}
                 title={pkg.title}
-                subtitle={'Paket Wisata'}
-                country={pkg.location}
+                subtitle={pkg.subtitle}
+                imageUrl={pkg.imageUrl}
+                dateRange={pkg.dateRange}
+                country={pkg.country}
+                airline={pkg.airline}
+                price={pkg.price}
                 variant="minimal-simple"
                 onDetailsClick={() => console.log(`Details for ${pkg.title}`)}
               />

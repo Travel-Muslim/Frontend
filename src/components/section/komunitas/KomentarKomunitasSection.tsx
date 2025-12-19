@@ -57,23 +57,23 @@ export default function KomentarKomunitasSection({
   };
 
   return (
-    <section className="w-full bg-gradient-to-b from-white to-pink-50/20 py-12 md:py-16 lg:py-20">
-      <div className="max-w-[1320px] mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="w-full bg-gradient-to-b from-white to-pink-50/20 py-8 md:py-10 lg:py-12">
+      <div className="max-w-[900px] mx-auto px-4 sm:px-5 lg:px-6">
         {/* Wrapper Card */}
-        <div className="bg-white rounded-2xl shadow-lg border border-pink-100 p-6 md:p-8">
+        <div className="bg-white rounded-xl shadow-lg border border-pink-100 p-4 md:p-6">
           {/* Header */}
-          <div className="mb-8 md:mb-10">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-3">
+          <div className="mb-6 md:mb-8">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800 mb-5">
               Tambahkan komentar anda
             </h2>
-            <p className="text-gray-600 text-sm sm:text-base">
+            <p className="text-gray-600 text-xs sm:text-sm mb-10">
               Bagikan pendapat, pengalaman, atau masukan anda, karena pendapat
               anda berarti!
             </p>
           </div>
 
           {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-4">
             {/* Title Input */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">

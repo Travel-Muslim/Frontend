@@ -28,7 +28,7 @@ export default function RekomendasiPaket() {
     const loadPackages = async () => {
       setLoading(true);
       try {
-        const data = await fetchPackages();
+        const data = await fetchPackages(100);
         setPackages(data);
       } catch (error) {
         console.error('Error loading packages:', error);
@@ -42,39 +42,53 @@ export default function RekomendasiPaket() {
 
   // Filter packages by selected region
   const filteredPackages = useMemo(() => {
-    if (!packages.length) return [];
+    if (!packages.length) {
+      return [];
+    }
 
     const regionName = REGION_MAP[selectedRegion];
-    return packages.filter(
-      (pkg) =>
-        pkg.continent?.toLowerCase() === regionName.toLowerCase() ||
-        pkg.location?.toLowerCase().includes(regionName.toLowerCase())
-    );
+
+    const filtered = packages.filter((pkg) => {
+      const continent = pkg.continent?.toLowerCase() || '';
+      const location = pkg.location?.toLowerCase() || '';
+      const regionLower = regionName.toLowerCase();
+
+      const continentMatch = continent === regionLower;
+      const locationMatch = location.includes(regionLower);
+
+      return continentMatch || locationMatch;
+    });
+
+    return filtered;
   }, [packages, selectedRegion]);
 
-  // Split filtered packages into favorite (first 3) and popular (next 3)
-  const favoritePackages = useMemo(
-    () => filteredPackages.slice(0, 3),
-    [filteredPackages]
-  );
-
-  const popularPackages = useMemo(
-    () => filteredPackages.slice(3, 6),
-    [filteredPackages]
-  );
-
-  const handleDetailsClick = (id: string | number) => {
-    // Find the package to add to recent destinations
-    const selectedPackage = packages.find((pkg) => pkg.id === id);
-    if (selectedPackage) {
-      pushRecentDestination({
-        id: selectedPackage.id,
-        title: selectedPackage.title,
-        location: selectedPackage.location,
-        image: selectedPackage.image || '',
-      });
+  // Split filtered packages randomly into favorite (3) and popular (3)
+  const { favoritePackages, popularPackages } = useMemo(() => {
+    if (!filteredPackages.length) {
+      return { favoritePackages: [], popularPackages: [] };
     }
-    navigate(`/detail-paket/${id}`);
+
+    // Shuffle array untuk random selection
+    const shuffled = [...filteredPackages].sort(() => Math.random() - 0.5);
+
+    const fav = shuffled.slice(0, 3);
+    const pop = shuffled.slice(3, 6);
+
+    return {
+      favoritePackages: fav,
+      popularPackages: pop,
+    };
+  }, [filteredPackages]);
+
+  const handleDetailsClick = (pkg: PackageDetail) => {
+    // Add to recent destinations
+    pushRecentDestination({
+      id: pkg.id,
+      title: pkg.title,
+      location: pkg.location,
+      image: pkg.image || '',
+    });
+    navigate(`/destinasi/${pkg.id}`);
   };
 
   const handleRegionChange = (region: string) => {
@@ -82,22 +96,24 @@ export default function RekomendasiPaket() {
   };
 
   return (
-    <div className="min-h-screen bg-orange-50">
-      {/* Hero Section with Region Tabs */}
-      <HeroRekomendasiDestinasiSection
-        selectedRegion={selectedRegion}
-        onRegionChange={handleRegionChange}
-        backgroundImage={RekomendasiPaketImage}
-        // backgroundImage="https://images.unsplash.com/photo-1591604466107-ec97de577aff?w=1200"
-      />
+    <>
+      <div className="min-h-screen bg-orange-50">
+        {/* Hero Section with Region Tabs */}
+        <HeroRekomendasiDestinasiSection
+          selectedRegion={selectedRegion}
+          onRegionChange={handleRegionChange}
+          backgroundImage={RekomendasiPaketImage}
+          // backgroundImage="https://images.unsplash.com/photo-1591604466107-ec97de577aff?w=1200"
+        />
 
-      {/* Main Content with Package Cards */}
-      <RekomendasiDestinasiSection
-        favoritePackages={favoritePackages}
-        popularPackages={popularPackages}
-        loading={loading}
-        onPackageClick={handleDetailsClick}
-      />
-    </div>
+        {/* Main Content with Package Cards */}
+        <RekomendasiDestinasiSection
+          favoritePackages={favoritePackages}
+          popularPackages={popularPackages}
+          loading={loading}
+          onPackageClick={handleDetailsClick}
+        />
+      </div>
+    </>
   );
 }
