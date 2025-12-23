@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
-import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom';
+import { Link, NavLink, useNavigate, matchPath } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { AvatarDefaultIcon, ProfileOutlineIcon } from '@/assets/icon';
 import { getProfile, type User } from '@api/auth';
@@ -11,10 +11,7 @@ export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [loadingUser, setLoadingUser] = useState(true);
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const avatarRef = useRef<HTMLElement | null>(null);
   const navigate = useNavigate();
-  const location = useLocation();
 
   const fetchUser = useCallback(async () => {
     try {
@@ -22,8 +19,6 @@ export default function Header() {
       const userData = await getProfile();
       setUser(userData);
     } catch (error) {
-      console.error('Error fetching user profile:', error);
-      // Jika gagal fetch, mungkin user belum login
       setUser(null);
     } finally {
       setLoadingUser(false);
@@ -31,7 +26,6 @@ export default function Header() {
   }, []);
 
   useEffect(() => {
-    // Cek apakah user sudah login berdasarkan adanya token
     const token = localStorage.getItem('token');
     if (token) {
       fetchUser();
@@ -42,29 +36,31 @@ export default function Header() {
   }, [fetchUser]);
 
   useEffect(() => {
-    // Set initial scroll state
+    const path = location.pathname;
+
+    const transparentRoutes = ['/artikel/:id'];
+
+    const isTransparentPage = transparentRoutes.some((route) =>
+      matchPath(route, path)
+    );
+
+    if (isTransparentPage) {
+      setScrolled(true);
+      return;
+    }
+
     setScrolled(window.scrollY > 80);
 
     const onScroll = () => setScrolled(window.scrollY > 80);
     window.addEventListener('scroll', onScroll);
     return () => window.removeEventListener('scroll', onScroll);
-  }, []);
+  }, [location.pathname]);
 
   const handleAvatarClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (!user) {
       navigate('/login');
     }
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    setUser(null);
-    navigate('/login');
-  };
-
-  const handleEditProfile = () => {
-    navigate('/profile/edit');
   };
 
   const profileMenuItems = [
