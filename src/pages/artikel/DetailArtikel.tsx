@@ -170,7 +170,7 @@ export default function ArtikelDetail() {
       <div className="w-full max-w-4xl mx-auto px-4 sm:px-6">
         {/* Header */}
         <div className="flex flex-col gap-4 sm:gap-5 mb-12 lg:mb-16">
-          <span className="inline-block px-5 sm:px-6 py-1.5 rounded-full border border-white/90 bg-gradient-to-r from-purple-500 to-purple-400 text-white font-sans font-semibold text-xs sm:text-sm tracking-widest uppercase shadow-md mx-auto">
+          <span className="inline-block px-5 sm:px-6 py-1.5 rounded-full border border-white/90 bg-[#B49DE4] text-white font-sans font-semibold text-xs sm:text-sm tracking-widest uppercase shadow-md mx-auto">
             {article.tag || 'Artikel'}
           </span>
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-sans font-black text-gray-900 text-center leading-tight">
@@ -178,7 +178,6 @@ export default function ArtikelDetail() {
           </h1>
           <div className="flex items-center justify-center gap-3 font-sans font-medium text-sm sm:text-base text-gray-600">
             {article.author && <span>{article.author}</span>}
-            {(article.author || displayDate) && <span>•</span>}
             {displayDate && <span>{displayDate}</span>}
           </div>
         </div>
@@ -202,47 +201,12 @@ export default function ArtikelDetail() {
             </p>
           ) : (
             blocks.map((block, idx) => (
-              <div key={idx} className="flex flex-col gap-5">
+              <div key={idx} className="flex flex-col gap-5 text-center">
                 {renderBlock(block, idx)}
               </div>
             ))
           )}
         </div>
-
-        {/* Article Sections - jika ada sections dari API */}
-        {article?.sections && article.sections.length > 0 && (
-          <div className="flex flex-col gap-12 lg:gap-16 mb-16 lg:mb-20">
-            {article.sections.map((section: any, idx: number) => (
-              <div
-                key={`section-${idx}`}
-                className="bg-white rounded-2xl lg:rounded-3xl shadow-md overflow-hidden"
-              >
-                {section.imageUrl && (
-                  <div className="w-full h-48 sm:h-64 lg:h-80 overflow-hidden">
-                    <img
-                      src={section.imageUrl}
-                      alt={section.title || `Section ${idx + 1}`}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                )}
-                <div className="p-6 sm:p-8 lg:p-10">
-                  {section.title && (
-                    <h2 className="text-2xl sm:text-3xl lg:text-4xl font-sans font-bold text-gray-900 mb-6">
-                      {section.title}
-                    </h2>
-                  )}
-                  {section.content && (
-                    <div
-                      className="font-sans font-normal text-base sm:text-lg text-gray-800 leading-relaxed prose prose-lg max-w-none"
-                      dangerouslySetInnerHTML={{ __html: section.content }}
-                    />
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
 
         {/* CTA Section */}
         {article.link && (
