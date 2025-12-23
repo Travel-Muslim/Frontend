@@ -14,10 +14,10 @@ export default function HeroHomeSection() {
       {/* Background Image with Overlay */}
       <div className="absolute inset-0 z-0">
         <img
-          // src="https://images.unsplash.com/photo-1591604466107-ec97de577aff?q=80&w=2071"
           src={HeroBgImage}
           alt="Istiqlal Mosque"
           className="w-full h-full object-cover"
+          loading="lazy"
         />
         {/* Dark overlay for better text readability */}
         <div className="absolute inset-0 bg-black/40" />
