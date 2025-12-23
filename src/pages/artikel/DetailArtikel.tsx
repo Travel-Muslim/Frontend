@@ -74,7 +74,7 @@ export default function ArtikelDetail() {
       return (
         <div
           key={`html-${idx}`}
-          className="font-sans font-normal text-base sm:text-lg text-gray-800 leading-relaxed prose prose-lg max-w-none"
+          className="article-content"
           dangerouslySetInnerHTML={{ __html: block.value }}
         />
       );
@@ -82,16 +82,16 @@ export default function ArtikelDetail() {
     if (block.type === 'image') {
       return (
         <div
-          className="w-full h-56 sm:h-72 lg:h-96 rounded-xl sm:rounded-2xl overflow-hidden shadow-lg"
+          className="w-full rounded-lg overflow-hidden my-6"
           key={`img-${idx}`}
         >
           <img
             src={block.value}
             alt={block.label || article?.title || 'Gambar artikel'}
-            className="w-full h-full object-cover"
+            className="w-full h-auto object-cover"
           />
           {block.label && (
-            <p className="text-center text-sm text-gray-600 mt-2 font-sans">
+            <p className="text-center text-sm text-gray-600 mt-3 font-sans">
               {block.label}
             </p>
           )}
@@ -102,13 +102,13 @@ export default function ArtikelDetail() {
       return (
         <p
           key={`link-${idx}`}
-          className="font-sans font-normal text-base sm:text-lg text-gray-800 leading-relaxed text-justify"
+          className="font-sans text-base text-gray-800 leading-relaxed text-justify"
         >
           <a
             href={block.value}
             target="_blank"
             rel="noreferrer"
-            className="text-purple-500 hover:text-purple-700 underline"
+            className="text-purple-600 hover:text-purple-800 underline"
           >
             {block.label || block.value}
           </a>
@@ -118,7 +118,7 @@ export default function ArtikelDetail() {
     return (
       <p
         key={`text-${idx}`}
-        className="font-sans font-normal text-base sm:text-lg text-gray-800 leading-relaxed text-justify"
+        className="font-sans text-base text-gray-800 leading-relaxed text-justify"
       >
         {block.value}
       </p>
@@ -127,17 +127,17 @@ export default function ArtikelDetail() {
 
   if (loading) {
     return (
-      <div className="w-full min-h-screen bg-orange-50 pt-20 sm:pt-28 lg:pt-32 pb-20 lg:pb-28">
+      <div className="w-full min-h-screen bg-orange-50 pt-24 pb-16">
         <div className="w-full max-w-4xl mx-auto px-4 sm:px-6">
-          <div className="flex flex-col gap-4 sm:gap-5 mb-12">
-            <span className="inline-block px-5 sm:px-6 py-1.5 rounded-full border border-white/90 bg-gradient-to-r from-purple-500 to-purple-400 text-white font-sans font-semibold text-xs sm:text-sm tracking-widest uppercase shadow-md mx-auto">
+          <div className="flex flex-col gap-4 mb-8">
+            <span className="inline-block px-6 py-1.5 rounded-full bg-purple-200 text-purple-700 font-sans font-semibold text-xs tracking-wide uppercase mx-auto">
               Artikel
             </span>
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-sans font-black text-gray-900 text-center leading-tight">
+            <h1 className="text-3xl sm:text-4xl font-sans font-bold text-gray-900 text-center leading-tight">
               Memuat artikel...
             </h1>
           </div>
-          <p className="font-sans font-normal text-base sm:text-lg text-gray-700 leading-relaxed text-justify">
+          <p className="font-sans text-base text-gray-700 leading-relaxed text-center">
             Tunggu sebentar, artikel sedang dimuat dari server.
           </p>
         </div>
@@ -147,17 +147,17 @@ export default function ArtikelDetail() {
 
   if (!article) {
     return (
-      <div className="w-full min-h-screen bg-orange-50 pt-20 sm:pt-28 lg:pt-32 pb-20 lg:pb-28">
+      <div className="w-full min-h-screen bg-gradient-to-b from-purple-50 via-orange-50 to-orange-100 pt-24 pb-16">
         <div className="w-full max-w-4xl mx-auto px-4 sm:px-6">
-          <div className="flex flex-col gap-4 sm:gap-5 mb-12">
-            <span className="inline-block px-5 sm:px-6 py-1.5 rounded-full border border-white/90 bg-gradient-to-r from-purple-500 to-purple-400 text-white font-sans font-semibold text-xs sm:text-sm tracking-widest uppercase shadow-md mx-auto">
+          <div className="flex flex-col gap-4 mb-8">
+            <span className="inline-block px-6 py-1.5 rounded-full bg-purple-200 text-purple-700 font-sans font-semibold text-xs tracking-wide uppercase mx-auto">
               Artikel
             </span>
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-sans font-black text-gray-900 text-center leading-tight">
+            <h1 className="text-3xl sm:text-4xl font-sans font-bold text-gray-900 text-center leading-tight">
               Artikel tidak ditemukan
             </h1>
           </div>
-          <p className="font-sans font-normal text-base sm:text-lg text-gray-700 leading-relaxed text-justify">
+          <p className="font-sans text-base text-gray-700 leading-relaxed text-center">
             Artikel yang Anda cari tidak tersedia.
           </p>
         </div>
@@ -166,62 +166,130 @@ export default function ArtikelDetail() {
   }
 
   return (
-    <div className="w-full min-h-screen bg-orange-50 pt-20 sm:pt-28 lg:pt-32 pb-20 lg:pb-28">
-      <div className="w-full max-w-4xl mx-auto px-4 sm:px-6">
+    <div className="w-full min-h-screen bg-orange-50">
+      {/* Spacer for fixed navbar */}
+      <div className="h-16"></div>
+
+      <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 py-12">
         {/* Header */}
-        <div className="flex flex-col gap-4 sm:gap-5 mb-12 lg:mb-16">
-          <span className="inline-block px-5 sm:px-6 py-1.5 rounded-full border border-white/90 bg-[#B49DE4] text-white font-sans font-semibold text-xs sm:text-sm tracking-widest uppercase shadow-md mx-auto">
-            {article.tag || 'Artikel'}
+        <div className="flex flex-col gap-3 mb-8">
+          <span className="inline-block px-6 py-1.5 rounded-full bg-purple-200 text-purple-700 font-sans font-semibold text-xs tracking-wide uppercase mx-auto">
+            {article.tag || 'Seni Muslimah'}
           </span>
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-sans font-black text-gray-900 text-center leading-tight">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-sans font-bold text-gray-900 text-center leading-tight px-4">
             {article.title}
           </h1>
-          <div className="flex items-center justify-center gap-3 font-sans font-medium text-sm sm:text-base text-gray-600">
+          <div className="flex items-center justify-center gap-2 font-sans text-sm text-gray-600">
             {article.author && <span>{article.author}</span>}
+            {article.author && displayDate && <span>·</span>}
             {displayDate && <span>{displayDate}</span>}
           </div>
         </div>
 
         {/* Main Image */}
         {article.image && (
-          <div className="w-full h-64 sm:h-80 lg:h-96 rounded-2xl lg:rounded-3xl overflow-hidden shadow-lg mb-12 lg:mb-20">
+          <div className="w-full rounded-lg overflow-hidden shadow-md mb-8">
             <img
               src={article.image}
               alt={article.title}
-              className="w-full h-full object-cover"
+              className="w-full h-auto object-cover"
             />
           </div>
         )}
 
         {/* Content Sections */}
-        <div className="flex flex-col gap-12 lg:gap-16 mb-16 lg:mb-20">
+        <div className="rounded-lg p-6 sm:p-8 mb-8">
+          <style>
+            {`
+              .article-content {
+                font-family: sans-serif;
+                color: #1f2937;
+                line-height: 1.75;
+              }
+              .article-content p {
+                margin-bottom: 1.25rem;
+                text-align: justify;
+                font-size: 1rem;
+              }
+              .article-content em {
+                color: #6b7280;
+                font-style: italic;
+                display: block;
+                margin-bottom: 1.5rem;
+              }
+              .article-content h2 {
+                font-size: 1.5rem;
+                font-weight: 700;
+                color: #111827;
+                margin-top: 2rem;
+                margin-bottom: 1rem;
+              }
+              .article-content h3 {
+                font-size: 1.25rem;
+                font-weight: 600;
+                color: #111827;
+                margin-top: 1.5rem;
+                margin-bottom: 0.75rem;
+              }
+              .article-content ul {
+                list-style-type: disc;
+                padding-left: 1.5rem;
+                margin-bottom: 1.25rem;
+              }
+              .article-content li {
+                margin-bottom: 0.5rem;
+                text-align: left;
+              }
+              .article-content ol {
+                list-style-type: decimal;
+                padding-left: 1.5rem;
+                margin-bottom: 1.25rem;
+              }
+              .article-content figure {
+                margin: 1.5rem 0;
+              }
+              .article-content figure img {
+                width: 100%;
+                height: auto;
+                border-radius: 0.5rem;
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+              }
+              .article-content strong {
+                font-weight: 600;
+                color: #111827;
+              }
+              .article-content a {
+                color: #9333ea;
+                text-decoration: underline;
+              }
+              .article-content a:hover {
+                color: #7e22ce;
+              }
+            `}
+          </style>
           {blocks.length === 0 ? (
-            <p className="font-sans font-normal text-base sm:text-lg text-gray-700 leading-relaxed text-justify">
+            <p className="font-sans text-base text-gray-700 leading-relaxed text-center">
               Konten artikel belum tersedia.
             </p>
           ) : (
-            blocks.map((block, idx) => (
-              <div key={idx} className="flex flex-col gap-5 text-center">
-                {renderBlock(block, idx)}
-              </div>
-            ))
+            blocks.map((block, idx) => renderBlock(block, idx))
           )}
         </div>
 
         {/* CTA Section */}
         {article.link && (
-          <div className="flex items-center justify-center p-8 sm:p-10 bg-white rounded-2xl shadow-md">
-            <p className="font-sans font-semibold text-base sm:text-lg lg:text-xl text-gray-800 leading-relaxed text-center">
-              Ingin membaca lebih lanjut? Kunjungi sumber artikel di{' '}
+          <div className="bg-white rounded-lg shadow-sm p-6 sm:p-8 text-center">
+            <p className="font-sans font-semibold text-base sm:text-lg text-gray-800 leading-relaxed">
+              Yuk, wujudkan impian liburan halal & berkelas bersama Saleema Tour
+              melalui paket wisata muslimah ke Korea 2025!{' '}
               <a
                 href={article.link}
                 target="_blank"
                 rel="noreferrer"
-                className="text-purple-500 hover:text-purple-700 underline"
+                className="text-purple-600 hover:text-purple-800 underline"
               >
-                tautan berikut
+                Klik di sini
               </a>
-              .
             </p>
           </div>
         )}
