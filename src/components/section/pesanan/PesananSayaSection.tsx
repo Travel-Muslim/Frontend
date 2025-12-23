@@ -1,5 +1,6 @@
 import CardBs from '@components/ui/card-pesanan/CardPesanan';
 import { PackageDetail } from '@api/packages';
+import { formatHelper } from '@/helper/format';
 
 interface PesananSayaSectionProps {
   packages: PackageDetail[];
@@ -12,16 +13,6 @@ export default function PesananSayaSection({
   loading = false,
   onDetailClick,
 }: PesananSayaSectionProps) {
-  const formatPrice = (price: number | undefined): string => {
-    if (!price) return 'Hubungi kami';
-    return `Rp${price.toLocaleString('id-ID')}`;
-  };
-
-  const formatPeriod = (period: string[] | undefined): string => {
-    if (!period || period.length === 0) return 'Jadwal tersedia';
-    return period[0];
-  };
-
   if (loading) {
     return (
       <div className="w-full max-w-[1200px] mx-auto px-4 mobile:px-3 xs:px-4 sm:px-6 md:px-8 py-8 mobile:py-6 xs:py-7 sm:py-8">
@@ -54,11 +45,16 @@ export default function PesananSayaSection({
             id={String(pkg.id)}
             variant="with-detail"
             image={pkg.image}
-            title={pkg.title}
+            title={pkg.name}
             location={pkg.location}
-            date={formatPeriod(pkg.period)}
-            airline={pkg.airline || 'Airline tersedia'}
-            airport={pkg.airport || 'Airport tersedia'}
+            date={
+              formatHelper.Period(pkg.periode_start) +
+              (pkg.periode_end
+                ? ` - ${formatHelper.Period(pkg.periode_end)}`
+                : '')
+            }
+            airline={pkg.maskapai || 'Airline tersedia'}
+            airport={pkg.bandara || 'Airport tersedia'}
             status="Terbayar"
             onDetailClick={() => onDetailClick(pkg.id)}
           />

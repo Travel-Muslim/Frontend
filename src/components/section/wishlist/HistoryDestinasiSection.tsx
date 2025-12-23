@@ -44,13 +44,10 @@ export default function HistoryDestinasiSection({
         <div key={pkg.id} className="w-full flex justify-center">
           <CardPackage
             variant="compact-button"
-            title={pkg.title}
+            title={pkg.name}
             country={pkg.location}
             price={formatPrice(pkg.price)}
-            imageUrl={
-              pkg.image ||
-              'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=400'
-            }
+            imageUrl={pkg.image}
             buttonText="Details"
             onDetailsClick={() => onDetailsClick?.(String(pkg.id))}
             className="w-full max-w-[380px]"

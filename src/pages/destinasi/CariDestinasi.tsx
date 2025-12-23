@@ -2,8 +2,6 @@ import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import type { PackageDetail } from '@api/packages';
 import { fetchPackages } from '@api/packages';
-import Header from '@/components/section/header/Header';
-import Footer from '@/components/section/footer/Footer';
 import HeroCariDestinasiSection from '@/components/section/cari-destinasi/HeroCariDestinasiSection';
 import CariDestinasiSection from '@/components/section/cari-destinasi/CariDestinasiSection';
 import Pagination from '@/components/ui/pagination/Pagination';
@@ -15,78 +13,75 @@ import { CariDestinasiImage } from '@/assets/images';
 const dummyPackages: PackageDetail[] = [
   {
     id: '1',
-    title: 'Korea Halal Adventure',
+    name: 'Korea Halal Adventure',
     location: 'Korea Selatan',
     price: 14000000,
-    airline: 'Garuda Indonesia',
-    period: ['15 Jan 2026', '22 Jan 2026'],
+    maskapai: 'Garuda Indonesia',
+    periode_start: '15 Jan 2026',
+    periode_end: '22 Jan 2026',
     image:
       'https://images.unsplash.com/photo-1530981754881-38f1927fbb20?w=500&h=400&fit=crop',
-    airport: 'Incheon',
-    description:
-      'Jelajahi keindahan Korea dengan panduan halal tour profesional',
+    bandara: 'Incheon',
   },
   {
     id: '2',
-    title: 'Dubai & Abu Dhabi Luxury',
+    name: 'Dubai & Abu Dhabi Luxury',
     location: 'United Arab Emirates',
     price: 18000000,
-    airline: 'Emirates',
-    period: ['10 Feb 2026', '17 Feb 2026'],
+    maskapai: 'Emirates',
+    periode_start: '10 Feb 2026',
+    periode_end: '17 Feb 2026',
     image:
       'https://images.unsplash.com/photo-1512453909124-a3500ae3015a?w=500&h=400&fit=crop',
-    airport: 'Dubai International',
-    description: 'Nikmati kemewahan Dubai dengan fasilitas halal terbaik',
+    bandara: 'Dubai International',
   },
   {
     id: '3',
-    title: 'Turki Heritage Tour',
+    name: 'Turki Heritage Tour',
     location: 'Turki',
     price: 16000000,
-    airline: 'Turkish Airlines',
-    period: ['20 Mar 2026', '28 Mar 2026'],
+    maskapai: 'Turkish Airlines',
+    periode_start: '20 Mar 2026',
+    periode_end: '28 Mar 2026',
     image:
       'https://images.unsplash.com/photo-1524634126442-357e0eac5c14?w=500&h=400&fit=crop',
-    airport: 'Istanbul',
-    description: 'Jelajahi warisan budaya Turki dengan kemudahan halal',
+    bandara: 'Istanbul',
   },
   {
     id: '4',
-    title: 'Japan Cultural Experience',
+    name: 'Japan Cultural Experience',
     location: 'Jepang',
     price: 20000000,
-    airline: 'Japan Airlines',
-    period: ['05 Apr 2026', '14 Apr 2026'],
+    maskapai: 'Japan Airlines',
+    periode_start: '05 Apr 2026',
+    periode_end: '14 Apr 2026',
     image:
       'https://images.unsplash.com/photo-1522383150241-803fca64f381?w=500&h=400&fit=crop',
-    airport: 'Narita',
-    description: 'Rasakan keindahan budaya Jepang dengan pilihan kuliner halal',
+    bandara: 'Narita',
   },
   {
     id: '5',
-    title: 'Malaysia & Singapore Tour',
+    name: 'Malaysia & Singapore Tour',
     location: 'Malaysia & Singapura',
     price: 12000000,
-    airline: 'Malaysia Airlines',
-    period: ['12 Mei 2026', '18 Mei 2026'],
+    maskapai: 'Malaysia Airlines',
+    periode_start: '12 Mei 2026',
+    periode_end: '18 Mei 2026',
     image:
       'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=500&h=400&fit=crop',
-    airport: 'Kuala Lumpur',
-    description:
-      'Petualangan singkat ke negara tetangga dengan kemudahan halal',
+    bandara: 'Kuala Lumpur',
   },
   {
     id: '6',
-    title: 'Egypt Wonders Discovery',
+    name: 'Egypt Wonders Discovery',
     location: 'Mesir',
     price: 15000000,
-    airline: 'EgyptAir',
-    period: ['25 Jun 2026', '02 Jul 2026'],
+    maskapai: 'EgyptAir',
+    periode_start: '25 Jun 2026',
+    periode_end: '02 Jul 2026',
     image:
       'https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?w=500&h=400&fit=crop',
-    airport: 'Cairo International',
-    description:
-      'Temukan keajaiban Mesir dengan pemandu berpengalaman halal tour',
+    bandara: 'Cairo International',
   },
 ];
 
@@ -165,18 +160,17 @@ export default function CariDestinasi() {
     const from = fromFilter.trim().toLowerCase();
     const date = dateFilter.trim().toLowerCase();
     const filtered = packages.filter((pkg) => {
-      const base = [pkg.title, pkg.location, pkg.airline]
+      const base = [pkg.name, pkg.location, pkg.maskapai]
         .filter(Boolean)
         .join(' ')
         .toLowerCase();
       const fromText =
-        `${pkg.airport || ''} ${pkg.location || ''}`.toLowerCase();
-      const dateMatch = (pkg.period ?? []).some((p) =>
-        p.toLowerCase().includes(date)
-      );
+        `${pkg.bandara || ''} ${pkg.location || ''}`.toLowerCase();
+      const dateText =
+        `${pkg.periode_start || ''} ${pkg.periode_end || ''}`.toLowerCase();
       const matchQ = q ? base.includes(q) : true;
       const matchFrom = from ? fromText.includes(from) : true;
-      const matchDate = date ? dateMatch : true;
+      const matchDate = date ? dateText.includes(date) : true;
       return matchQ && matchFrom && matchDate;
     });
 

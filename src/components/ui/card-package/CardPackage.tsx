@@ -186,7 +186,7 @@ const CardPackage = ({
               onClick={onDetailsClick}
               variant="light-purple-hover-dark-purple"
               type="button"
-              className="w-[146px]! h-[49px]! ml-4!"
+              className="w-[130px]! h-[49px]! ml-4!"
             >
               {buttonText}
             </Button>

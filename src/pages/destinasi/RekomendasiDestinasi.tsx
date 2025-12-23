@@ -45,7 +45,7 @@ export default function RekomendasiPaket() {
     const regionName = REGION_MAP[selectedRegion];
 
     const filtered = packages.filter((pkg) => {
-      const continent = pkg.continent?.toLowerCase() || '';
+      const continent = pkg.benua?.toLowerCase() || '';
       const location = pkg.location?.toLowerCase() || '';
       const regionLower = regionName.toLowerCase();
 
@@ -77,7 +77,7 @@ export default function RekomendasiPaket() {
   const handleDetailsClick = (pkg: PackageDetail) => {
     pushRecentDestination({
       id: pkg.id,
-      title: pkg.title,
+      name: pkg.name,
       location: pkg.location,
       image: pkg.image || '',
     });

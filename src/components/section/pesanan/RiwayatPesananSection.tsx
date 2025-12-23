@@ -1,5 +1,6 @@
 import CardBs from '@components/ui/card-pesanan/CardPesanan';
 import { PackageDetail } from '@api/packages';
+import { formatHelper } from '@/helper/format';
 
 interface RiwayatPesananSectionProps {
   packages: PackageDetail[];
@@ -56,11 +57,16 @@ export default function RiwayatPesananSection({
             id={String(pkg.id)}
             variant="with-review"
             image={pkg.image}
-            title={pkg.title}
+            title={pkg.name}
             location={pkg.location}
-            date={formatPeriod(pkg.period)}
-            airline={pkg.airline || 'Airline tersedia'}
-            airport={pkg.airport || 'Airport tersedia'}
+            date={
+              formatHelper.Period(pkg.periode_start) +
+              (pkg.periode_end
+                ? ` - ${formatHelper.Period(pkg.periode_end)}`
+                : '')
+            }
+            airline={pkg.maskapai || 'Maskapai tersedia'}
+            airport={pkg.bandara || 'Bandara tersedia'}
             status="Selesai"
             onReviewClick={() => onReviewClick(pkg.id)}
           />

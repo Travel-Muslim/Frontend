@@ -211,7 +211,7 @@ export default function TicketDetailPage() {
     <>
       <DetailTiket
         namaLengkap={booking.fullname || '-'}
-        paketTour={packageDetail?.title || booking.package_name || '-'}
+        paketTour={packageDetail?.name || booking.package_name || '-'}
         nomorTelepon={booking.phoneNumber || '-'}
         tanggalHabisBerlaku={
           booking.passportExpiry

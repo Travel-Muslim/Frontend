@@ -1,6 +1,7 @@
-import React from 'react';
 import CardPackage from '../../ui/card-package/CardPackage';
 import { PackageDetail } from '@/api/packages';
+import { formatHelper } from '@/helper/format';
+import moment from 'moment';
 
 interface WisataPilihanHomeSectionProps {
   packages: PackageDetail[];
@@ -11,35 +12,31 @@ export default function WisataPilihanHomeSection({
   packages,
   loading,
 }: WisataPilihanHomeSectionProps) {
-  // Format package data untuk card
+  // === format package data for CardPackage ===
   const formatPackageForCard = (pkg: PackageDetail) => {
-    const formatPrice = (price?: number) =>
-      price ? `Rp${price.toLocaleString('id-ID')}` : undefined;
-
-    const formatPeriod = (period?: string[]) => {
-      if (!period || period.length === 0) return undefined;
-      // Format tanggal: hilangkan T dan timezone
-      const cleanDates = period.map((d) =>
-        d.replace(/T.*$/, '').replace(/\.\d{3}Z$/, '')
-      );
-      if (cleanDates.length === 1) return cleanDates[0];
-      return `${cleanDates[0]} - ${cleanDates[cleanDates.length - 1]}`;
-    };
-
     return {
       id: pkg.id,
-      title: pkg.title,
-      subtitle: pkg.period?.[0] || 'Paket Tour',
+      title: pkg.name,
+      subtitle: formatHelper.Period(pkg.periode_start, pkg.periode_end),
       country: pkg.location,
       location: pkg.location,
-      airline: pkg.airline,
-      dateRange: formatPeriod(pkg.period),
-      price: formatPrice(pkg.price),
+      airline: pkg.maskapai,
+      dateRange:
+        pkg.periode_start && pkg.periode_end
+          ? formatHelper.Period(pkg.periode_start, pkg.periode_end)
+          : formatHelper.Period(pkg.periode_start),
+      price: formatHelper.rupiah(pkg.price),
       imageUrl: pkg.image || '',
     };
   };
 
-  // Use API data with formatting
+  // === handle on details click ===
+  const handleOndetailsClick = (pkgId: string | number | undefined) => {
+    if (pkgId) {
+      window.location.href = `/destinasi/${pkgId}`;
+    }
+  };
+  // === render ===
   const displayPackages =
     packages.length > 0 ? packages.slice(0, 3).map(formatPackageForCard) : [];
 
@@ -96,7 +93,7 @@ export default function WisataPilihanHomeSection({
                 price={pkg.price}
                 variant="minimal-simple"
                 onDetailsClick={() => {
-                  window.location.href = `/destinasi/${pkg.id}`;
+                  handleOndetailsClick(pkg.id);
                 }}
               />
             ))}

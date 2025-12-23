@@ -3,6 +3,7 @@ import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import './AdminDashboard.css';
 import './AdminPackageDetail.css';
 import { fetchPackage, savePackage } from '../../api/packages';
+import { formatHelper } from '@/helper/format';
 
 interface NavItem {
   key: string;
@@ -16,7 +17,8 @@ interface PackageFormState {
   continent: string;
   airline: string;
   airport: string;
-  departure: string;
+  periode_start: string;
+  periode_end: string;
   price: string;
   itinerary: {
     destination: string[];
@@ -390,7 +392,8 @@ const createEmptyForm = (): PackageFormState => ({
   continent: '',
   airline: '',
   airport: '',
-  departure: '',
+  periode_start: '',
+  periode_end: '',
   price: '',
   itinerary: {
     destination: Array.from({ length: 3 }, () => ''),
@@ -432,12 +435,13 @@ export default function AdminPackageDetail() {
       if (!active || !data) return;
       setPkg(data);
       setForm({
-        name: data.title ?? '',
+        name: data.name ?? '',
         location: data.location ?? '',
-        continent: data.continent ?? '',
-        airline: data.airline ?? '',
-        airport: data.airport ?? '',
-        departure: data.departure ?? (data.period || []).join(', '),
+        continent: data.benua ?? '',
+        airline: data.maskapai ?? '',
+        airport: data.bandara ?? '',
+        periode_start: data.periode_start ?? '',
+        periode_end: data.periode_end ?? '',
         price: data.price ? `Rp${data.price.toLocaleString('id-ID')}` : '',
         itinerary: {
           destination: data.itinerary
@@ -548,7 +552,8 @@ export default function AdminPackageDetail() {
         benua: form.continent,
         maskapai: form.airline,
         bandara: form.airport,
-        periode: form.departure,
+        periode_start: form.periode_start,
+        periode_end: form.periode_end,
         harga: priceNumber,
         image: imageSrc,
         itinerary,
@@ -737,9 +742,12 @@ export default function AdminPackageDetail() {
                 <span>Periode Keberangkatan*</span>
                 <input
                   type="text"
-                  value={form.departure}
+                  value={form.periode_start}
                   onChange={(e) =>
-                    setForm((prev) => ({ ...prev, departure: e.target.value }))
+                    setForm((prev) => ({
+                      ...prev,
+                      periode_start: e.target.value,
+                    }))
                   }
                   required
                 />
@@ -1081,7 +1089,9 @@ export default function AdminPackageDetail() {
                     </div>
                     <div>
                       <strong>Periode</strong>
-                      <span>{form.departure}</span>
+                      <span>
+                        {form.periode_start} - {form.periode_end}
+                      </span>
                     </div>
                     <div>
                       <strong>Maskapai</strong>
@@ -1102,7 +1112,7 @@ export default function AdminPackageDetail() {
               <div className="ap-preview-titleblock">
                 <h4>{form.name || pkg?.name || 'Paket Baru'}</h4>
                 <div className="ap-preview-date">
-                  {form.departure || '10 Desember 2025 - 16 Desember 2025'}
+                  {form.periode_start || '10 Desember 2025 - 16 Desember 2025'}
                 </div>
               </div>
 

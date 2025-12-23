@@ -1,5 +1,6 @@
 import CardPackage from '@components/ui/card-package/CardPackage';
 import { PackageDetail } from '@api/packages';
+import { formatHelper } from '@/helper/format';
 
 interface RekomendasiDestinasiSectionProps {
   favoritePackages: PackageDetail[];
@@ -14,29 +15,14 @@ export default function RekomendasiDestinasiSection({
   loading = false,
   onPackageClick,
 }: RekomendasiDestinasiSectionProps) {
-  const formatPrice = (price: number | undefined): string => {
-    if (!price) return 'Hubungi kami';
-    return `Rp${price.toLocaleString('id-ID')}`;
-  };
-
-  const formatPeriod = (period: string[] | undefined): string => {
-    if (!period || period.length === 0) return 'Jadwal tersedia';
-    return period[0];
-  };
-
-  const formatDuration = (duration: string | undefined): string => {
-    if (!duration) return '';
-    return duration;
-  };
-
   const renderPackageCard = (pkg: PackageDetail) => (
     <CardPackage
       key={pkg.id}
-      title={pkg.title}
+      title={pkg.name}
       country={pkg.location}
-      airline={pkg.airline || 'Airline tersedia'}
-      dateRange={formatPeriod(pkg.period)}
-      price={formatPrice(pkg.price)}
+      airline={pkg.maskapai || 'Airline tersedia'}
+      dateRange={formatHelper.Period(pkg.periode_start)}
+      price={formatHelper.rupiah(pkg.price)}
       priceLabel="Mulai dari"
       imageUrl={pkg.image}
       buttonText="Details"

@@ -1,29 +1,18 @@
 import api from './axios';
 import { apiRoutes } from './routes';
-import type { Destination } from './destinations';
 
-export interface PackageDetail extends Destination {
-  continent?: string; // benua in backend
-  departure?: string; // periode in backend
-  destinationId?: string; // destination_id in backend
-  slug?: string; // slug in backend
-  durationDays?: number; // duration_days in backend
-  durationNights?: number; // duration_nights in backend
-  maxParticipants?: number; // max_participants in backendsa
-  quota?: number; // quota in backend
-  quotaFilled?: number; // quota_filled in backend
-  facilities?: string[]; // facilities in backend
-  includes?: any; // includes JSONB in backend
-  excludes?: any; // excludes JSONB in backend
-  departureAirport?: string; // departure_airport in backend
-  arrivalAirport?: string; // arrival_airport in backend
-  startDate?: string; // start_date in backend
-  endDate?: string; // end_date in backend
-  departureDates?: any; // departure_dates JSONB in backend
-  isActive?: boolean; // is_active in backend
-  isFeatured?: boolean; // is_featured in backend
-  createdAt?: string; // created_at in backend
-  updatedAt?: string; // updated_at in backend
+export interface PackageDetail {
+  id: string | number;
+  name: string; // title/name in frontend
+  location: string;
+  benua?: string; // continent
+  price?: number; // harga in backend
+  image?: string; // imageUrl in backend
+  duration?: string; // formatted as "X Hari Y Malam" in detail
+  maskapai?: string; // airline
+  bandara?: string; // airport
+  periode_start?: string; // periode_start in backend
+  periode_end?: string; // periode_end in backend
   itinerary?: {
     day?: string;
     destinasi?: string[];
@@ -35,21 +24,17 @@ export interface PackageDetail extends Destination {
 
 // Type untuk payload saat create/update
 export interface PackagePayload {
-  name: string; // nama paket
-  location: string; // lokasi
-  benua?: string; // benua
-  harga: number; // harga (price)
-  periode?: string; // periode (departure date)
-  maskapai?: string; // airline
-  bandara?: string; // airport
-  duration?: string; // durasi
-  itinerary?: any; // itinerary as JSON
-  image?: string; // image URL
-  destinationId?: string; // destination_id
-  description?: string; // deskripsi
-  quota?: number; // kuota
-  isActive?: boolean; // status aktif
-  isFeatured?: boolean; // apakah paket unggulan
+  name: string;
+  location: string;
+  benua?: string;
+  harga: number;
+  periode_start?: string;
+  periode_end?: string;
+  maskapai?: string;
+  bandara?: string;
+  duration?: number;
+  itinerary?: any;
+  image?: string;
 }
 
 const toArray = <T>(value: unknown): T[] => {
@@ -76,62 +61,23 @@ const handlePaginatedResponse = <T>(response: any): T[] => {
   return [];
 };
 
-// Format date untuk menghilangkan T dan timezone
-const formatDate = (dateStr: string): string => {
-  if (!dateStr) return dateStr;
-  // Hilangkan T dan timezone (Z atau +00:00)
-  return dateStr.replace(/T.*$/, '').replace(/\.\d{3}Z$/, '');
-};
-
 const normalizePackage = (raw: any): PackageDetail => ({
-  id: raw?.id ?? raw?._id ?? raw?.packageId ?? Date.now(),
-  title: raw?.name ?? raw?.title ?? raw?.package_name ?? 'Paket Tanpa Nama',
-  location: raw?.location ?? raw?.country ?? raw?.city ?? '-',
+  id: raw?.id ?? Date.now(),
+  name: raw?.name ?? 'Paket Tanpa Nama',
+  location: raw?.location ?? '-',
+  benua: raw?.benua,
   price:
     typeof raw?.price === 'number'
       ? raw.price
       : typeof raw?.harga === 'number'
         ? raw.harga
         : Number(raw?.price ?? raw?.harga ?? 0) || undefined,
-  image:
-    raw?.image ??
-    raw?.image_url ??
-    raw?.imageUrl ??
-    raw?.thumbnail ??
-    raw?.cover,
-  period: toArray<string>(
-    raw?.period ??
-      raw?.departure_dates ??
-      raw?.departure ??
-      raw?.periode ??
-      raw?.departureDate
-  ).map(formatDate),
-  duration: raw?.duration ?? raw?.duration_text ?? '',
-  airline: raw?.airline ?? raw?.maskapai ?? 'Airline',
-  airport: raw?.airport ?? raw?.bandara ?? raw?.departure_airport ?? 'Airport',
-  description: raw?.description ?? raw?.details ?? '',
-  continent: raw?.continent ?? raw?.benua ?? raw?.region ?? '',
-  departure: raw?.departure ?? raw?.periode ?? '',
-  destinationId: raw?.destinationId ?? raw?.destination_id,
-  slug: raw?.slug,
-  durationDays: raw?.durationDays ?? raw?.duration_days,
-  durationNights: raw?.durationNights ?? raw?.duration_nights,
-  maxParticipants: raw?.maxParticipants ?? raw?.max_participants,
-  quota: raw?.quota,
-  quotaFilled: raw?.quotaFilled ?? raw?.quota_filled,
-  facilities: raw?.facilities,
-  includes: raw?.includes,
-  excludes: raw?.excludes,
-  departureAirport:
-    raw?.departureAirport ?? raw?.departure_airport ?? raw?.bandara,
-  arrivalAirport: raw?.arrivalAirport ?? raw?.arrival_airport,
-  startDate: raw?.startDate ?? raw?.start_date,
-  endDate: raw?.endDate ?? raw?.end_date,
-  departureDates: raw?.departureDates ?? raw?.departure_dates,
-  isActive: raw?.isActive ?? raw?.is_active,
-  isFeatured: raw?.isFeatured ?? raw?.is_featured,
-  createdAt: raw?.createdAt ?? raw?.created_at,
-  updatedAt: raw?.updatedAt ?? raw?.updated_at,
+  image: raw?.image ?? raw?.imageUrl,
+  duration: raw?.duration ?? '',
+  maskapai: raw?.maskapai,
+  bandara: raw?.bandara,
+  periode_start: raw?.periode_start ?? raw?.periode_start,
+  periode_end: raw?.periode_end ?? raw?.periode_end,
   itinerary: toArray<any>(raw?.itinerary || raw?.itineraries).map(
     (item, idx) => ({
       day: item?.day || `Hari ${idx + 1}`,
@@ -196,19 +142,16 @@ export async function savePackage(
       if (payload.location) formData.append('location', payload.location);
       if (payload.benua) formData.append('benua', payload.benua);
       if (payload.harga) formData.append('harga', payload.harga.toString());
-      if (payload.periode) formData.append('periode', payload.periode);
+      if (payload.periode_start)
+        formData.append('periode_start', payload.periode_start);
+      if (payload.periode_end)
+        formData.append('periode_end', payload.periode_end);
       if (payload.maskapai) formData.append('maskapai', payload.maskapai);
       if (payload.bandara) formData.append('bandara', payload.bandara);
-      if (payload.duration) formData.append('duration', payload.duration);
+      if (payload.duration)
+        formData.append('duration', payload.duration.toString());
       if (payload.itinerary)
         formData.append('itinerary', JSON.stringify(payload.itinerary));
-      if (payload.description)
-        formData.append('description', payload.description);
-      if (payload.quota) formData.append('quota', payload.quota.toString());
-      if (payload.isActive !== undefined)
-        formData.append('is_active', payload.isActive.toString());
-      if (payload.isFeatured !== undefined)
-        formData.append('is_featured', payload.isFeatured.toString());
 
       // Tambahkan file gambar
       formData.append('image', imageFile);

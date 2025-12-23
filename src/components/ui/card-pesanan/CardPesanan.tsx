@@ -48,10 +48,6 @@ const CardBs: React.FC<CardBsProps> = ({
   showDetailButton = true,
   showReviewButton = false,
   className = '',
-  locationIcon = 'vector.svg',
-  periodIcon = 'image.svg',
-  airlineIcon = 'vector-2.svg',
-  airportIcon = 'vector-3.svg',
 }) => {
   return (
     <div
@@ -125,7 +121,7 @@ const CardBs: React.FC<CardBsProps> = ({
               </div>
             </div>
             <div className="flex items-center gap-2 relative flex-1 pl-6 sm:pl-0">
-              <div className="relative w-fit font-semibold text-sm sm:text-base lg:text-xl text-[#444444]">
+              <div className="relative w-fit font-medium text-xs sm:text-base lg:text-xl text-[#666666]">
                 {location}
               </div>
             </div>

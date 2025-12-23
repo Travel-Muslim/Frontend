@@ -79,10 +79,10 @@ export default function DetailDestinasi() {
 
   // Update page title
   useEffect(() => {
-    if (destination?.title) {
-      document.title = `${destination.title} | Saleema Tour`;
+    if (destination?.name) {
+      document.title = `${destination.name} | Saleema Tour`;
     }
-  }, [destination?.title]);
+  }, [destination?.name]);
 
   const handleWishlistToggle = () => {
     if (!destination) return;
@@ -170,9 +170,9 @@ export default function DetailDestinasi() {
           <section className="w-full py-12 md:py-16 lg:py-20 px-4">
             <div className="max-w-7xl mx-auto">
               <ItineraryTable
-                title={destination.title}
-                startDate={destination.startDate}
-                endDate={destination.endDate}
+                title={destination.name}
+                startDate={destination.periode_start}
+                endDate={destination.periode_end}
                 days={
                   destination.itinerary?.map((item, idx) => ({
                     day: idx + 1,

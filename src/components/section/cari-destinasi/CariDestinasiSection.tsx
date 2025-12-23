@@ -1,6 +1,7 @@
 import React from 'react';
 import CardPackage from '@/components/ui/card-package/CardPackage';
 import { PackageDetail } from '@/api/packages';
+import { formatHelper } from '@/helper/format';
 
 interface CariDestinasiSectionProps {
   packages: PackageDetail[];
@@ -13,33 +14,19 @@ export default function CariDestinasiSection({
   loading,
   onPackageClick,
 }: CariDestinasiSectionProps) {
-  // Split packages into two sections
   const primaryPackages = packages.slice(0, 3);
   const secondaryPackages = packages.slice(3, 6);
 
   const renderPackageCard = (pkg: PackageDetail) => {
-    const formatPrice = (price?: number) =>
-      price ? `Rp${price.toLocaleString('id-ID')}` : 'Hubungi kami';
-
-    const formatPeriod = (period?: string[]) => {
-      if (!period || period.length === 0) return 'Tanggal akan dikonfirmasi';
-      // Format tanggal: hilangkan T dan timezone
-      const cleanDates = period.map((d) =>
-        d.replace(/T.*$/, '').replace(/\.\d{3}Z$/, '')
-      );
-      if (cleanDates.length === 1) return cleanDates[0];
-      return `${cleanDates[0]} - ${cleanDates[cleanDates.length - 1]}`;
-    };
-
     return (
       <CardPackage
         key={pkg.id}
-        title={pkg.title}
-        subtitle={pkg.period?.[0] || 'Paket Tour'}
+        title={pkg.name}
+        subtitle={pkg.periode_start || 'Paket Tour'}
         country={pkg.location}
-        airline={pkg.airline || 'Airline'}
-        dateRange={formatPeriod(pkg.period)}
-        price={formatPrice(pkg.price)}
+        airline={pkg.maskapai || 'Airline'}
+        dateRange={formatHelper.Period(pkg.periode_start, pkg.periode_end)}
+        price={formatHelper.rupiah(pkg.price)}
         priceLabel="Mulai dari"
         imageUrl={pkg.image || ''}
         buttonText="Details"

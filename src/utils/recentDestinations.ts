@@ -1,11 +1,11 @@
-import type { Destination } from "../api/destinations";
+import { PackageDetail } from '@/api/packages';
 
-const STORAGE_KEY = "recent-destinations";
+const STORAGE_KEY = 'recent-destinations';
 
-export function pushRecentDestination(dest: Destination) {
-  if (typeof window === "undefined") return;
+export function pushRecentDestination(dest: PackageDetail) {
+  if (typeof window === 'undefined') return;
   const saved = window.localStorage.getItem(STORAGE_KEY);
-  let stored: Destination[] = [];
+  let stored: PackageDetail[] = [];
   try {
     stored = saved ? JSON.parse(saved) : [];
   } catch {
@@ -17,12 +17,12 @@ export function pushRecentDestination(dest: Destination) {
   window.localStorage.setItem(STORAGE_KEY, JSON.stringify(stored));
 }
 
-export function readRecentDestinations(): Destination[] {
-  if (typeof window === "undefined") return [];
+export function readRecentDestinations(): PackageDetail[] {
+  if (typeof window === 'undefined') return [];
   const saved = window.localStorage.getItem(STORAGE_KEY);
   if (!saved) return [];
   try {
-    const parsed = JSON.parse(saved) as Destination[];
+    const parsed = JSON.parse(saved) as PackageDetail[];
     return parsed;
   } catch {
     return [];

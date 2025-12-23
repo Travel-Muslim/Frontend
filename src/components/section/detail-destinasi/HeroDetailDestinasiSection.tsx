@@ -1,9 +1,11 @@
+import { PackageDetail } from '@/api/packages';
 import CardPesanan from '../../ui/card-pesanan/CardPesanan';
-import type { Destination } from '../../../api/destinations';
 import { BgDetailDestinasiImage } from '@/assets/images';
+import { Form } from 'react-router-dom';
+import { formatHelper } from '@/helper/format';
 
 interface HeroDetailDestinasiSectionProps {
-  destination: Destination | null;
+  destination: PackageDetail | null;
   onBookingClick?: () => void;
   onWishlistClick?: () => void;
   isWishlisted?: boolean;
@@ -51,16 +53,22 @@ export default function HeroDetailDestinasiSection({
       <div className="absolute inset-0 bg-black/40"></div>
 
       {/* Content */}
-      <div className="max-w-7xl mx-auto relative z-10">
+      <div className="max-w-7xl mx-auto mt-6 relative z-10">
         <CardPesanan
           id={destination.id?.toString()}
           image={destination.image}
-          title={destination.title}
+          title={destination.name}
           location={destination.location}
-          date={destination.period?.join(', ')}
-          airline={destination.airline}
-          airport={destination.airport}
-          price={`Rp ${destination.price?.toLocaleString('id-ID')} / pax`}
+          date={
+            destination.periode_start && destination.periode_end
+              ? `${formatHelper.Period(destination.periode_start)} - ${formatHelper.Period(
+                  destination.periode_end
+                )}`
+              : formatHelper.Period(destination.periode_start)
+          }
+          airline={destination.maskapai}
+          airport={destination.bandara}
+          price={`${formatHelper.rupiah(destination.price)} / Pax`}
           status="Tersedia"
           variant="with-booking"
           isWishlisted={isWishlisted}

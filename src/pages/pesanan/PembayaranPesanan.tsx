@@ -63,7 +63,7 @@ export default function PembayaranPesananNew() {
   // Format tarif items
   const tarifItems: TarifItem[] = [
     {
-      nama: `${destination.title} (Adult Single)`,
+      nama: `${destination.name} (Adult Single)`,
       harga: destination.price || 14000000,
       qty: formData.jumlahBooking || 1,
     },
@@ -124,12 +124,12 @@ export default function PembayaranPesananNew() {
       tanggalHabisBerlaku: formData.tanggalKadaluarsa,
     },
     detailPesanan: {
-      tourName: destination.title,
+      tourName: destination.name,
       tourId: `${destination.id}`,
       tanggalKeberangkatan: formattedDepartDate,
       depart: destination.location || 'Jakarta',
       durasi: `${destination.duration || '6'} Hari / ${parseInt(destination.duration || '6') - 1} Malam`,
-      maskapai: destination.airline || 'Garuda Indonesia',
+      maskapai: destination.bandara || 'Garuda Indonesia',
       kamar: `${formData.jumlahBooking} Orang (Dewasa)`,
     },
     tipeIdentitas: 'Peserta Dewasa, Single',
@@ -356,7 +356,7 @@ export default function PembayaranPesananNew() {
                 Detail Pesanan
               </h3>
               <h4 className="text-base font-semibold text-gray-800 mb-3">
-                {destination.title}
+                {destination.name}
               </h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
@@ -391,7 +391,7 @@ export default function PembayaranPesananNew() {
                     </div>
                     <div className="flex items-start gap-2">
                       <span className="text-sm text-gray-600">
-                        ✈️ {destination.airline || 'Garuda Indonesia'}
+                        ✈️ {destination.bandara || 'Garuda Indonesia'}
                       </span>
                     </div>
                   </div>

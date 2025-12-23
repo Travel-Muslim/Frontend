@@ -221,7 +221,7 @@ export default function ReviewDestinasi() {
         <div className="mb-12 sm:mb-16">
           <CardUlasan
             image={packageDetail.image || 'https://via.placeholder.com/400x300'}
-            title={packageDetail.title}
+            title={packageDetail.name}
             subtitle={`${packageDetail.location} - ${packageDetail.duration}`}
             rating={4.5}
           />

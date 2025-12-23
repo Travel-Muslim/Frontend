@@ -417,7 +417,13 @@ export default function AdminPackages() {
     const q = query.toLowerCase();
     if (!q) return packages;
     return packages.filter((p) => {
-      const haystack = [p.title, p.location, p.departure, p.airline, p.airport]
+      const haystack = [
+        p.name,
+        p.location,
+        p.periode_start,
+        p.maskapai,
+        p.bandara,
+      ]
         .filter(Boolean)
         .join(' ')
         .toLowerCase();
@@ -592,12 +598,10 @@ export default function AdminPackages() {
                 filtered.map((p) => (
                   <div className="ap-row" key={p.id}>
                     <span data-label="ID">{p.id}</span>
-                    <span data-label="Nama Paket">{p.title}</span>
+                    <span data-label="Nama Paket">{p.name}</span>
                     <span data-label="Lokasi">{p.location}</span>
-                    <span data-label="Keberangkatan">
-                      {p.departure || p.period?.join(', ')}
-                    </span>
-                    <span data-label="Maskapai">{p.airline}</span>
+                    <span data-label="Keberangkatan">{p.periode_start}</span>
+                    <span data-label="Maskapai">{p.maskapai}</span>
                     <span data-label="Harga">
                       {p.price ? `Rp${p.price.toLocaleString('id-ID')}` : '-'}
                     </span>
