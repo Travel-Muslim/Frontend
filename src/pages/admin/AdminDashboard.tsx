@@ -7,9 +7,6 @@ import React, {
 } from 'react';
 import './AdminDashboard.css';
 import avatarDefault from '@/assets/icon/avatar-default.svg';
-import Dest1 from '@/assets/Dest1.png';
-import Dest2 from '@/assets/Dest2.png';
-import Dest3 from '@/assets/Dest3.png';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
   fetchDashboard as fetchDashboardApi,
@@ -23,6 +20,7 @@ import {
   type DashboardStats,
   type BookingStatus,
 } from '../../api/dashboard';
+import { Dest1Image, Dest2Image, Dest3Image } from '@/assets/images';
 
 const BASE_STATS: DashboardStats = {
   totalBooking: 200,
@@ -31,9 +29,9 @@ const BASE_STATS: DashboardStats = {
 };
 
 const BASE_PACKAGES: PackageStat[] = [
-  { name: 'Paket Tour Korea', percentage: 75, imageUrl: Dest1 },
-  { name: 'Paket Tour Japan', percentage: 55, imageUrl: Dest2 },
-  { name: 'Paket Tour Eropa', percentage: 35, imageUrl: Dest3 },
+  { name: 'Paket Tour Korea', percentage: 75, imageUrl: Dest1Image },
+  { name: 'Paket Tour Japan', percentage: 55, imageUrl: Dest2Image },
+  { name: 'Paket Tour Eropa', percentage: 35, imageUrl: Dest3Image },
 ];
 
 const BASE_BUYERS: Buyer[] = [
