@@ -1,4 +1,3 @@
-// src/App.tsx
 import React, { Suspense, lazy } from 'react';
 import './App.css';
 import {
