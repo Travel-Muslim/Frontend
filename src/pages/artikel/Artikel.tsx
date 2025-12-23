@@ -5,6 +5,7 @@ import Footer from '@components/section/footer/Footer';
 import HeroArtikelSection from '@components/section/artikel/HeroArtikelSection';
 import ArtikelSection from '@components/section/artikel/ArtikelSection';
 import { fetchArticles, type Article } from '@api/articles';
+import { HeroArikelImage } from '@/assets/images';
 
 const DUMMY_ARTICLES: Article[] = [
   {
@@ -130,7 +131,7 @@ export default function Artikel() {
             searchQuery={searchQuery}
             onSearchChange={handleSearchChange}
             onSearch={handleSearch}
-            backgroundImage="/artikelher1.png"
+            backgroundImage={HeroArikelImage}
           />
 
           {/* Articles Section */}

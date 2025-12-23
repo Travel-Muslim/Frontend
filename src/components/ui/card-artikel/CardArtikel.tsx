@@ -35,7 +35,7 @@ export default function ArticleCard({
               <img
                 src={image}
                 alt={title}
-                className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                className="w-full h-full object-cover hover:scale-5 transition-transform duration-300 cursor-zoom-in"
                 loading="lazy"
               />
             ) : (
@@ -79,7 +79,7 @@ export default function ArticleCard({
             <img
               src={image}
               alt={title}
-              className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+              className="w-full h-full object-cover hover:scale-115 transition-transform duration-300 cursor-zoom-in"
               loading="lazy"
             />
           ) : (
@@ -108,7 +108,7 @@ export default function ArticleCard({
             <Button
               variant="light-purple-hover-dark-purple"
               onClick={onReadClick}
-              className="h-12!"
+              className="h-12! cursor-pointer"
             >
               Lihat Artikel
             </Button>

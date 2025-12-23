@@ -59,7 +59,7 @@ const CardPackage = ({
             <img
               src={imageUrl}
               alt={title}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover hover:scale-120 transition-transform duration-300 cursor-zoom-in"
             />
           </div>
         </div>
@@ -130,12 +130,12 @@ const CardPackage = ({
         className={`flex flex-col w-[350px] items-start gap-[9px] pt-[19px] pb-2 px-[17px] bg-white rounded-[15px] shadow-lg ${className}`}
       >
         {/* Image Section */}
-        <div className="flex flex-col w-[320px] h-48 items-start gap-2.5">
+        <div className="flex flex-col w-full h-48 items-start gap-2.5">
           <div className="w-full h-full rounded-lg overflow-hidden">
             <img
               src={imageUrl}
               alt={title}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover hover:scale-120 transition-transform duration-300 cursor-zoom-in"
             />
           </div>
         </div>
@@ -209,7 +209,7 @@ const CardPackage = ({
             <img
               src={imageUrl}
               alt={title}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover hover:scale-120 transition-transform duration-300 cursor-zoom-in"
             />
           </div>
         </div>
@@ -238,7 +238,7 @@ const CardPackage = ({
             <img
               src={imageUrl}
               alt={title}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover hover:scale-120 transition-transform duration-300 cursor-zoom-in"
             />
           </div>
         </div>
@@ -266,7 +266,7 @@ const CardPackage = ({
             <img
               src={imageUrl}
               alt={title}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover hover:scale-120 transition-transform duration-300 cursor-zoom-in"
             />
           </div>
         </div>
@@ -289,7 +289,7 @@ const CardPackage = ({
           <img
             src={imageUrl}
             alt={title}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover hover:scale-120 transition-transform duration-300 cursor-zoom-in"
           />
         </div>
       </div>

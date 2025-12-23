@@ -228,14 +228,6 @@ export default function CariDestinasi() {
             onPageChange={handlePageChange}
             itemsPerPage={itemsPerPage}
             totalItems={filteredPackages.length}
-            // Custom purple theme
-            bgColor="#FFF8F0"
-            primaryColor="#B49DE4"
-            textColor="#6B7280"
-            activeTextColor="#FFFFFF"
-            disabledBgColor="#EDE9FE"
-            disabledTextColor="#A78BFA"
-            buttonBgColor="#FFFFFF"
           />
         </div>
       )}

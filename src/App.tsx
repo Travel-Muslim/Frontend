@@ -85,6 +85,12 @@ function AppWrapper() {
       <Suspense fallback={<div style={{ minHeight: '60vh' }}>Loading...</div>}>
         <Routes>
           <Route path="/" element={<Home />} />
+
+          <Route path="/signup" element={<SignUp />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/profile" element={<Profile />} />
+
           <Route path="/home" element={<Home />} />
           <Route path="/cari-destinasi" element={<CariDestinasi />} />
           <Route path="/rekomendasi-destinasi" element={<RekomendasiPaket />} />
@@ -97,6 +103,7 @@ function AppWrapper() {
           <Route path="/pembayaran-pesanan" element={<PembayaranPesanan />} />
           <Route path="/review" element={<ReviewDestinasi />} />
           <Route path="/tiket" element={<TicketPage />} />
+
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/admin/users" element={<AdminUsers />} />
           <Route path="/admin/users/:id/edit" element={<AdminUserEdit />} />
@@ -109,10 +116,6 @@ function AppWrapper() {
           <Route path="/admin/community" element={<AdminCommunity />} />
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin/profile" element={<AdminProfile />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/signup" element={<SignUp />} />
 
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

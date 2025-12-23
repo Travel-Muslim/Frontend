@@ -1,7 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Header from '@/components/section/header/Header';
-import Footer from '@/components/section/footer/Footer';
 import HeroRekomendasiDestinasiSection from '@/components/section/rekomendasi-destinasi/HeroRekomendasiDestinasiSection';
 import RekomendasiDestinasiSection from '@/components/section/rekomendasi-destinasi/RekomendasiDestinasiSection';
 import { fetchPackages, PackageDetail } from '@/api/packages';
@@ -23,7 +21,6 @@ export default function RekomendasiPaket() {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  // Fetch packages from API
   useEffect(() => {
     const loadPackages = async () => {
       setLoading(true);
@@ -40,7 +37,6 @@ export default function RekomendasiPaket() {
     loadPackages();
   }, []);
 
-  // Filter packages by selected region
   const filteredPackages = useMemo(() => {
     if (!packages.length) {
       return [];
@@ -62,13 +58,11 @@ export default function RekomendasiPaket() {
     return filtered;
   }, [packages, selectedRegion]);
 
-  // Split filtered packages randomly into favorite (3) and popular (3)
   const { favoritePackages, popularPackages } = useMemo(() => {
     if (!filteredPackages.length) {
       return { favoritePackages: [], popularPackages: [] };
     }
 
-    // Shuffle array untuk random selection
     const shuffled = [...filteredPackages].sort(() => Math.random() - 0.5);
 
     const fav = shuffled.slice(0, 3);
@@ -81,7 +75,6 @@ export default function RekomendasiPaket() {
   }, [filteredPackages]);
 
   const handleDetailsClick = (pkg: PackageDetail) => {
-    // Add to recent destinations
     pushRecentDestination({
       id: pkg.id,
       title: pkg.title,
@@ -103,7 +96,6 @@ export default function RekomendasiPaket() {
           selectedRegion={selectedRegion}
           onRegionChange={handleRegionChange}
           backgroundImage={RekomendasiPaketImage}
-          // backgroundImage="https://images.unsplash.com/photo-1591604466107-ec97de577aff?w=1200"
         />
 
         {/* Main Content with Package Cards */}

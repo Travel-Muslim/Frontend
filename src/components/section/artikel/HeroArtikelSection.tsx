@@ -12,11 +12,11 @@ export default function HeroArtikelSection({
   searchQuery,
   onSearchChange,
   onSearch,
-  backgroundImage = '/artikelher1.png',
+  backgroundImage,
 }: HeroArtikelSectionProps) {
   return (
     <div
-      className="relative w-screen h-[400px] mobile:h-[350px] xs:h-[350px] sm:h-[380px] md:h-[400px] lg:h-[450px] bg-center bg-cover flex items-center justify-center overflow-hidden"
+      className="relative w-screen min-h-[350px] mobile:h-[350px] xs:h-[350px] sm:h-[380px] md:h-[400px] lg:h-[600px] bg-center bg-cover flex items-center justify-center overflow-hidden"
       style={{
         marginLeft: 'calc(50% - 50vw)',
         backgroundImage: `linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.15)), url(${backgroundImage})`,
@@ -26,7 +26,7 @@ export default function HeroArtikelSection({
 
       <div className="relative z-10 flex flex-col items-center gap-5 mobile:gap-4 xs:gap-4 sm:gap-5 px-4 mobile:px-3 xs:px-3 sm:px-6 max-w-4xl w-full">
         {/* Title */}
-        <h1 className=" font-black font-semibold text-[3rem] mobile:text-[2.5rem] xs:text-[2.75rem] sm:text-[3rem] md:text-[3rem] lg:text-[3rem] text-white text-center leading-tight">
+        <h1 className="font-semibold text-[2rem] mobile:text-[2.5rem] xs:text-[2.75rem] sm:text-[3rem] md:text-[3rem] lg:text-[3rem] text-white text-center leading-tight">
           Artikel Panduan
         </h1>
 

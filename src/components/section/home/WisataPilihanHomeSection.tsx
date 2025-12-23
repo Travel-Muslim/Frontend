@@ -95,7 +95,9 @@ export default function WisataPilihanHomeSection({
                 airline={pkg.airline}
                 price={pkg.price}
                 variant="minimal-simple"
-                onDetailsClick={() => console.log(`Details for ${pkg.title}`)}
+                onDetailsClick={() => {
+                  window.location.href = `/destinasi/${pkg.id}`;
+                }}
               />
             ))}
           </div>

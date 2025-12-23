@@ -23,9 +23,9 @@ const Pagination: React.FC<PaginationProps> = ({
   itemsPerPage = 6,
   totalItems = 0,
   bgColor = 'transparent',
-  primaryColor = '#FFB4C4',
-  textColor = '#4B5563',
-  activeTextColor = '#FFFFFF',
+  primaryColor = '#B49DE4',
+  textColor = '#FFFFFFF',
+  activeTextColor = '#ffffff',
   disabledBgColor = '#F3F4F6',
   disabledTextColor = '#9CA3AF',
   buttonBgColor = '#FFFFFF',
@@ -130,60 +130,23 @@ const Pagination: React.FC<PaginationProps> = ({
   const pageNumbers = getPageNumbers();
 
   return (
-    <div
-      style={{
-        backgroundColor: bgColor,
-        padding: '24px',
-        borderRadius: '12px',
-      }}
-    >
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          gap: '16px',
-        }}
-      >
-        <p
-          style={{
-            color: textColor,
-            fontSize: '14px',
-            margin: 0,
-          }}
-        >
+    <div className={`bg-${bgColor} p-6 rounded-2xl`}>
+      <div className="text-center space-y-4">
+        <p className={`text-${textColor} text-sm`}>
           Menampilkan {startItem} - {endItem} dari {totalItems} destinasi
         </p>
 
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            flexWrap: 'wrap',
-            justifyContent: 'center',
-          }}
-        >
+        <div className="flex items-center justify-center space-x-2 flex-wrap">
           <button
             onClick={() => !isPrevDisabled && onPageChange(currentPage - 1)}
             onMouseEnter={() => !isPrevDisabled && setHoveredButton('prev')}
             onMouseLeave={() => setHoveredButton(null)}
             disabled={isPrevDisabled}
-            style={{
-              ...getButtonStyle(
-                false,
-                isPrevDisabled,
-                hoveredButton === 'prev'
-              ),
-              width: '40px',
-              height: '40px',
-              borderRadius: '8px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              transition: 'all 0.2s ease',
-              outline: 'none',
-            }}
+            className={`${
+              isPrevDisabled
+                ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                : `hover:bg-[${primaryColor}] hover:text-white text-[${textColor}]`
+            } w-10 h-10 flex items-center justify-center rounded-sm transition-all`}
             aria-label="Previous page"
           >
             <ChevronLeft size={18} />
@@ -194,15 +157,7 @@ const Pagination: React.FC<PaginationProps> = ({
               return (
                 <span
                   key={page}
-                  style={{
-                    width: '40px',
-                    height: '40px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: textColor,
-                    fontSize: '14px',
-                  }}
+                  className={`w-10 h-10 flex items-center justify-center text-${textColor}`}
                 >
                   ...
                 </span>
@@ -218,19 +173,13 @@ const Pagination: React.FC<PaginationProps> = ({
                 onClick={() => onPageChange(page)}
                 onMouseEnter={() => setHoveredButton(page)}
                 onMouseLeave={() => setHoveredButton(null)}
-                style={{
-                  ...getButtonStyle(isActive, false, isHovered),
-                  width: '40px',
-                  height: '40px',
-                  borderRadius: '8px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '14px',
-                  fontWeight: isActive ? 600 : 400,
-                  transition: 'all 0.2s ease',
-                  outline: 'none',
-                }}
+                className={`${
+                  isActive
+                    ? `bg-[${primaryColor}] text-[${activeTextColor}] transform scale-110 shadow-md`
+                    : isHovered
+                      ? `bg-[${primaryColor}] opacity-60 contrast-100 border-[${primaryColor}] text-[${activeTextColor}]`
+                      : 'bg-white text-gray-700 border-gray-200'
+                } w-10 h-10 flex items-center justify-center rounded-sm transition-all`}
                 aria-label={`Page ${page}`}
                 aria-current={isActive ? 'page' : undefined}
               >
@@ -244,21 +193,11 @@ const Pagination: React.FC<PaginationProps> = ({
             onMouseEnter={() => !isNextDisabled && setHoveredButton('next')}
             onMouseLeave={() => setHoveredButton(null)}
             disabled={isNextDisabled}
-            style={{
-              ...getButtonStyle(
-                false,
-                isNextDisabled,
-                hoveredButton === 'next'
-              ),
-              width: '40px',
-              height: '40px',
-              borderRadius: '8px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              transition: 'all 0.2s ease',
-              outline: 'none',
-            }}
+            className={`${
+              isNextDisabled
+                ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                : `hover:bg-[${primaryColor}] hover:text-white text-[${textColor}]`
+            } w-10 h-10 flex items-center justify-center rounded-sm transition-all`}
             aria-label="Next page"
           >
             <ChevronRight size={18} />

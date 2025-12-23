@@ -14,14 +14,6 @@ export default function RekomendasiDestinasiSection({
   loading = false,
   onPackageClick,
 }: RekomendasiDestinasiSectionProps) {
-  console.log(
-    '🎯 Section received - Favorite:',
-    favoritePackages?.length || 0,
-    'Popular:',
-    popularPackages?.length || 0
-  );
-  console.log('🎯 Loading state:', loading);
-
   const formatPrice = (price: number | undefined): string => {
     if (!price) return 'Hubungi kami';
     return `Rp${price.toLocaleString('id-ID')}`;

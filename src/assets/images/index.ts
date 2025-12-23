@@ -20,3 +20,4 @@ export { default as CariDestinasiImage } from './cari-destinasi.jpg';
 export { default as RekomendasiPaketImage } from './Rekomendasi-paket.jpg';
 export { default as HeroKomunitasImage } from './hero-komunitas.jpg';
 export { default as BgDetailDestinasiImage } from './bg-detail-destinasi.png';
+export { default as HeroArikelImage } from './hero-artikel.jpg';

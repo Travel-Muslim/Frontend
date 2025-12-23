@@ -49,33 +49,41 @@ export default function ArtikelSection({
     );
   }
 
+  // Maksimal 6 card atas dan 6 card bawah
+  const topArticles = articles.slice(0, 6);
+  const bottomArticles = articles.slice(6, 12);
+
+  const renderGrid = (items: Article[]) => (
+    <div className="grid grid-cols-1 mobile:grid-cols-1 xs:grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6 mobile:gap-4 xs:gap-4 sm:gap-5 lg:gap-8 max-w-[1400px] mx-auto">
+      {items.map((article) => (
+        <div key={article.id} className="w-full flex justify-center">
+          <ArticleCard
+            variant="with-button"
+            image={article.image || article.coverImage || article.imageUrl}
+            title={article.title}
+            description={
+              article.content?.slice(0, 180) ||
+              article.excerpt ||
+              article.preview ||
+              ''
+            }
+            date={article.tanggal || article.displayDate || article.date}
+            onReadClick={() => onReadArticle(String(article.id))}
+            className="w-full max-w-[434px]"
+          />
+        </div>
+      ))}
+    </div>
+  );
+
   return (
     <>
-      {/* Articles Grid Section */}
+      {/* Cards Atas (max 6) */}
       <div className="px-4 mobile:px-3 xs:px-3 sm:px-6 md:px-8 lg:px-24 py-16 mobile:py-12 xs:py-12 sm:py-14 lg:py-20">
-        <div className="grid grid-cols-1 mobile:grid-cols-1 xs:grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6 mobile:gap-4 xs:gap-4 sm:gap-5 lg:gap-8 max-w-[1400px] mx-auto">
-          {articles.map((article) => (
-            <div key={article.id} className="w-full flex justify-center">
-              <ArticleCard
-                variant="with-button"
-                image={article.image || article.coverImage || article.imageUrl}
-                title={article.title}
-                description={
-                  article.content?.slice(0, 180) ||
-                  article.excerpt ||
-                  article.preview ||
-                  ''
-                }
-                date={article.tanggal || article.displayDate || article.date}
-                onReadClick={() => onReadArticle(String(article.id))}
-                className="w-full max-w-[434px]"
-              />
-            </div>
-          ))}
-        </div>
+        {renderGrid(topArticles)}
       </div>
 
-      {/* Inspiration Section */}
+      {/* Teks Tengah */}
       {showInspirationText && (
         <div className="px-4 mobile:px-3 xs:px-3 sm:px-6 md:px-8 lg:px-24 py-12 mobile:py-8 xs:py-8 sm:py-10 lg:py-16 bg-orange-50">
           <div className="flex items-center justify-center">
@@ -88,28 +96,12 @@ export default function ArtikelSection({
         </div>
       )}
 
-      <div className="px-4 mobile:px-3 xs:px-3 sm:px-6 md:px-8 lg:px-24 py-16 mobile:py-12 xs:py-12 sm:py-14 lg:py-20">
-        <div className="grid grid-cols-1 mobile:grid-cols-1 xs:grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6 mobile:gap-4 xs:gap-4 sm:gap-5 lg:gap-8 max-w-[1400px] mx-auto">
-          {articles.map((article) => (
-            <div key={article.id} className="w-full flex justify-center">
-              <ArticleCard
-                variant="with-button"
-                image={article.image || article.coverImage || article.imageUrl}
-                title={article.title}
-                description={
-                  article.content?.slice(0, 180) ||
-                  article.excerpt ||
-                  article.preview ||
-                  ''
-                }
-                date={article.tanggal || article.displayDate || article.date}
-                onReadClick={() => onReadArticle(String(article.id))}
-                className="w-full max-w-[434px]"
-              />
-            </div>
-          ))}
+      {/* Cards Bawah (max 6) */}
+      {bottomArticles.length > 0 && (
+        <div className="px-4 mobile:px-3 xs:px-3 sm:px-6 md:px-8 lg:px-24 py-16 mobile:py-12 xs:py-12 sm:py-14 lg:py-20">
+          {renderGrid(bottomArticles)}
         </div>
-      </div>
+      )}
     </>
   );
 }
