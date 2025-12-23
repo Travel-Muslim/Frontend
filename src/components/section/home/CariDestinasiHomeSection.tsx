@@ -197,15 +197,15 @@ export default function CariDestinasiHomeSection() {
             </div>
 
             {/* Search Button */}
-            <div className="flex items-end lg:flex-shrink-0">
+            <div className="flex items-end lg:flex-shrink-0 justify-center">
               <Button
                 variant="light-purple-hover-dark-purple"
                 onClick={handleSearch}
-                className="w-full lg:w-auto !min-w-[180px] !h-[56px] !text-base md:!text-lg gap-2 items-center cursor-pointer"
+                className="w-full !min-w-[180px] !h-[56px] !text-base md:!text-lg gap-2 items-center cursor-pointer"
               >
                 <span className="flex items-center gap-2">
                   <Search className="w-5 h-5" />
-                  <span>Cari Destinasi</span>
+                  <span>Cari Destinasi</span>s
                 </span>
               </Button>
             </div>

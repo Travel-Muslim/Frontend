@@ -130,7 +130,7 @@ export default function TestimoniHomeSection() {
           <div className="flex items-center justify-center gap-4">
             <button
               onClick={prevTestimonial}
-              className="w-12 h-12 rounded-full bg-purple-100 hover:bg-purple-200 flex items-center justify-center transition-colors"
+              className="w-12 h-12 rounded-md bg-purple-100 hover:bg-purple-200 flex items-center justify-center transition-colors"
               aria-label="Previous testimonial"
             >
               <ChevronLeft className="w-6 h-6 text-[#6D4891]" />
@@ -154,7 +154,7 @@ export default function TestimoniHomeSection() {
 
             <button
               onClick={nextTestimonial}
-              className="w-12 h-12 rounded-full bg-purple-100 hover:bg-purple-200 flex items-center justify-center transition-colors"
+              className="w-12 h-12 rounded-md bg-purple-100 hover:bg-purple-200 flex items-center justify-center transition-colors"
               aria-label="Next testimonial"
             >
               <ChevronRight className="w-6 h-6 text-[#6D4891]" />
