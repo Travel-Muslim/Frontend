@@ -46,7 +46,7 @@ export default function PaketTourCtaHomeSection() {
             <Button
               variant="white-hover-light-purple"
               onClick={handleExploreClick}
-              className="!w-[clamp(200px,40vw,280px)] !h-[clamp(50px,6vh,64px)] !text-[clamp(1rem,1.5vw,1.125rem)] shadow-xl hover:shadow-2xl"
+              className="!w-[clamp(200px,40vw,280px)] !h-[clamp(50px,6vh,64px)] !text-[clamp(1rem,1.5vw,1.125rem)] shadow-xl hover:shadow-2xl cursor-pointer"
             >
               Temukan Destinasi
             </Button>

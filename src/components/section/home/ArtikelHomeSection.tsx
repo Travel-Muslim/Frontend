@@ -110,7 +110,7 @@ export default function ArtikelHomeSection({
               <Button
                 variant="light-purple-hover-dark-purple"
                 onClick={handleReadMore}
-                className="!w-[clamp(200px,40vw,280px)] !h-[clamp(50px,6vh,64px)] !text-[clamp(1rem,1.5vw,1.125rem)]"
+                className="!w-[clamp(200px,40vw,280px)] !h-[clamp(50px,6vh,64px)] !text-[clamp(1rem,1.5vw,1.125rem)] cursor-pointer"
               >
                 Lihat Selengkapnya
               </Button>

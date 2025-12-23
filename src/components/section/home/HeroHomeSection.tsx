@@ -44,7 +44,7 @@ export default function HeroHomeSection() {
               <Button
                 variant="white-hover-light-purple"
                 onClick={handleSearchClick}
-                className="!w-[clamp(200px,25vw,300px)] !h-[clamp(50px,6vh,70px)] !text-[clamp(1rem,1.5vw,1.25rem)] shadow-xl hover:shadow-2xl"
+                className="!w-[clamp(200px,25vw,300px)] !h-[clamp(50px,6vh,70px)] !text-[clamp(1rem,1.5vw,1.25rem)] shadow-xl hover:shadow-2xl cursor-pointer"
               >
                 Cari Sekarang
               </Button>
