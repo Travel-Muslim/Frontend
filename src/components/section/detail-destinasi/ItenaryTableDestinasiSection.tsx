@@ -3,25 +3,25 @@ import { Calendar, MapPin, Utensils, Building2, Bus } from 'lucide-react';
 
 export interface ItineraryDay {
   day: number;
-  destinations: string[];
-  meals: string[];
-  mosques: string[];
-  transportation: string[];
+  destinasi: string[];
+  makan: string[];
+  masjid: string[];
+  transportasi: string[];
 }
 
 export interface ItineraryTableProps {
   title?: string;
   startDate?: string;
   endDate?: string;
-  days?: ItineraryDay[];
+  itenaries?: ItineraryDay[];
   className?: string;
 }
 
 export default function ItineraryTable({
-  title = 'Korea Halal Tour',
-  startDate = '10 Desember 2025',
-  endDate = '16 Desember 2025',
-  days = [],
+  title,
+  startDate,
+  endDate,
+  itenaries = [],
   className = '',
 }: ItineraryTableProps) {
   const headers = [
@@ -63,7 +63,7 @@ export default function ItineraryTable({
           </div>
 
           {/* Day Rows */}
-          {days.map((dayData, dayIndex) => (
+          {itenaries.map((dayData, dayIndex) => (
             <div key={dayIndex} className="grid grid-cols-5 gap-3 mb-3">
               {/* Day Column */}
               <div className="bg-purple-300 rounded-md p-4 flex items-center justify-center">
@@ -74,9 +74,9 @@ export default function ItineraryTable({
 
               {/* Destinations Column */}
               <div className="bg-white rounded-md border-2 border-pink-200 p-4 min-h-[100px]">
-                {dayData.destinations.length > 0 ? (
+                {dayData.destinasi.length > 0 ? (
                   <ul className="space-y-1">
-                    {dayData.destinations.map((dest, idx) => (
+                    {dayData.destinasi.map((dest: string, idx: number) => (
                       <li
                         key={idx}
                         className="text-sm text-gray-700 leading-relaxed"
@@ -92,9 +92,9 @@ export default function ItineraryTable({
 
               {/* Meals Column */}
               <div className="bg-white rounded-md border-2 border-pink-200 p-4 min-h-[100px]">
-                {dayData.meals.length > 0 ? (
+                {dayData.makan.length > 0 ? (
                   <ul className="space-y-1">
-                    {dayData.meals.map((meal, idx) => (
+                    {dayData.makan.map((meal: string, idx: number) => (
                       <li
                         key={idx}
                         className="text-sm text-gray-700 leading-relaxed"
@@ -110,9 +110,9 @@ export default function ItineraryTable({
 
               {/* Mosques Column */}
               <div className="bg-white rounded-md border-2 border-pink-200 p-4 min-h-[100px]">
-                {dayData.mosques.length > 0 ? (
+                {dayData.masjid.length > 0 ? (
                   <ul className="space-y-1">
-                    {dayData.mosques.map((mosque, idx) => (
+                    {dayData.masjid.map((mosque: string, idx: number) => (
                       <li
                         key={idx}
                         className="text-sm text-gray-700 leading-relaxed"
@@ -128,16 +128,18 @@ export default function ItineraryTable({
 
               {/* Transportation Column */}
               <div className="bg-white rounded-md border-2 border-pink-200 p-4 min-h-[100px]">
-                {dayData.transportation.length > 0 ? (
+                {dayData.transportasi.length > 0 ? (
                   <ul className="space-y-1">
-                    {dayData.transportation.map((transport, idx) => (
-                      <li
-                        key={idx}
-                        className="text-sm text-gray-700 leading-relaxed"
-                      >
-                        • {transport}
-                      </li>
-                    ))}
+                    {dayData.transportasi.map(
+                      (transport: string, idx: number) => (
+                        <li
+                          key={idx}
+                          className="text-sm text-gray-700 leading-relaxed"
+                        >
+                          • {transport}
+                        </li>
+                      )
+                    )}
                   </ul>
                 ) : (
                   <p className="text-sm text-gray-400 italic">-</p>
@@ -156,68 +158,68 @@ export function ItineraryTableDemo() {
   const sampleItinerary: ItineraryDay[] = [
     {
       day: 1,
-      destinations: [
+      destinasi: [
         'Berkumpul di Bandara Soekarno-Hatta untuk penerbangan menuju ke Incheon',
       ],
-      meals: ['Makan di board selama perjalanan'],
-      mosques: ['Sholat di pesawat selama perjalanan'],
-      transportation: ['Pesawat internasional + bus bandara menuju hotel'],
+      makan: ['Makan di board selama perjalanan'],
+      masjid: ['Sholat di pesawat selama perjalanan'],
+      transportasi: ['Pesawat internasional + bus bandara menuju hotel'],
     },
     {
       day: 2,
-      destinations: [
+      destinasi: [
         'Berangkat ke Ahsan',
         'Bada Hyanggil Theme Park',
         'Nojeokkong Fall Park',
       ],
-      meals: [
+      makan: [
         'Sarapan di board',
         'Makan siang dan malam di Eid di Yongsan-gu, Seoul',
       ],
-      mosques: ['Masjid Ansan'],
-      transportation: ['City tour Ansan menggunakan bus pariwisata'],
+      masjid: ['Masjid Ansan'],
+      transportasi: ['City tour Ansan menggunakan bus pariwisata'],
     },
     {
       day: 3,
-      destinations: [
+      destinasi: [
         'Nami Island dan belajar membuat kimbab',
         'Bukchon Hanok Village',
         'Dongdaemun',
       ],
-      meals: ['Kervan (Cabang Itaewon) di Yongsan-gu, Seoul'],
-      mosques: ['Mushola Nami Island'],
-      transportation: ['Bus pariwisata'],
+      makan: ['Kervan (Cabang Itaewon) di Yongsan-gu, Seoul'],
+      masjid: ['Mushola Nami Island'],
+      transportasi: ['Bus pariwisata'],
     },
     {
       day: 4,
-      destinations: [
+      destinasi: [
         'Gyeongbok Palace',
         'Belanja di Amethyst Showcase',
         'Starfield Library',
       ],
-      meals: ['Jipbob Kimunsaeng di Yongsan-gu, Seoul'],
-      mosques: ['Mushola COEX MALL'],
-      transportation: ['Bus pariwisata'],
+      makan: ['Jipbob Kimunsaeng di Yongsan-gu, Seoul'],
+      masjid: ['Mushola COEX MALL'],
+      transportasi: ['Bus pariwisata'],
     },
     {
       day: 5,
-      destinations: [
+      destinasi: [
         'Local Cosmetic Shop',
         'Hongdae Youth Avenue',
         'Myeongdong Street',
       ],
-      meals: ["Café D'asti di Jung-gu, Seoul"],
-      mosques: ['Masjid Itaewon'],
-      transportation: ['Bus pariwisata'],
+      makan: ["Café D'asti di Jung-gu, Seoul"],
+      masjid: ['Masjid Itaewon'],
+      transportasi: ['Bus pariwisata'],
     },
     {
       day: 6,
-      destinations: ['Belanja di Local Supermarket Korea sebelum ke airport'],
-      meals: [
+      destinasi: ['Belanja di Local Supermarket Korea sebelum ke airport'],
+      makan: [
         'Asalam di Jeju-do, Jeju-si dan makan di board selama perjalanan pulang',
       ],
-      mosques: ['Jeju Central Masjid'],
-      transportation: ['Bus pariwisata → Bandara Incheon'],
+      masjid: ['Jeju Central Masjid'],
+      transportasi: ['Bus pariwisata → Bandara Incheon'],
     },
   ];
 
@@ -240,7 +242,7 @@ export function ItineraryTableDemo() {
             title="Korea Halal Tour"
             startDate="10 Desember 2025"
             endDate="16 Desember 2025"
-            days={sampleItinerary}
+            itenaries={sampleItinerary}
           />
         </div>
 
@@ -253,34 +255,34 @@ export function ItineraryTableDemo() {
             title="Bali Weekend Getaway"
             startDate="15 Januari 2026"
             endDate="17 Januari 2026"
-            days={[
+            itenaries={[
               {
                 day: 1,
-                destinations: ['Tanah Lot Temple', 'Seminyak Beach'],
-                meals: ['Welcome dinner di Warung Halal'],
-                mosques: ['Masjid Agung Bali'],
-                transportation: ['Bus pariwisata dari airport'],
+                destinasi: ['Tanah Lot Temple', 'Seminyak Beach'],
+                makan: ['Welcome dinner di Warung Halal'],
+                masjid: ['Masjid Agung Bali'],
+                transportasi: ['Bus pariwisata dari airport'],
               },
               {
                 day: 2,
-                destinations: [
+                destinasi: [
                   'Ubud Monkey Forest',
                   'Tegalalang Rice Terrace',
                   'Ubud Art Market',
                 ],
-                meals: [
+                makan: [
                   'Lunch di Bebek Bengil',
                   'Dinner di Nasi Ayam Kedewatan',
                 ],
-                mosques: ['Mushola Hotel'],
-                transportation: ['Bus pariwisata'],
+                masjid: ['Mushola Hotel'],
+                transportasi: ['Bus pariwisata'],
               },
               {
                 day: 3,
-                destinations: ['Belanja oleh-oleh', 'Transfer ke airport'],
-                meals: ['Breakfast di hotel'],
-                mosques: ['Mushola Airport'],
-                transportation: ['Bus pariwisata ke airport'],
+                destinasi: ['Belanja oleh-oleh', 'Transfer ke airport'],
+                makan: ['Breakfast di hotel'],
+                masjid: ['Mushola Airport'],
+                transportasi: ['Bus pariwisata ke airport'],
               },
             ]}
           />
@@ -295,24 +297,20 @@ export function ItineraryTableDemo() {
             title="Turki Heritage Tour"
             startDate="1 Maret 2026"
             endDate="8 Maret 2026"
-            days={[
+            itenaries={[
               {
                 day: 1,
-                destinations: ['Tiba di Istanbul', 'City tour Istanbul'],
-                meals: ['Makan malam Turkish cuisine'],
-                mosques: ['Blue Mosque'],
-                transportation: ['Private van'],
+                destinasi: ['Tiba di Istanbul', 'City tour Istanbul'],
+                makan: ['Makan malam Turkish cuisine'],
+                masjid: ['Blue Mosque'],
+                transportasi: ['Private van'],
               },
               {
                 day: 2,
-                destinations: [
-                  'Hagia Sophia',
-                  'Topkapi Palace',
-                  'Grand Bazaar',
-                ],
-                meals: ['Lunch & Dinner di restoran halal lokal'],
-                mosques: ['Suleymaniye Mosque'],
-                transportation: ['Walking tour + metro'],
+                destinasi: ['Hagia Sophia', 'Topkapi Palace', 'Grand Bazaar'],
+                makan: ['Lunch & Dinner di restoran halal lokal'],
+                masjid: ['Suleymaniye Mosque'],
+                transportasi: ['Walking tour + metro'],
               },
             ]}
             className="shadow-xl"

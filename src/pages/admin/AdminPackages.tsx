@@ -434,7 +434,7 @@ export default function AdminPackages() {
   const handleDelete = (id: number | string) => setConfirmId(Number(id));
   const confirmDelete = () => {
     if (confirmId == null) return;
-    setPackages((prev) => prev.filter((p) => p.id !== confirmId));
+    setPackages((prev) => prev.filter((p) => Number(p.id) !== confirmId));
     setConfirmId(null);
     setDeleteSuccess(true);
   };

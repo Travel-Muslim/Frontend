@@ -2,7 +2,7 @@ import api from './axios';
 import { apiRoutes } from './routes';
 
 export interface PackageDetail {
-  id: string | number;
+  id: string;
   name: string; // title/name in frontend
   location: string;
   benua?: string; // continent
@@ -14,7 +14,6 @@ export interface PackageDetail {
   periode_start?: string; // periode_start in backend
   periode_end?: string; // periode_end in backend
   itinerary?: {
-    day?: string;
     destinasi?: string[];
     makan?: string[];
     masjid?: string[];
@@ -61,33 +60,80 @@ const handlePaginatedResponse = <T>(response: any): T[] => {
   return [];
 };
 
-const normalizePackage = (raw: any): PackageDetail => ({
-  id: raw?.id ?? Date.now(),
-  name: raw?.name ?? 'Paket Tanpa Nama',
-  location: raw?.location ?? '-',
-  benua: raw?.benua,
-  price:
-    typeof raw?.price === 'number'
-      ? raw.price
-      : typeof raw?.harga === 'number'
-        ? raw.harga
-        : Number(raw?.price ?? raw?.harga ?? 0) || undefined,
-  image: raw?.image ?? raw?.imageUrl,
-  duration: raw?.duration ?? '',
-  maskapai: raw?.maskapai,
-  bandara: raw?.bandara,
-  periode_start: raw?.periode_start ?? raw?.periode_start,
-  periode_end: raw?.periode_end ?? raw?.periode_end,
-  itinerary: toArray<any>(raw?.itinerary || raw?.itineraries).map(
-    (item, idx) => ({
-      day: item?.day || `Hari ${idx + 1}`,
-      destinasi: toArray<string>(item?.destinasi ?? item?.destination),
-      makan: toArray<string>(item?.makan ?? item?.food),
-      masjid: toArray<string>(item?.masjid ?? item?.mosque),
-      transportasi: toArray<string>(item?.transportasi ?? item?.transport),
-    })
-  ),
-});
+const normalizePackage = (
+  raw: any,
+  fallbackId?: string | number
+): PackageDetail => {
+  // Try to get ID from raw data, or use fallback ID (from URL parameter)
+  const id = raw?.id ? String(raw.id) : fallbackId ? String(fallbackId) : '';
+
+  if (!id) {
+    console.error('Package missing ID:', raw);
+  } else {
+    console.log('Package ID found:', id);
+  }
+
+  return {
+    id: id,
+    name: raw?.name ?? 'Paket Tanpa Nama',
+    location: raw?.location ?? '-',
+    benua: raw?.benua,
+    price:
+      typeof raw?.price === 'number'
+        ? raw.price
+        : typeof raw?.harga === 'number'
+          ? raw.harga
+          : Number(raw?.price ?? raw?.harga ?? 0) || undefined,
+    image: raw?.image ?? raw?.imageUrl,
+    duration: raw?.duration ?? '',
+    maskapai: raw?.maskapai,
+    bandara: raw?.bandara,
+    periode_start: raw?.periode_start ?? raw?.periode_start,
+    periode_end: raw?.periode_end ?? raw?.periode_end,
+    itinerary: (() => {
+      const rawItinerary = raw?.itinerary || raw?.itineraries;
+      if (!rawItinerary) return [];
+
+      // If already an array, use it
+      if (Array.isArray(rawItinerary)) {
+        return rawItinerary.map((item, idx) => ({
+          destinasi: toArray<string>(item?.destinasi ?? item?.destination),
+          makan: toArray<string>(item?.makan ?? item?.food),
+          masjid: toArray<string>(item?.masjid ?? item?.mosque),
+          transportasi: toArray<string>(item?.transportasi ?? item?.transport),
+        }));
+      }
+
+      // If it's an object with arrays {destinasi: [...], makan: [...], ...}
+      // Convert to array format where index = day
+      if (typeof rawItinerary === 'object') {
+        const maxLength = Math.max(
+          toArray(rawItinerary.destinasi).length,
+          toArray(rawItinerary.makan).length,
+          toArray(rawItinerary.masjid).length,
+          toArray(rawItinerary.transportasi).length
+        );
+
+        return Array.from({ length: maxLength }, (_, idx) => ({
+          destinasi: toArray<string>(rawItinerary.destinasi)?.[idx]
+            ? [toArray<string>(rawItinerary.destinasi)[idx]]
+            : [],
+          makan: toArray<string>(rawItinerary.makan)?.[idx]
+            ? [toArray<string>(rawItinerary.makan)[idx]]
+            : [],
+          masjid: toArray<string>(rawItinerary.masjid)?.[idx]
+            ? [toArray<string>(rawItinerary.masjid)[idx]]
+            : [],
+          transportasi: toArray<string>(rawItinerary.transportasi)?.[idx]
+            ? [toArray<string>(rawItinerary.transportasi)[idx]]
+            : [],
+        }));
+      }
+
+      return [];
+    })(),
+  };
+};
 
 export async function fetchPackages(
   limit: number = 100
@@ -111,13 +157,15 @@ export async function fetchPackage(
     const res = await api.get(apiRoutes.package(id));
     const payload = unwrapData<any>(res.data);
 
+    console.log('Raw API Response for package:', id, payload);
+
     // Handle different response structures from backend
     if (payload?.results) {
-      return normalizePackage(payload.results);
+      return normalizePackage(payload.results, id);
     } else if (payload?.data) {
-      return normalizePackage(payload.data);
+      return normalizePackage(payload.data, id);
     } else {
-      return payload ? normalizePackage(payload) : null;
+      return payload ? normalizePackage(payload, id) : null;
     }
   } catch (error) {
     console.error('Gagal memuat detail paket', error);
@@ -184,11 +232,11 @@ export async function savePackage(
 
     // Handle different response structures
     if (data?.results) {
-      return normalizePackage(data.results);
+      return normalizePackage(data.results, id);
     } else if (data?.data) {
-      return normalizePackage(data.data);
+      return normalizePackage(data.data, id);
     } else {
-      return data ? normalizePackage(data) : null;
+      return data ? normalizePackage(data, id) : null;
     }
   } catch (error) {
     console.error('Gagal menyimpan paket', error);

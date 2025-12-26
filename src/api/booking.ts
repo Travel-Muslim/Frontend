@@ -1,8 +1,13 @@
-import api from "./axios";
-import { apiRoutes } from "./routes";
+import api from './axios';
+import { apiRoutes } from './routes';
 
-export type BookingStatus = "pending" | "confirmed" | "cancelled" | "done" | string;
-export type PaymentStatus = "unpaid" | "paid" | "refunded" | string;
+export type BookingStatus =
+  | 'pending'
+  | 'confirmed'
+  | 'cancelled'
+  | 'done'
+  | string;
+export type PaymentStatus = 'unpaid' | 'paid' | 'refunded' | string;
 
 export interface BookingPassenger {
   id?: string;
@@ -63,6 +68,7 @@ export interface Booking {
 export interface CreateBookingPayload {
   packageId: string;
   totalParticipants: number;
+  departureDate?: string;
   fullname: string;
   email: string;
   phoneNumber: string;
@@ -94,27 +100,27 @@ const handlePaginatedResponse = <T>(response: any): T[] => {
 };
 
 const normalizeBooking = (raw: any): Booking => ({
-  id: raw?.id ?? raw?._id ?? raw?.booking_id ?? "",
-  userId: raw?.userId ?? raw?.user_id ?? "",
-  packageId: raw?.packageId ?? raw?.package_id ?? "",
-  bookingCode: raw?.bookingCode ?? raw?.booking_code ?? "",
-  bookingDate: raw?.bookingDate ?? raw?.booking_date ?? "",
+  id: raw?.id ?? raw?._id ?? raw?.booking_id ?? '',
+  userId: raw?.userId ?? raw?.user_id ?? '',
+  packageId: raw?.packageId ?? raw?.package_id ?? '',
+  bookingCode: raw?.bookingCode ?? raw?.booking_code ?? '',
+  bookingDate: raw?.bookingDate ?? raw?.booking_date ?? '',
   departureDate: raw?.departureDate ?? raw?.departure_date,
   totalParticipants: raw?.totalParticipants ?? raw?.total_participants ?? 0,
   totalPrice: raw?.totalPrice ?? raw?.total_price ?? 0,
-  status: raw?.status ?? "pending",
-  paymentStatus: raw?.paymentStatus ?? raw?.payment_status ?? "unpaid",
-  fullname: raw?.fullname ?? raw?.name ?? "",
-  email: raw?.email ?? "",
-  phoneNumber: raw?.phoneNumber ?? raw?.phone_number ?? "",
-  whatsappContact: raw?.whatsappContact ?? raw?.whatsapp_contact ?? "",
-  passportNumber: raw?.passportNumber ?? raw?.passport_number ?? "",
+  status: raw?.status ?? 'pending',
+  paymentStatus: raw?.paymentStatus ?? raw?.payment_status ?? 'unpaid',
+  fullname: raw?.fullname ?? raw?.name ?? '',
+  email: raw?.email ?? '',
+  phoneNumber: raw?.phoneNumber ?? raw?.phone_number ?? '',
+  whatsappContact: raw?.whatsappContact ?? raw?.whatsapp_contact ?? '',
+  passportNumber: raw?.passportNumber ?? raw?.passport_number ?? '',
   passportExpiry: raw?.passportExpiry ?? raw?.passport_expiry,
   passportUrl: raw?.passportUrl ?? raw?.passport_url,
-  nationality: raw?.nationality ?? raw?.nationality ?? "Indonesia",
-  notes: raw?.notes ?? "",
-  createdAt: raw?.createdAt ?? raw?.created_at ?? "",
-  updatedAt: raw?.updatedAt ?? raw?.updated_at ?? "",
+  nationality: raw?.nationality ?? raw?.nationality ?? 'Indonesia',
+  notes: raw?.notes ?? '',
+  createdAt: raw?.createdAt ?? raw?.created_at ?? '',
+  updatedAt: raw?.updatedAt ?? raw?.updated_at ?? '',
   bookingPassengers: raw?.bookingPassengers ?? raw?.booking_passengers,
   facilities: raw?.facilities,
   specialRequests: raw?.specialRequests ?? raw?.special_requests,
@@ -137,7 +143,7 @@ export async function fetchActiveBookings(): Promise<Booking[]> {
     const bookings = handlePaginatedResponse<Booking>(res.data);
     return Array.isArray(bookings) ? bookings.map(normalizeBooking) : [];
   } catch (error) {
-    console.error("Gagal memuat booking aktif", error);
+    console.error('Gagal memuat booking aktif', error);
     return [];
   }
 }
@@ -148,12 +154,16 @@ export async function fetchBookingHistory(): Promise<Booking[]> {
     const bookings = handlePaginatedResponse<Booking>(res.data);
     return Array.isArray(bookings) ? bookings.map(normalizeBooking) : [];
   } catch (error) {
-    console.error("Gagal memuat riwayat booking", error);
+    console.error('Gagal memuat riwayat booking', error);
     return [];
   }
 }
 
-export async function fetchBookingWithFilters(status?: string, from?: string, to?: string): Promise<Booking[]> {
+export async function fetchBookingWithFilters(
+  status?: string,
+  from?: string,
+  to?: string
+): Promise<Booking[]> {
   try {
     const params = new URLSearchParams();
     if (status) params.append('status', status);
@@ -161,18 +171,22 @@ export async function fetchBookingWithFilters(status?: string, from?: string, to
     if (to) params.append('date_to', to);
 
     const queryString = params.toString();
-    const url = queryString ? `${apiRoutes.bookings}?${queryString}` : apiRoutes.bookings;
+    const url = queryString
+      ? `${apiRoutes.bookings}?${queryString}`
+      : apiRoutes.bookings;
 
     const res = await api.get(url);
     const bookings = handlePaginatedResponse<Booking>(res.data);
     return Array.isArray(bookings) ? bookings.map(normalizeBooking) : [];
   } catch (error) {
-    console.error("Gagal memuat booking dengan filter", error);
+    console.error('Gagal memuat booking dengan filter', error);
     return [];
   }
 }
 
-export async function fetchBookingDetail(bookingId: string): Promise<Booking | null> {
+export async function fetchBookingDetail(
+  bookingId: string
+): Promise<Booking | null> {
   try {
     const res = await api.get(`${apiRoutes.bookings}/${bookingId}`);
     const data = unwrapData<any>(res.data);
@@ -186,17 +200,20 @@ export async function fetchBookingDetail(bookingId: string): Promise<Booking | n
       return data ? normalizeBooking(data) : null;
     }
   } catch (error) {
-    console.error("Gagal memuat detail booking", error);
+    console.error('Gagal memuat detail booking', error);
     return null;
   }
 }
 
-export async function createBooking(payload: CreateBookingPayload): Promise<Booking | null> {
+export async function createBooking(
+  payload: CreateBookingPayload
+): Promise<Booking | null> {
   try {
     // Mapping field dari format frontend ke format backend
     const backendPayload = {
       package_id: payload.packageId,
       total_participants: payload.totalParticipants,
+      departure_date: payload.departureDate,
       fullname: payload.fullname,
       email: payload.email,
       phone_number: payload.phoneNumber,
@@ -221,30 +238,36 @@ export async function createBooking(payload: CreateBookingPayload): Promise<Book
       return data ? normalizeBooking(data) : null;
     }
   } catch (error) {
-    console.error("Gagal membuat booking", error);
+    console.error('Gagal membuat booking', error);
     throw error;
   }
 }
 
-export async function cancelBooking(bookingId: string, reason?: string): Promise<boolean> {
+export async function cancelBooking(
+  bookingId: string,
+  reason?: string
+): Promise<boolean> {
   try {
     const payload = reason ? { cancel_reason: reason } : {};
     await api.patch(`${apiRoutes.bookings}/${bookingId}/cancel`, payload);
     return true;
   } catch (error) {
-    console.error("Gagal membatalkan booking", error);
+    console.error('Gagal membatalkan booking', error);
     return false;
   }
 }
 
 export async function downloadTicket(bookingId: string): Promise<Blob | null> {
   try {
-    const res = await api.get(`${apiRoutes.bookings}/${bookingId}/download-ticket`, {
-      responseType: 'blob'
-    });
+    const res = await api.get(
+      `${apiRoutes.bookings}/${bookingId}/download-ticket`,
+      {
+        responseType: 'blob',
+      }
+    );
     return res.data;
   } catch (error) {
-    console.error("Gagal mengunduh tiket", error);
+    console.error('Gagal mengunduh tiket', error);
     return null;
   }
 }

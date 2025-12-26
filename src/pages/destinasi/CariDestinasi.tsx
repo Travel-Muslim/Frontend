@@ -197,7 +197,7 @@ export default function CariDestinasi() {
   };
 
   return (
-    <div className="min-h-screen bg-white text-gray-900">
+    <div className="min-h-screen text-gray-900">
       {/* Hero Section */}
       <HeroCariDestinasiSection
         searchValue={query}
@@ -215,14 +215,16 @@ export default function CariDestinasi() {
 
       {/* Pagination Section */}
       {!loading && filteredPackages.length > 0 && (
-        <div className="container mx-auto px-4">
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={handlePageChange}
-            itemsPerPage={itemsPerPage}
-            totalItems={filteredPackages.length}
-          />
+        <div className="w-full bg-[#FFF8F0]">
+          <div className="container mx-auto">
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+              itemsPerPage={itemsPerPage}
+              totalItems={filteredPackages.length}
+            />
+          </div>
         </div>
       )}
     </div>

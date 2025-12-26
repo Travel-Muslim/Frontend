@@ -10,6 +10,7 @@ import SuccessModal from '../../components/modals/SuccessModal';
 import { fetchPackage, type PackageDetail } from '../../api/packages';
 import { createBooking, type CreateBookingPayload } from '../../api/booking';
 import { fetchUserReviews, type UserReview } from '../../api/reviews';
+import { formatHelper } from '@/helper/format';
 
 type TabKey = 'itenary' | 'booking' | 'testimoni';
 
@@ -102,15 +103,21 @@ export default function DetailDestinasi() {
   const handleBookingSubmit = async (formData: any) => {
     if (!destination) return;
 
+    const packageId =
+      typeof destination.id === 'string'
+        ? destination.id
+        : String(destination.id);
+
     setBookingLoading(true);
     try {
       const payload: CreateBookingPayload = {
-        packageId: destination.id?.toString() || '',
+        packageId: packageId,
         fullname: formData.nama,
         email: formData.email,
         phoneNumber: formData.nomorTelepon,
         whatsappContact: formData.nomorTelepon,
         totalParticipants: formData.jumlahBooking,
+        departureDate: formData.tanggalKeberangkatan,
         passportNumber: formData.noPaspor,
         passportExpiry: formData.tanggalKadaluarsa,
         nationality: formData.negaraPaspor,
@@ -171,15 +178,15 @@ export default function DetailDestinasi() {
             <div className="max-w-7xl mx-auto">
               <ItineraryTable
                 title={destination.name}
-                startDate={destination.periode_start}
-                endDate={destination.periode_end}
-                days={
+                startDate={formatHelper.Period(destination.periode_start)}
+                endDate={formatHelper.Period(destination.periode_end)}
+                itenaries={
                   destination.itinerary?.map((item, idx) => ({
                     day: idx + 1,
-                    destinations: item.destinasi || [],
-                    meals: item.makan || [],
-                    mosques: item.masjid || [],
-                    transportation: item.transportasi || [],
+                    destinasi: item.destinasi || [],
+                    makan: item.makan || [],
+                    masjid: item.masjid || [],
+                    transportasi: item.transportasi || [],
                   })) || []
                 }
               />

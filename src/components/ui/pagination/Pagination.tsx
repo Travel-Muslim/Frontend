@@ -7,7 +7,6 @@ interface PaginationProps {
   onPageChange: (page: number) => void;
   itemsPerPage?: number;
   totalItems?: number;
-  bgColor?: string;
   primaryColor?: string;
   textColor?: string;
   activeTextColor?: string;
@@ -22,7 +21,6 @@ const Pagination: React.FC<PaginationProps> = ({
   onPageChange,
   itemsPerPage = 6,
   totalItems = 0,
-  bgColor = 'transparent',
   primaryColor = '#B49DE4',
   textColor = '#ffffff  ',
   activeTextColor = '#ffffff',
@@ -87,52 +85,12 @@ const Pagination: React.FC<PaginationProps> = ({
   const isPrevDisabled = currentPage === 1;
   const isNextDisabled = currentPage === totalPages;
 
-  const getButtonStyle = (
-    isActive: boolean,
-    isDisabled: boolean,
-    isHovered: boolean
-  ): React.CSSProperties => {
-    if (isDisabled) {
-      return {
-        backgroundColor: disabledBgColor,
-        color: disabledTextColor,
-        cursor: 'not-allowed',
-        border: '1px solid transparent',
-      };
-    }
-
-    if (isActive) {
-      return {
-        backgroundColor: primaryColor,
-        color: activeTextColor,
-        transform: 'scale(1.1)',
-        boxShadow: `0 4px 12px ${primaryColor}66`,
-        border: '1px solid transparent',
-      };
-    }
-
-    if (isHovered) {
-      return {
-        backgroundColor: buttonBgColor,
-        color: primaryColor,
-        borderColor: primaryColor,
-        border: `1px solid ${primaryColor}`,
-      };
-    }
-
-    return {
-      backgroundColor: buttonBgColor,
-      color: textColor,
-      border: '1px solid #E5E7EB',
-    };
-  };
-
   const pageNumbers = getPageNumbers();
 
   return (
-    <div className={`bg-${bgColor} p-6 rounded-2xl`}>
+    <div className={`bg-transparent p-6`}>
       <div className="text-center space-y-4">
-        <p className={`text-${textColor} text-sm`}>
+        <p className={`text-[${textColor}] text-sm`}>
           Menampilkan {startItem} - {endItem} dari {totalItems} destinasi
         </p>
 

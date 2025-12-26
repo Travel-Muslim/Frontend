@@ -142,13 +142,28 @@ export default function PembayaranPesananNew() {
       return;
     }
 
+    // Validasi package ID
+    const packageId =
+      typeof destination.id === 'string'
+        ? destination.id
+        : String(destination.id);
+
+    // Check if it's a valid UUID format
+    const uuidRegex =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(packageId)) {
+      alert('ID paket tidak valid. Pastikan Anda memilih paket yang benar.');
+      return;
+    }
+
     setLoading(true);
 
     try {
       // Prepare booking payload
       const bookingPayload: CreateBookingPayload = {
-        packageId: destination.id?.toString() || '',
+        packageId: packageId,
         totalParticipants: formData.jumlahBooking,
+        departureDate: formData.tanggalKeberangkatan,
         fullname: formData.nama,
         email: formData.email,
         phoneNumber: formData.nomorTelepon,
