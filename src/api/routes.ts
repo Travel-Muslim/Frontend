@@ -21,15 +21,15 @@ export const apiRoutes = {
   articles: `${API_PREFIX}/articles`,
   article: (id: string | number) => `${API_PREFIX}/articles/${id}`,
   community: `${API_PREFIX}/komunitas`,
-  orders: `${API_PREFIX}/orders`, // Tetap digunakan untuk endpoint yang lain
-  bookings: `${API_PREFIX}/bookings`, // Endpoint untuk booking sesuai dengan backend
+  orders: `${API_PREFIX}/orders`,
+  bookings: `${API_PREFIX}/bookings`,
   packages: `${API_PREFIX}/packages`,
   package: (id: string | number) => `${API_PREFIX}/packages/${id}`,
   users: `${API_PREFIX}/user`,
-  admin: `${API_PREFIX}/admin`, // Endpoint untuk admin API
-  payments: `${API_PREFIX}/payments`, // Endpoint untuk pembayaran
-  reviews: `${API_PREFIX}/reviews`, // Endpoint untuk review
-  dashboard: `${API_PREFIX}/admin/dashboard`, // Endpoint yang lama, tetap untuk kompatibilitas
-  wishlists: `${API_PREFIX}/wishlists`, // Endpoint untuk wishlist
-  wishlist: (id: string | number) => `${API_PREFIX}/wishlists/${id}`, // Endpoint untuk hapus wishlist item
+  admin: `${API_PREFIX}/admin`,
+  payments: `${API_PREFIX}/payments`,
+  reviews: `${API_PREFIX}/reviews`,
+  dashboard: `${API_PREFIX}/admin/dashboard`,
+  wishlists: `${API_PREFIX}/wishlists`,
+  wishlist: (id: string | number) => `${API_PREFIX}/wishlists/${id}`,
 };

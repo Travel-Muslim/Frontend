@@ -1,10 +1,8 @@
-import React from 'react';
-import Button from '../../ui/button/Button';
-import { HeroBgImage } from '@/assets/images';
+import { HeroHomeImage } from '@/assets/images';
+import Button from '@/components/ui/button/Button';
 
 export default function HeroHomeSection() {
   const handleSearchClick = () => {
-    // Navigate to search or scroll to search section
     const searchSection = document.getElementById('cari-destinasi-section');
     searchSection?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -14,7 +12,7 @@ export default function HeroHomeSection() {
       {/* Background Image with Overlay */}
       <div className="absolute inset-0 z-0">
         <img
-          src={HeroBgImage}
+          src={HeroHomeImage}
           alt="Istiqlal Mosque"
           className="w-full h-full object-cover"
           loading="lazy"

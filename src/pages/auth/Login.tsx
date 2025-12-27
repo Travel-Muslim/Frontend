@@ -6,7 +6,7 @@ import Input from '../../components/ui/input/Input';
 import Button from '../../components/ui/button/Button';
 import { ToastContainer, ToastItem } from '../../components/ui/toast/Toast';
 import { EmailIcon } from '../../assets/icon';
-import { LoginPng, LogoImage } from '../../assets/images';
+import { BgLoginImage, LogoImage } from '../../assets/images';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -76,7 +76,7 @@ export default function Login() {
           <div
             className="relative h-[500px] bg-cover bg-center px-7 pt-7 pb-8 flex flex-col justify-start items-start text-white"
             style={{
-              backgroundImage: `url(${LoginPng})`,
+              backgroundImage: `url(${BgLoginImage})`,
               backgroundSize: 'cover',
               backgroundPosition: 'center',
             }}

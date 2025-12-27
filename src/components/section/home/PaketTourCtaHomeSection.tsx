@@ -1,6 +1,7 @@
 import React from 'react';
 import Button from '../../ui/button/Button';
 import { useNavigate } from 'react-router-dom';
+import { PaketTourHomeSectionImage } from '@/assets/images';
 
 export default function PaketTourCtaHomeSection() {
   const navigate = useNavigate();
@@ -14,7 +15,7 @@ export default function PaketTourCtaHomeSection() {
       {/* Background Image with Overlay */}
       <div className="absolute inset-0 z-0">
         <img
-          src="https://images.unsplash.com/photo-1488646953014-85cb44e25828?q=80&w=2070"
+          src={PaketTourHomeSectionImage}
           alt="Travel Together"
           className="w-full h-full object-cover"
         />

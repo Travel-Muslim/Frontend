@@ -1,4 +1,4 @@
-import React from 'react';
+import { SocialApproveHomeSectionImage } from '@/assets/images';
 
 export default function SocialApproveHomeSection() {
   const stats = [
@@ -66,7 +66,7 @@ export default function SocialApproveHomeSection() {
           <div className="flex-1 max-w-xl w-full">
             <div className="relative rounded-3xl overflow-hidden shadow-2xl">
               <img
-                src="https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?q=80&w=2021"
+                src={SocialApproveHomeSectionImage}
                 alt="Muslim travelers"
                 className="w-full h-[400px] md:h-[500px] lg:h-[600px] object-cover"
               />

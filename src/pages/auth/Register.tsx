@@ -6,7 +6,7 @@ import Input from '../../components/ui/input/Input';
 import Button from '../../components/ui/button/Button';
 import { ToastContainer, ToastItem } from '../../components/ui/toast/Toast';
 import { EmailIcon, ProfileIcon, TelephoneIcon } from '../../assets/icon';
-import { RegisterPng, LogoImage } from '../../assets/images';
+import { BgRegisterImage, LogoImage } from '../../assets/images';
 
 export default function SignUp() {
   const [fullName, setFullName] = useState('');
@@ -91,9 +91,9 @@ export default function SignUp() {
         {/* Hero Section */}
         <div className="hidden lg:block bg-black rounded-[10px] overflow-hidden">
           <div
-            className="relative h-125 bg-cover bg-center px-7 pt-7 pb-8 flex flex-col justify-start items-start text-white"
+            className="relative h-full bg-cover bg-center px-7 pt-7 pb-8 flex flex-col justify-start items-start text-white "
             style={{
-              backgroundImage: `url(${RegisterPng})`,
+              backgroundImage: `url(${BgRegisterImage})`,
               backgroundSize: 'cover',
               backgroundPosition: 'center',
             }}
@@ -120,7 +120,7 @@ export default function SignUp() {
 
             {/* Copy */}
             <div className="relative z-10 mt-20 max-w-[320px]">
-              <p className="text-[20px] leading-[1.9] font-[580]">
+              <p className="text-[20px] leading-[1.9] font-[580] shadow-lg">
                 Temukan destinasi terbaik, panduan lengkap, hingga komunitas
                 muslimah yang siap mendukung perjalananmu!
               </p>

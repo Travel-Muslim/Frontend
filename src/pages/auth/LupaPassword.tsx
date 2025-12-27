@@ -5,8 +5,8 @@ import Button from '../../components/ui/button/Button';
 import { requestPasswordReset, resetPassword } from '../../api/users';
 import { ToastContainer, ToastItem } from '../../components/ui/toast/Toast';
 import {
-  ForgotPasswordEmailPng,
-  ForgotPasswordPng,
+  BgForgotPasswordEmailImage,
+  BgForgotPasswordImage,
   LogoImage,
 } from '../../assets/images';
 import { EmailIcon } from '../../assets/icon';
@@ -134,7 +134,7 @@ export default function ForgotPassword() {
 
   // Get background image based on current step
   const heroImage =
-    step === 'email' ? ForgotPasswordPng : ForgotPasswordEmailPng;
+    step === 'email' ? BgForgotPasswordImage : BgForgotPasswordEmailImage;
   const heroTitle = step === 'email' ? 'Masukkan Email' : 'Buat Password Baru';
   const heroCopy =
     step === 'email'
@@ -167,7 +167,7 @@ export default function ForgotPassword() {
 
           {/* Copy Section */}
           <div className="relative z-10 px-7 pb-8 text-white max-w-xs mt-20">
-            <p className="text-xl leading-relaxed font-medium">{heroCopy}</p>
+            <p className="text-xl leading-relaxed font-semibold">{heroCopy}</p>
             <span className="inline-block w-28 h-0.5 bg-white rounded-full mt-4" />
           </div>
         </div>
