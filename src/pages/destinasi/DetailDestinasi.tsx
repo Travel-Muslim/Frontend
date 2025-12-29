@@ -11,19 +11,21 @@ import { fetchPackage, type PackageDetail } from '../../api/packages';
 import { createBooking, type CreateBookingPayload } from '../../api/booking';
 import { fetchUserReviews, type UserReview } from '../../api/reviews';
 import { formatHelper } from '@/helper/format';
+import {
+  addToWishlist,
+  removeFromWishlist,
+  fetchWishlist,
+} from '@/api/wishlist';
 
 type TabKey = 'itenary' | 'booking' | 'testimoni';
 
-const STORAGE_WISHLIST = 'wishlist-liked-ids';
-
 export default function DetailDestinasi() {
   const { id } = useParams();
-  const navigate = useNavigate();
-
   const [destination, setDestination] = useState<PackageDetail | null>(null);
   const [reviews, setReviews] = useState<UserReview[]>([]);
   const [loading, setLoading] = useState(true);
   const [isWishlisted, setIsWishlisted] = useState(false);
+  const [wishlistItemId, setWishlistItemId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<TabKey>('itenary');
   const [bookingLoading, setBookingLoading] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -39,11 +41,25 @@ export default function DetailDestinasi() {
     let active = true;
     setLoading(true);
 
-    Promise.all([fetchPackage(id), fetchUserReviews()])
-      .then(([pkgData, reviewsData]) => {
+    Promise.all([fetchPackage(id), fetchUserReviews(), fetchWishlist()])
+      .then(([pkgData, reviewsData, wishlistData]) => {
         if (active) {
           if (pkgData) {
             setDestination(pkgData);
+
+            // Check if this package is in wishlist
+            if (wishlistData && Array.isArray(wishlistData)) {
+              const wishlistItem = wishlistData.find(
+                (item) => String(item.tour_package?.id) === String(pkgData.id)
+              );
+              if (wishlistItem) {
+                setIsWishlisted(true);
+                setWishlistItemId(wishlistItem.id);
+              } else {
+                setIsWishlisted(false);
+                setWishlistItemId(null);
+              }
+            }
           }
           if (reviewsData && Array.isArray(reviewsData)) {
             setReviews(reviewsData);
@@ -62,22 +78,6 @@ export default function DetailDestinasi() {
     };
   }, [id]);
 
-  // Check wishlist status
-  useEffect(() => {
-    if (!destination) return;
-    const saved = localStorage.getItem(STORAGE_WISHLIST);
-    if (saved) {
-      try {
-        const arr = JSON.parse(saved) as Array<string | number>;
-        setIsWishlisted(
-          arr.some((val) => String(val) === String(destination.id))
-        );
-      } catch {
-        setIsWishlisted(false);
-      }
-    }
-  }, [destination?.id]);
-
   // Update page title
   useEffect(() => {
     if (destination?.name) {
@@ -85,20 +85,31 @@ export default function DetailDestinasi() {
     }
   }, [destination?.name]);
 
-  const handleWishlistToggle = () => {
+  async function handleWishlistToggle() {
     if (!destination) return;
-    const saved = localStorage.getItem(STORAGE_WISHLIST);
-    let arr: Array<string | number> = saved ? JSON.parse(saved) : [];
 
-    if (arr.some((val) => String(val) === String(destination.id))) {
-      arr = arr.filter((val) => String(val) !== String(destination.id));
-      setIsWishlisted(false);
-    } else {
-      arr = [destination.id, ...arr];
-      setIsWishlisted(true);
+    try {
+      if (isWishlisted && wishlistItemId) {
+        await removeFromWishlist(wishlistItemId);
+        setIsWishlisted(false);
+        setWishlistItemId(null);
+        console.log('Successfully removed from wishlist');
+      } else {
+        const result = await addToWishlist({
+          tour_package_id: String(destination.id),
+        });
+        if (result) {
+          setIsWishlisted(true);
+          setWishlistItemId(result.id);
+          console.log('Successfully added to wishlist');
+        }
+      }
+    } catch (error) {
+      console.error('Error toggling wishlist:', error);
+      setSuccessMessage('Gagal mengubah wishlist. Silakan coba lagi.');
+      setShowSuccessModal(true);
     }
-    localStorage.setItem(STORAGE_WISHLIST, JSON.stringify(arr));
-  };
+  }
 
   const handleBookingSubmit = async (formData: any) => {
     if (!destination) return;

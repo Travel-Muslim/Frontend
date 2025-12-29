@@ -1,7 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Header from '@components/section/header/Header';
-import Footer from '@components/section/footer/Footer';
 import WishlistDestinasiSection from '@components/section/wishlist/WishlistDestinasiSection';
 import HistoryDestinasiSection from '@components/section/wishlist/HistoryDestinasiSection';
 import PopupNotifikasi from '@components/ui/popup-notifikasi/PopupNotifikasi';
@@ -21,7 +19,6 @@ export default function WishlistDestinasi() {
   const [loading, setLoading] = useState(false);
   const [alertVisible, setAlertVisible] = useState(false);
 
-  // Load wishlist and recent destinations on mount
   useEffect(() => {
     loadWishlist();
     loadRecentDestinations();
@@ -50,13 +47,13 @@ export default function WishlistDestinasi() {
       }
 
       // Fetch all packages and filter by recent IDs
-      const allPackages = await fetchPackages();
+      const allPackages = await fetchPackages(3);
       const recentIds = recentDests.map((d) => d.id);
       const filteredPackages = allPackages.filter((pkg) =>
         recentIds.includes(pkg.id)
       );
 
-      setRecentPackages(filteredPackages.slice(0, 6)); // Limit to 6 items
+      setRecentPackages(filteredPackages.slice(0, 6));
     } catch (error) {
       console.error('Failed to load recent destinations:', error);
       setRecentPackages([]);
@@ -81,11 +78,10 @@ export default function WishlistDestinasi() {
 
   return (
     <>
-      <Header />
       <div className="min-h-screen bg-orange-50 pt-24 mobile:pt-20 xs:pt-20 sm:pt-24 pb-20 mobile:pb-16 xs:pb-16">
         <div className="max-w-[1200px] mx-auto px-5 mobile:px-4 xs:px-4 sm:px-6 md:px-8 lg:px-12">
           {/* Header */}
-          <div className="mb-12 mobile:mb-8 xs:mb-8 sm:mb-10">
+          <div className="mb-12 lg:mt-20 md:mt-15 mobile:mt-15 mobile:mb-8 xs:mt-12 xs:mb-8 sm:mt-12 sm:mb-10">
             <h1 className="text-[clamp(2rem,5vw,3rem)] font-bold text-[#444444] mb-2">
               Wishlist
             </h1>
@@ -157,7 +153,6 @@ export default function WishlistDestinasi() {
           )}
         </div>
       </div>
-      <Footer />
 
       {/* Success Alert Modal */}
       <PopupNotifikasi

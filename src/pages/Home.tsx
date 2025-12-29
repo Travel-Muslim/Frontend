@@ -20,7 +20,7 @@ export default function HomePage() {
   useEffect(() => {
     let active = true;
     setPackagesLoading(true);
-    fetchPackages(100)
+    fetchPackages(3)
       .then((data) => {
         if (active) setPackages(data);
       })

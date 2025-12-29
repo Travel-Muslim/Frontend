@@ -1,15 +1,15 @@
 import CardBs from '@components/ui/card-pesanan/CardPesanan';
-import { PackageDetail } from '@api/packages';
+import { Booking } from '@api/booking';
 import { formatHelper } from '@/helper/format';
 
 interface RiwayatPesananSectionProps {
-  packages: PackageDetail[];
+  bookings: Booking[];
   loading?: boolean;
   onReviewClick: (id: string | number) => void;
 }
 
 export default function RiwayatPesananSection({
-  packages,
+  bookings,
   loading = false,
   onReviewClick,
 }: RiwayatPesananSectionProps) {
@@ -33,7 +33,7 @@ export default function RiwayatPesananSection({
     );
   }
 
-  if (packages.length === 0) {
+  if (bookings.length === 0) {
     return (
       <div className="w-full max-w-[1200px] mx-auto px-4 mobile:px-3 xs:px-4 sm:px-6 md:px-8 py-12 mobile:py-8 xs:py-10 sm:py-12">
         <div className="text-center">
@@ -51,24 +51,25 @@ export default function RiwayatPesananSection({
   return (
     <div className="w-full max-w-[1200px] mx-auto px-4 mobile:px-3 xs:px-4 sm:px-6 md:px-8 py-8 mobile:py-6 xs:py-7 sm:py-8">
       <div className="space-y-6 mobile:space-y-4 xs:space-y-5 sm:space-y-6">
-        {packages.map((pkg) => (
+        {bookings.map((booking) => (
           <CardBs
-            key={pkg.id}
-            id={String(pkg.id)}
+            key={booking.id}
+            id={String(booking.id)}
             variant="with-review"
-            image={pkg.image}
-            title={pkg.name}
-            location={pkg.location}
+            image={booking.package_image || ''}
+            title={booking.package_name || 'Paket Tour'}
+            location={booking.departure_month || ''}
             date={
-              formatHelper.Period(pkg.periode_start) +
-              (pkg.periode_end
-                ? ` - ${formatHelper.Period(pkg.periode_end)}`
-                : '')
+              booking.departureDate
+                ? formatHelper.Period(booking.departureDate)
+                : booking.bookingDate
+                  ? formatHelper.Period(booking.bookingDate)
+                  : '-'
             }
-            airline={pkg.maskapai || 'Maskapai tersedia'}
-            airport={pkg.bandara || 'Bandara tersedia'}
+            airline={booking.airline || 'Maskapai tersedia'}
+            airport={booking.airport || 'Bandara tersedia'}
             status="Selesai"
-            onReviewClick={() => onReviewClick(pkg.id)}
+            onReviewClick={() => onReviewClick(booking.packageId)}
           />
         ))}
       </div>

@@ -1,4 +1,3 @@
-import React from 'react';
 import { MapPin, Clock, Plane } from 'lucide-react';
 
 interface IdentitasPemesanan {
@@ -39,7 +38,7 @@ export default function RingkasanReservasi({
   tipeIdentitas = 'Peserta Dewasa, Single',
 }: RingkasanReservasiProps) {
   return (
-    <div className="min-h-screen bg-white p-4 sm:p-6 md:p-8">
+    <div className="min-h-scree p-4 sm:p-6 md:p-8">
       <div className="max-w-3xl mx-auto">
         {/* Header */}
         <div className="mb-6">

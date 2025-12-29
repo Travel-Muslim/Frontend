@@ -7,6 +7,7 @@ export type BookingStatus =
   | 'cancelled'
   | 'done'
   | string;
+
 export type PaymentStatus = 'unpaid' | 'paid' | 'refunded' | string;
 
 export interface BookingPassenger {

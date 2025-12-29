@@ -1,29 +1,15 @@
-import React, { useMemo, useState } from 'react';
-import { useLocation, Navigate, useNavigate } from 'react-router-dom';
+import React, { useMemo, useState, useEffect } from 'react';
+import {
+  useLocation,
+  Navigate,
+  useNavigate,
+  useParams,
+} from 'react-router-dom';
 import RingkasanReservasi from '../../components/section/pembayaran/RingkasanReservasi';
 import DetailPesanan from '../../components/section/pembayaran/DetailPesanan';
 import PopupNotifikasi from '../../components/ui/popup-notifikasi/PopupNotifikasi';
-import { createBooking, type CreateBookingPayload } from '../../api/booking';
-import { fetchPackage } from '../../api/packages';
-import type { PackageDetail } from '../../api/packages';
-
-interface BookingFormData {
-  nama: string;
-  tanggalLahir: string;
-  nomorTelepon: string;
-  email: string;
-  nomorPaspor: string;
-  negaraPaspor: string;
-  tanggalKadaluarsa: string;
-  jumlahBooking: number;
-  tanggalKeberangkatan: string;
-  packageId: string;
-}
-
-interface LocationState {
-  formData?: BookingFormData;
-  destination?: PackageDetail;
-}
+import { fetchBookingDetail, type Booking } from '../../api/booking';
+import { fetchPackage, type PackageDetail } from '../../api/packages';
 
 interface TarifItem {
   nama: string;
@@ -37,15 +23,16 @@ interface BiayaLainnya {
   qty: number;
 }
 
-export default function PembayaranPesananNew() {
-  const location = useLocation();
+export default function PembayaranPesanan() {
+  const { id: bookingId } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const state = location.state as LocationState | undefined;
 
-  const formData = state?.formData;
-  const destination = state?.destination;
-
-  const [loading, setLoading] = useState(false);
+  const [booking, setBooking] = useState<Booking | null>(null);
+  const [packageDetail, setPackageDetail] = useState<PackageDetail | null>(
+    null
+  );
+  const [loading, setLoading] = useState(true);
+  const [paymentLoading, setPaymentLoading] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
   const [popupMessage, setPopupMessage] = useState('');
   const [bookingCode, setBookingCode] = useState('');
@@ -55,49 +42,83 @@ export default function PembayaranPesananNew() {
   const [popupTitle, setPopupTitle] = useState('');
   const [popupButtonText, setPopupButtonText] = useState('');
 
-  // Redirect if no form data
-  if (!formData || !destination) {
-    return <Navigate to="/" replace />;
-  }
+  // Fetch booking detail and package detail
+  useEffect(() => {
+    if (!bookingId) return;
+
+    const loadData = async () => {
+      setLoading(true);
+      try {
+        const bookingData = await fetchBookingDetail(bookingId);
+        if (bookingData) {
+          setBooking(bookingData);
+          setBookingCode(bookingData.bookingCode || bookingData.id);
+
+          // Fetch package detail
+          if (bookingData.packageId) {
+            const pkgData = await fetchPackage(bookingData.packageId);
+            if (pkgData) {
+              setPackageDetail(pkgData);
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Error loading booking data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
+  }, [bookingId]);
 
   // Format tarif items
-  const tarifItems: TarifItem[] = [
-    {
-      nama: `${destination.name} (Adult Single)`,
-      harga: destination.price || 14000000,
-      qty: formData.jumlahBooking || 1,
-    },
-  ];
+  const tarifItems: TarifItem[] = useMemo(() => {
+    if (!packageDetail || !booking) return [];
+    return [
+      {
+        nama: `${packageDetail.name} (Adult Single)`,
+        harga: packageDetail.price || 14000000,
+        qty: booking.totalParticipants || 1,
+      },
+    ];
+  }, [packageDetail, booking]);
 
   // Biaya tambahan
-  const biayaLainnya: BiayaLainnya[] = [
-    {
-      nama: 'Airport Tax',
-      harga: 5000000,
-      qty: 1,
-    },
-    {
-      nama: 'Visa',
-      harga: 2000000,
-      qty: 1,
-    },
-  ];
+  const biayaLainnya: BiayaLainnya[] = useMemo(
+    () => [
+      {
+        nama: 'Airport Tax',
+        harga: 5000000,
+        qty: 1,
+      },
+      {
+        nama: 'Visa',
+        harga: 2000000,
+        qty: 1,
+      },
+    ],
+    []
+  );
 
   // Calculate totals
-  const subtotal = tarifItems.reduce(
-    (sum, item) => sum + item.harga * item.qty,
-    0
-  );
-  const biayaTambahan = biayaLainnya.reduce(
-    (sum, item) => sum + item.harga * item.qty,
-    0
-  );
-  const total = subtotal + biayaTambahan;
+  const { subtotal, total } = useMemo(() => {
+    const sub = tarifItems.reduce(
+      (sum, item) => sum + item.harga * item.qty,
+      0
+    );
+    const biayaTambahan = biayaLainnya.reduce(
+      (sum, item) => sum + item.harga * item.qty,
+      0
+    );
+    return { subtotal: sub, total: sub + biayaTambahan };
+  }, [tarifItems, biayaLainnya]);
 
   // Format departure date
   const formattedDepartDate = useMemo(() => {
+    if (!booking) return '';
     try {
-      const d = new Date(formData.tanggalKeberangkatan);
+      const d = new Date(booking.departureDate || booking.bookingDate);
       return d.toLocaleDateString('id-ID', {
         weekday: 'long',
         day: '2-digit',
@@ -105,98 +126,89 @@ export default function PembayaranPesananNew() {
         year: 'numeric',
       });
     } catch {
-      return formData.tanggalKeberangkatan;
+      return booking.departureDate || booking.bookingDate;
     }
-  }, [formData.tanggalKeberangkatan]);
+  }, [booking]);
 
   // Ringkasan Reservasi props
-  const ringkasanProps = {
-    identitasPemesanan: {
-      namaLengkap: formData.nama,
-      tanggalLahir: formData.tanggalLahir,
-      kewarganegaraan: formData.negaraPaspor,
-      nomorTelepon: formData.nomorTelepon,
-      alamatEmail: formData.email,
-    },
-    nomorIdentitas: {
-      nomorPaspor: formData.nomorPaspor,
-      negaraPenerbit: formData.negaraPaspor,
-      tanggalHabisBerlaku: formData.tanggalKadaluarsa,
-    },
-    detailPesanan: {
-      tourName: destination.name,
-      tourId: `${destination.id}`,
-      tanggalKeberangkatan: formattedDepartDate,
-      depart: destination.location || 'Jakarta',
-      durasi: `${destination.duration || '6'} Hari / ${parseInt(destination.duration || '6') - 1} Malam`,
-      maskapai: destination.bandara || 'Garuda Indonesia',
-      kamar: `${formData.jumlahBooking} Orang (Dewasa)`,
-    },
-    tipeIdentitas: 'Peserta Dewasa, Single',
-  };
+  const ringkasanProps = useMemo(() => {
+    if (!booking || !packageDetail) return null;
 
-  // Handle booking submission
+    return {
+      identitasPemesanan: {
+        namaLengkap: booking.fullname || '',
+        tanggalLahir: '-',
+        kewarganegaraan: booking.nationality || 'Indonesia',
+        nomorTelepon: booking.phoneNumber || '',
+        alamatEmail: booking.email || '',
+      },
+      nomorIdentitas: {
+        nomorPaspor: booking.passportNumber || '',
+        negaraPenerbit: booking.nationality || 'Indonesia',
+        tanggalHabisBerlaku: booking.passportExpiry || '',
+      },
+      detailPesanan: {
+        tourName: packageDetail.name,
+        tourId: `${packageDetail.id}`,
+        tanggalKeberangkatan: formattedDepartDate,
+        depart: packageDetail.location || 'Jakarta',
+        durasi: `${packageDetail.duration || '6'} Hari / ${parseInt(packageDetail.duration || '6') - 1} Malam`,
+        maskapai: packageDetail.maskapai || 'Garuda Indonesia',
+        kamar: `${booking.totalParticipants} Orang (Dewasa)`,
+      },
+      tipeIdentitas: 'Peserta Dewasa, Single',
+    };
+  }, [booking, packageDetail, formattedDepartDate]);
+
+  // Redirect if no booking ID or booking not found
+  if (!bookingId) {
+    return <Navigate to="/" replace />;
+  }
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <p className="text-lg text-gray-600">Memuat data booking...</p>
+      </div>
+    );
+  }
+
+  // Not found state
+  if (!booking || !packageDetail || !ringkasanProps) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-lg text-gray-600 mb-4">Booking tidak ditemukan</p>
+          <button
+            onClick={() => navigate('/riwayat')}
+            className="text-purple-600 hover:underline"
+          >
+            Kembali ke Riwayat
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Handle payment continuation
   const handleContinuePayment = async (agreed: boolean) => {
     if (!agreed) {
       alert('Silakan setujui kebijakan privasi terlebih dahulu');
       return;
     }
 
-    // Validasi package ID
-    const packageId =
-      typeof destination.id === 'string'
-        ? destination.id
-        : String(destination.id);
+    setPaymentLoading(true);
 
-    // Check if it's a valid UUID format
-    const uuidRegex =
-      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-    if (!uuidRegex.test(packageId)) {
-      alert('ID paket tidak valid. Pastikan Anda memilih paket yang benar.');
-      return;
-    }
-
-    setLoading(true);
-
-    try {
-      // Prepare booking payload
-      const bookingPayload: CreateBookingPayload = {
-        packageId: packageId,
-        totalParticipants: formData.jumlahBooking,
-        departureDate: formData.tanggalKeberangkatan,
-        fullname: formData.nama,
-        email: formData.email,
-        phoneNumber: formData.nomorTelepon,
-        whatsappContact: formData.nomorTelepon,
-        passportNumber: formData.nomorPaspor,
-        passportExpiry: formData.tanggalKadaluarsa,
-        nationality: formData.negaraPaspor,
-        notes: `Booking untuk ${formData.jumlahBooking} peserta`,
-      };
-
-      // Create booking via API
-      const result = await createBooking(bookingPayload);
-
-      if (result && result.id) {
-        // Success
-        setBookingCode(result.bookingCode || result.id);
-        setPopupVariant('whatsapp');
-        setPopupTitle('Pemesanan Berhasil');
-        setPopupMessage(
-          `Pemesanan Anda berhasil dibuat!\n\nKode Booking: ${result.bookingCode || result.id}\n\nSilakan lanjutkan pembayaran melalui WhatsApp.`
-        );
-        setPopupButtonText('Lanjutkan ke WhatsApp');
-        setShowPopup(true);
-      } else {
-        // Error handling
-        alert('Gagal membuat pemesanan. Silakan coba lagi.');
-      }
-    } catch (error) {
-      console.error('Error creating booking:', error);
-      alert('Terjadi kesalahan. Silakan coba lagi.');
-    } finally {
-      setLoading(false);
-    }
+    // Show WhatsApp payment popup
+    setPopupVariant('whatsapp');
+    setPopupTitle('Lanjutkan Pembayaran');
+    setPopupMessage(
+      `Kode Booking: ${bookingCode}\n\nTotal Pembayaran: Rp ${total.toLocaleString('id-ID')}\n\nSilakan lanjutkan pembayaran melalui WhatsApp.`
+    );
+    setPopupButtonText('Lanjutkan ke WhatsApp');
+    setShowPopup(true);
+    setPaymentLoading(false);
   };
 
   // Handle popup close
@@ -256,180 +268,17 @@ export default function PembayaranPesananNew() {
   };
 
   return (
-    <div className="min-h-screen bg-white py-8 px-4 md:py-12">
-      <div className="max-w-5xl mx-auto space-y-8">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl sm:text-4xl font-bold text-gray-800 mb-2">
-            Pembayaran Pesanan
-          </h1>
-          <p className="text-gray-600 text-sm sm:text-base">
-            Pastikan seluruh data telah sesuai untuk kelancaran proses
-            keberangkatan.
-          </p>
-        </div>
-
-        {/* Ringkasan Reservasi */}
-        <div className="bg-white rounded-[15px] shadow-lg overflow-hidden border border-gray-100">
-          <div className="bg-[#B49DE4] py-4 px-6">
-            <h2 className="text-white text-xl font-semibold text-center">
-              Ringkasan Reservasi Anda
-            </h2>
-          </div>
-
-          {/* Ringkasan Content */}
-          <div className="p-6 space-y-6">
-            {/* Identitas Pemesanan */}
-            <div>
-              <h3 className="text-base font-semibold text-gray-800 mb-3">
-                Identitas Pemesanan (Peserta Dewasa, Single)
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                <div>
-                  <p className="text-sm font-semibold text-gray-700 mb-1">
-                    Nama Lengkap
-                  </p>
-                  <p className="text-sm text-gray-500">{formData.nama}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-gray-700 mb-1">
-                    Tanggal Lahir
-                  </p>
-                  <p className="text-sm text-gray-500">
-                    {formData.tanggalLahir}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-gray-700 mb-1">
-                    Kewarganegaraan
-                  </p>
-                  <p className="text-sm text-gray-500">
-                    {formData.negaraPaspor}
-                  </p>
-                </div>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm font-semibold text-gray-700 mb-1">
-                    Nomor Telepon
-                  </p>
-                  <p className="text-sm text-gray-500">
-                    {formData.nomorTelepon}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-gray-700 mb-1">
-                    Alamat Email
-                  </p>
-                  <p className="text-sm text-gray-500">{formData.email}</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Divider */}
-            <hr className="border-gray-200" />
-
-            {/* Nomor Identitas */}
-            <div>
-              <h3 className="text-base font-semibold text-gray-800 mb-3">
-                Nomor Identitas
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <div>
-                  <p className="text-sm font-semibold text-gray-700 mb-1">
-                    Nomor Paspor
-                  </p>
-                  <p className="text-sm text-gray-500">
-                    {formData.nomorPaspor}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-gray-700 mb-1">
-                    Negara Penerbit
-                  </p>
-                  <p className="text-sm text-gray-500">
-                    {formData.negaraPaspor}
-                  </p>
-                </div>
-              </div>
-              <div>
-                <p className="text-sm font-semibold text-gray-700 mb-1">
-                  Tanggal Habis Berlaku
-                </p>
-                <p className="text-sm text-gray-500">
-                  {formData.tanggalKadaluarsa}
-                </p>
-              </div>
-            </div>
-
-            {/* Divider */}
-            <hr className="border-gray-200" />
-
-            {/* Detail Pesanan */}
-            <div>
-              <h3 className="text-base font-semibold text-gray-800 mb-3">
-                Detail Pesanan
-              </h3>
-              <h4 className="text-base font-semibold text-gray-800 mb-3">
-                {destination.name}
-              </h4>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <div>
-                  <p className="text-sm font-semibold text-gray-700 mb-1">
-                    Tour ID
-                  </p>
-                  <p className="text-sm text-gray-500">{destination.id}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-gray-700 mb-1">
-                    Tanggal Keberangkatan
-                  </p>
-                  <p className="text-sm text-gray-500">{formattedDepartDate}</p>
-                </div>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm font-semibold text-gray-700 mb-2">
-                    Depart
-                  </p>
-                  <div className="space-y-2">
-                    <div className="flex items-start gap-2">
-                      <span className="text-sm text-gray-600">
-                        📍 {destination.location || 'Jakarta'}
-                      </span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <span className="text-sm text-gray-600">
-                        ⏱️ {destination.duration || '6'} Hari /{' '}
-                        {parseInt(destination.duration || '6') - 1} Malam
-                      </span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <span className="text-sm text-gray-600">
-                        ✈️ {destination.bandara || 'Garuda Indonesia'}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-gray-700 mb-1">
-                    Kamar
-                  </p>
-                  <p className="text-sm text-gray-500">
-                    {formData.jumlahBooking} Orang (Dewasa)
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+    <div className="min-h-screen bg-[#FFF8F0] mt-20 py-8 px-4 md:py-12">
+      <div className="max-w-5xl mx-auto">
+        {/* Ringkasan Reservasi Component */}
+        <RingkasanReservasi {...ringkasanProps} />
 
         {/* Detail Pesanan Component */}
         <DetailPesanan
-          kamarCount={formData.jumlahBooking}
+          kamarCount={booking.totalParticipants}
           tarifItems={tarifItems}
           biayaLainnya={biayaLainnya}
-          loading={loading}
+          loading={paymentLoading}
           onSubmit={handleContinuePayment}
         />
 

@@ -1,6 +1,7 @@
 import React from 'react';
 import CardPackage from '../../ui/card-package/CardPackage';
 import type { PackageDetail } from '@api/packages';
+import { formatHelper } from '@/helper/format';
 
 interface HistoryDestinasiSectionProps {
   packages: PackageDetail[];
@@ -13,11 +14,6 @@ export default function HistoryDestinasiSection({
   loading = false,
   onDetailsClick,
 }: HistoryDestinasiSectionProps) {
-  const formatPrice = (price?: number) => {
-    if (!price) return 'Rp0';
-    return `Rp${price.toLocaleString('id-ID')}`;
-  };
-
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
@@ -46,7 +42,7 @@ export default function HistoryDestinasiSection({
             variant="compact-button"
             title={pkg.name}
             country={pkg.location}
-            price={formatPrice(pkg.price)}
+            price={formatHelper.rupiah(pkg.price)}
             imageUrl={pkg.image}
             buttonText="Details"
             onDetailsClick={() => onDetailsClick?.(String(pkg.id))}

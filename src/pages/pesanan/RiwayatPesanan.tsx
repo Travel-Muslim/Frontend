@@ -5,39 +5,70 @@ import Footer from '@/components/section/footer/Footer';
 import SnackBar from '@components/ui/snack-bar/SnackBar';
 import PesananSayaSection from '@/components/section/pesanan/PesananSayaSection';
 import RiwayatPesananSection from '@/components/section/pesanan/RiwayatPesananSection';
-import { fetchPackages, PackageDetail } from '@/api/packages';
+import {
+  fetchActiveBookings,
+  fetchBookingHistory,
+  Booking,
+} from '@/api/booking';
 
 type TabKey = 'booking-saya' | 'daftar-riwayat';
 
 export default function Riwayat() {
   const [activeTab, setActiveTab] = useState<TabKey>('booking-saya');
-  const [packages, setPackages] = useState<PackageDetail[]>([]);
+  const [activeBookings, setActiveBookings] = useState<Booking[]>([]);
+  const [bookingHistory, setBookingHistory] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  // Fetch packages from API
+  // Fetch bookings from API
   useEffect(() => {
-    const loadPackages = async () => {
+    const loadBookings = async () => {
       setLoading(true);
       try {
-        const data = await fetchPackages();
-        setPackages(data);
+        const [activeData, historyData] = await Promise.all([
+          fetchActiveBookings(),
+          fetchBookingHistory(),
+        ]);
+        setActiveBookings(activeData);
+        setBookingHistory(historyData);
       } catch (error) {
-        console.error('Error loading packages:', error);
+        console.error('Error loading bookings:', error);
       } finally {
         setLoading(false);
       }
     };
 
-    loadPackages();
+    loadBookings();
   }, []);
 
-  // Split packages: first 3 for active bookings, rest for history
-  const activeBookings = packages.slice(0, 3);
-  const completedBookings = packages.slice(3);
-
   const handleDetailClick = (id: string | number) => {
-    navigate(`/detail-paket/${id}`);
+    // Check if this is a booking ID (for payment) or package ID (for detail)
+    const booking = activeBookings.find((b) => b.id === id);
+    if (booking && booking.paymentStatus === 'unpaid') {
+      // Navigate to payment page
+      console.log('Navigating to payment page for booking ID:', id);
+      navigate(`/pembayaran-pesanan/${id}`);
+    } else {
+      // Navigate to package detail
+      navigate(`/detail-paket/${id}`);
+    }
+  };
+
+  const handleCancelSuccess = () => {
+    // Reload bookings after cancellation
+    const loadBookings = async () => {
+      try {
+        const [activeData, historyData] = await Promise.all([
+          fetchActiveBookings(),
+          fetchBookingHistory(),
+        ]);
+        setActiveBookings(activeData);
+        setBookingHistory(historyData);
+      } catch (error) {
+        console.error('Error reloading bookings:', error);
+      }
+    };
+    loadBookings();
   };
 
   const handleReviewClick = (id: string | number) => {
@@ -56,7 +87,7 @@ export default function Riwayat() {
   return (
     <div className="min-h-screen bg-orange-50">
       {/* Hero Section */}
-      <div className="pt-24 mobile:pt-20 xs:pt-22 sm:pt-24 pb-8 mobile:pb-6 xs:pb-7 sm:pb-8 px-4 mobile:px-3 xs:px-4 sm:px-6 md:px-8">
+      <div className="pt-24 lg:mt-20 md:mt-20  mobile:pt-20 xs:pt-22 sm:pt-24 pb-8 mobile:pb-6 xs:pb-7 sm:pb-8 px-4 mobile:px-3 xs:px-4 sm:px-6 md:px-8">
         <div className="max-w-7xl mx-auto">
           <h1 className="text-4xl mobile:text-3xl xs:text-3xl sm:text-4xl font-bold text-gray-900 mb-3 mobile:mb-2 xs:mb-2.5 sm:mb-3">
             Riwayat Booking
@@ -95,13 +126,14 @@ export default function Riwayat() {
       <div className="pb-16 mobile:pb-12 xs:pb-14 sm:pb-16">
         {activeTab === 'booking-saya' ? (
           <PesananSayaSection
-            packages={activeBookings}
+            bookings={activeBookings}
             loading={loading}
             onDetailClick={handleDetailClick}
+            onCancelSuccess={handleCancelSuccess}
           />
         ) : (
           <RiwayatPesananSection
-            packages={completedBookings}
+            bookings={bookingHistory}
             loading={loading}
             onReviewClick={handleReviewClick}
           />

@@ -64,7 +64,6 @@ export async function addToWishlist(
     const res = await api.post(apiRoutes.wishlists, payload);
     const data = unwrapData<any>(res.data);
 
-    // Handle different response structures
     if (data?.results) {
       return data.results;
     } else if (data?.data) {

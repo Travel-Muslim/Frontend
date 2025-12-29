@@ -10,32 +10,28 @@ export interface ArticleBlock {
 }
 
 export interface Article {
-  id: string; // UUID from backend
+  id: string;
   title: string;
   slug?: string;
   category?: string;
   categoryId?: string;
   content?: string;
   excerpt?: string;
-  coverImage?: string; // Corresponds to cover_image_url from backend
-  tags?: any[]; // JSONB type from backend
+  coverImage?: string;
+  tags?: any[];
   authorId?: string;
   views?: number;
-  readTime?: string; // read_time from backend
+  readTime?: string;
   isPublished?: boolean;
   createdAt?: string;
   updatedAt?: string;
   publishedAt?: string;
-
-  // Fields for compatibility with API responses
-  judul?: string; // Title field from API response
-  tanggal?: string; // Formatted date from API response
-  tanggalTerbit?: string; // Formatted publish date from admin API
-  imageUrl?: string; // Image URL from API response
-  preview?: string; // Preview/excerpt from API response
-  sections?: any[]; // Sections from detailed article API
-
-  // Legacy fields (might be used elsewhere in frontend)
+  judul?: string;
+  tanggal?: string;
+  tanggalTerbit?: string;
+  imageUrl?: string;
+  preview?: string;
+  sections?: any[];
   displayDate?: string;
   date?: string;
   time?: string;

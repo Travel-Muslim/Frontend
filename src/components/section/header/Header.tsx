@@ -38,7 +38,12 @@ export default function Header() {
   useEffect(() => {
     const path = location.pathname;
 
-    const transparentRoutes = ['/artikel/:id'];
+    const transparentRoutes = [
+      '/artikel/:id',
+      '/wishlist',
+      '/riwayat',
+      '/pembayaran-pesanan/:id',
+    ];
 
     const isTransparentPage = transparentRoutes.some((route) =>
       matchPath(route, path)

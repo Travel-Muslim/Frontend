@@ -100,7 +100,10 @@ function AppWrapper() {
           <Route path="/artikel/:id" element={<ArtikelDetail />} />
           <Route path="/komunitas" element={<Komunitas />} />
           <Route path="/destinasi/:id" element={<DetailDestinasi />} />
-          <Route path="/pembayaran-pesanan" element={<PembayaranPesanan />} />
+          <Route
+            path="/pembayaran-pesanan/:id"
+            element={<PembayaranPesanan />}
+          />
           <Route path="/review" element={<ReviewDestinasi />} />
           <Route path="/tiket" element={<TicketPage />} />
 

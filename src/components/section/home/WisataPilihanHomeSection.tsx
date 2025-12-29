@@ -1,7 +1,6 @@
 import CardPackage from '../../ui/card-package/CardPackage';
 import { PackageDetail } from '@/api/packages';
 import { formatHelper } from '@/helper/format';
-import moment from 'moment';
 
 interface WisataPilihanHomeSectionProps {
   packages: PackageDetail[];

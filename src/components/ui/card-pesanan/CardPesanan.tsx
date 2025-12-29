@@ -14,11 +14,13 @@ interface CardBsProps {
   status?: string;
   price?: string;
   variant?: 'with-review' | 'with-detail' | 'with-booking';
+  paymentStatus?: 'paid' | 'unpaid' | string;
   onDetailClick?: (id: string) => void;
   onReviewClick?: (id: string) => void;
   onBookingClick?: (id: string) => void;
   onWishlistClick?: (id: string) => void;
   onContactClick?: (id: string) => void;
+  onCancelClick?: (id: string) => void;
   isWishlisted?: boolean;
   showDetailButton?: boolean;
   showReviewButton?: boolean;
@@ -39,11 +41,13 @@ const CardBs: React.FC<CardBsProps> = ({
   status = 'Selesai',
   price = 'Rp 14.000.000 / pax',
   variant = 'with-detail',
+  paymentStatus = 'paid',
   onDetailClick,
   onReviewClick,
   onBookingClick,
   onWishlistClick,
   onContactClick,
+  onCancelClick,
   isWishlisted = false,
   showDetailButton = true,
   showReviewButton = false,
@@ -255,13 +259,38 @@ const CardBs: React.FC<CardBsProps> = ({
 
           {variant === 'with-detail' && (
             <div className="w-full">
-              <Button
-                variant="light-pink-hover-dark-pink"
-                onClick={() => onDetailClick?.(id)}
-                className="w-full h-12 sm:h-14"
-              >
-                Lihat Detail Tiket
-              </Button>
+              {paymentStatus === 'unpaid' ? (
+                <div className="flex flex-col sm:flex-row gap-3 w-full justify-center">
+                  <div className="flex-1 flex justify-center">
+                    <Button
+                      variant="light-teal-hover-dark-teal"
+                      onClick={() => onDetailClick?.(id)}
+                      className="h-12 sm:h-14 w-auto px-6"
+                    >
+                      Lanjutkan Pembayaran
+                    </Button>
+                  </div>
+                  <div className="flex-1 flex justify-center">
+                    <Button
+                      variant="light-pink-hover-dark-pink"
+                      onClick={() => onCancelClick?.(id)}
+                      className="h-12 sm:h-14 w-auto px-6"
+                    >
+                      Batalkan Booking
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex justify-center w-full">
+                  <Button
+                    variant="light-pink-hover-dark-pink"
+                    onClick={() => onDetailClick?.(id)}
+                    className="h-12 sm:h-14 w-auto px-6"
+                  >
+                    Lihat Detail Tiket
+                  </Button>
+                </div>
+              )}
             </div>
           )}
 

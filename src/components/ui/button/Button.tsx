@@ -105,7 +105,7 @@ export default function Button({
         font-semibold rounded-${rest.rounded || 'sm'} 
         transition-all duration-200 ease-out
         disabled:opacity-50 disabled:cursor-not-allowed
-        min-w-15 max-w-100
+        min-w-15
         min-h-10 max-h-20 px-3 text-base gap-2
         sm:w-30 sm:h-10 sm:px-4 sm:text-base sm:gap-2
         md:w-50 md:h-14 md:px-4 md:text-base md:gap-2

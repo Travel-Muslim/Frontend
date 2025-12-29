@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Button from '../../ui/button/Button';
+import { formatHelper } from '@/helper/format';
 
 interface TarifItem {
   nama: string;
@@ -41,10 +42,6 @@ export default function DetailPesanan({
     subtotal +
     biayaLainnya.reduce((sum, item) => sum + item.harga * item.qty, 0);
 
-  const formatCurrency = (amount: number) => {
-    return amount.toLocaleString('id-ID');
-  };
-
   const handleSubmit = () => {
     if (onSubmit) {
       onSubmit(agreed);
@@ -52,7 +49,7 @@ export default function DetailPesanan({
   };
 
   return (
-    <div className="min-h-screen bg-white p-4 sm:p-6 md:p-8">
+    <div className="min-h-screen p-4 sm:p-6 md:p-8">
       <div className="max-w-3xl mx-auto">
         {/* Header */}
         <div className="mb-6">
@@ -113,13 +110,13 @@ export default function DetailPesanan({
                           {item.nama}
                         </td>
                         <td className="py-3 px-2 text-sm text-gray-600 text-right">
-                          {formatCurrency(item.harga)}
+                          {formatHelper.rupiah(item.harga)}
                         </td>
                         <td className="py-3 px-2 text-sm text-gray-600 text-center">
                           {item.qty}
                         </td>
                         <td className="py-3 px-2 text-sm text-gray-600 text-right">
-                          {formatCurrency(item.harga * item.qty)}
+                          {formatHelper.rupiah(item.harga * item.qty)}
                         </td>
                       </tr>
                     ))}
@@ -133,7 +130,7 @@ export default function DetailPesanan({
                   Subtotal
                 </p>
                 <p className="text-base font-semibold text-gray-800">
-                  {formatCurrency(subtotal)}
+                  {formatHelper.rupiah(subtotal)}
                 </p>
               </div>
             </div>
@@ -173,13 +170,13 @@ export default function DetailPesanan({
                           {item.nama}
                         </td>
                         <td className="py-3 px-2 text-sm text-gray-600 text-right">
-                          {formatCurrency(item.harga)}
+                          {formatHelper.rupiah(item.harga)}
                         </td>
                         <td className="py-3 px-2 text-sm text-gray-600 text-center">
                           {item.qty}
                         </td>
                         <td className="py-3 px-2 text-sm text-gray-600 text-right">
-                          {formatCurrency(item.harga * item.qty)}
+                          {formatHelper.rupiah(item.harga * item.qty)}
                         </td>
                       </tr>
                     ))}
@@ -190,11 +187,12 @@ export default function DetailPesanan({
               {/* Total Button */}
               <div className="mt-6">
                 <Button
-                  variant="light-pink-hover-dark-pink"
-                  className="w-full justify-between px-6"
+                  variant="dark-pink-hover-super-dark-pink"
+                  className="w-full! justify-between px-6"
+                  disabled={true}
                 >
-                  <span>Total*</span>
-                  <span>{formatCurrency(total)}</span>
+                  <span>Total </span>
+                  <span>{formatHelper.rupiah(total)}</span>
                 </Button>
               </div>
 
