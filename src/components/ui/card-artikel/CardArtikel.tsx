@@ -108,7 +108,7 @@ export default function ArticleCard({
             <Button
               variant="light-purple-hover-dark-purple"
               onClick={onReadClick}
-              className="h-12! cursor-pointer"
+              className="h-12! w-full cursor-pointer"
             >
               Lihat Artikel
             </Button>

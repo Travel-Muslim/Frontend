@@ -1,17 +1,23 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Header from '@/components/section/header/Header';
-import Footer from '@/components/section/footer/Footer';
 import SnackBar from '@components/ui/snack-bar/SnackBar';
 import PesananSayaSection from '@/components/section/pesanan/PesananSayaSection';
 import RiwayatPesananSection from '@/components/section/pesanan/RiwayatPesananSection';
+import ModalReview from '@/components/ui/modal-review/ModalReview';
+import PopupNotifikasi from '@/components/ui/popup-notifikasi/PopupNotifikasi';
 import {
   fetchActiveBookings,
   fetchBookingHistory,
   Booking,
 } from '@/api/booking';
+import { createReview } from '@/api/reviews';
 
 type TabKey = 'booking-saya' | 'daftar-riwayat';
+
+const TABS = [
+  { id: 'booking-saya', label: 'Booking Saya' },
+  { id: 'daftar-riwayat', label: 'Daftar Riwayat Booking' },
+];
 
 export default function Riwayat() {
   const [activeTab, setActiveTab] = useState<TabKey>('booking-saya');
@@ -20,125 +26,223 @@ export default function Riwayat() {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  // Fetch bookings from API
-  useEffect(() => {
-    const loadBookings = async () => {
-      setLoading(true);
-      try {
-        const [activeData, historyData] = await Promise.all([
-          fetchActiveBookings(),
-          fetchBookingHistory(),
-        ]);
-        setActiveBookings(activeData);
-        setBookingHistory(historyData);
-      } catch (error) {
-        console.error('Error loading bookings:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  // Review modal state
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [selectedBookingId, setSelectedBookingId] = useState('');
+  const [selectedPackageName, setSelectedPackageName] = useState('');
+  const [isSubmittingReview, setIsSubmittingReview] = useState(false);
 
-    loadBookings();
-  }, []);
+  // Notification popup state
+  const [showPopup, setShowPopup] = useState(false);
+  const [popupVariant, setPopupVariant] = useState<'success' | 'error'>(
+    'success'
+  );
+  const [popupMessage, setPopupMessage] = useState('');
 
-  const handleDetailClick = (id: string | number) => {
-    // Check if this is a booking ID (for payment) or package ID (for detail)
-    const booking = activeBookings.find((b) => b.id === id);
-    if (booking && booking.paymentStatus === 'unpaid') {
-      // Navigate to payment page
-      console.log('Navigating to payment page for booking ID:', id);
-      navigate(`/pembayaran-pesanan/${id}`);
-    } else {
-      // Navigate to package detail
-      navigate(`/detail-paket/${id}`);
+  const loadBookings = async () => {
+    try {
+      const [activeData, historyData] = await Promise.all([
+        fetchActiveBookings(),
+        fetchBookingHistory(),
+      ]);
+      setActiveBookings(activeData);
+      setBookingHistory(historyData);
+    } catch (error) {
+      console.error('Error loading bookings:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleCancelSuccess = () => {
-    // Reload bookings after cancellation
-    const loadBookings = async () => {
-      try {
-        const [activeData, historyData] = await Promise.all([
-          fetchActiveBookings(),
-          fetchBookingHistory(),
-        ]);
-        setActiveBookings(activeData);
-        setBookingHistory(historyData);
-      } catch (error) {
-        console.error('Error reloading bookings:', error);
-      }
-    };
+  useEffect(() => {
+    setLoading(true);
     loadBookings();
+  }, []);
+
+  function handleDetailClick(id: string | number) {
+    const booking = activeBookings.find((b) => b.booking_id === id);
+    if (booking?.booking_payment_status === 'unpaid') {
+      navigate(`/pembayaran-pesanan/${id}`);
+    } else {
+      navigate(`/tiket/${id}`);
+    }
+  }
+
+  const handleCancelSuccess = () => loadBookings();
+
+  const handleReviewClick = (bookingId: string, packageName: string) => {
+    setSelectedBookingId(bookingId);
+    setSelectedPackageName(packageName);
+    setShowReviewModal(true);
   };
 
-  const handleReviewClick = (id: string | number) => {
-    navigate(`/review/${id}`);
+  const handleSubmitReview = async (data: {
+    rating: number;
+    comment: string;
+    mediaFiles: File[];
+  }) => {
+    if (!selectedBookingId) return;
+
+    setIsSubmittingReview(true);
+
+    try {
+      console.log('Submitting review for booking:', selectedBookingId);
+      console.log('Review data:', {
+        rating: data.rating,
+        comment: data.comment,
+        mediaCount: data.mediaFiles.length,
+      });
+
+      await createReview(
+        {
+          booking_id: selectedBookingId,
+          rating: data.rating,
+          comment: data.comment,
+        },
+        data.mediaFiles.length > 0 ? data.mediaFiles : undefined
+      );
+
+      // Success
+      setShowReviewModal(false);
+      setPopupVariant('success');
+      setPopupMessage('Review Anda berhasil dikirim. Terima kasih!');
+      setShowPopup(true);
+
+      // Refresh bookings
+      loadBookings();
+    } catch (error) {
+      console.error('Error submitting review:', error);
+      setPopupVariant('error');
+      setPopupMessage(
+        error instanceof Error
+          ? error.message
+          : 'Gagal mengirim review. Silakan coba lagi.'
+      );
+      setShowPopup(true);
+    } finally {
+      setIsSubmittingReview(false);
+    }
   };
 
-  const handleTabChange = (tabId: string) => {
-    setActiveTab(tabId as TabKey);
-  };
-
-  const tabs = [
-    { id: 'booking-saya', label: 'Booking Saya' },
-    { id: 'daftar-riwayat', label: 'Daftar Riwayat Booking' },
-  ];
+  const handleTabChange = (tabId: string) => setActiveTab(tabId as TabKey);
 
   return (
-    <div className="min-h-screen bg-orange-50">
-      {/* Hero Section */}
-      <div className="pt-24 lg:mt-20 md:mt-20  mobile:pt-20 xs:pt-22 sm:pt-24 pb-8 mobile:pb-6 xs:pb-7 sm:pb-8 px-4 mobile:px-3 xs:px-4 sm:px-6 md:px-8">
-        <div className="max-w-7xl mx-auto">
-          <h1 className="text-4xl mobile:text-3xl xs:text-3xl sm:text-4xl font-bold text-gray-900 mb-3 mobile:mb-2 xs:mb-2.5 sm:mb-3">
-            Riwayat Booking
-          </h1>
-          <p className="text-lg mobile:text-base xs:text-base sm:text-lg text-gray-600">
-            {activeTab === 'booking-saya'
-              ? 'Lihat daftar pemesanan, lihat detail e-tiket perjalanan Anda di sini'
-              : 'Lihat riwayat pembelian Anda dan tambahkan review untuk setiap perjalanan yang sudah selesai'}
-          </p>
-        </div>
+    <>
+      <div className="min-h-screen bg-orange-50">
+        <HeroSection activeTab={activeTab} />
+        <TabsSection activeTab={activeTab} onTabChange={handleTabChange} />
+        <ContentSection
+          activeTab={activeTab}
+          activeBookings={activeBookings}
+          bookingHistory={bookingHistory}
+          loading={loading}
+          onDetailClick={handleDetailClick}
+          onCancelSuccess={handleCancelSuccess}
+          onReviewClick={handleReviewClick}
+        />
       </div>
 
-      {/* Tabs Section */}
-      <div className="px-4 mobile:px-3 xs:px-4 sm:px-6 md:px-8 pb-6 mobile:pb-4 xs:pb-5 sm:pb-6">
-        <div className="max-w-2xl mx-auto">
-          <SnackBar
-            items={tabs}
-            activeId={activeTab}
-            onItemClick={handleTabChange}
-          />
-        </div>
-      </div>
+      {/* Review Modal */}
+      <ModalReview
+        isOpen={showReviewModal}
+        onClose={() => setShowReviewModal(false)}
+        onSubmit={handleSubmitReview}
+        packageName={selectedPackageName}
+        isSubmitting={isSubmittingReview}
+      />
 
-      {/* Section Title */}
-      <div className="px-4 mobile:px-3 xs:px-4 sm:px-6 md:px-8 pb-4 mobile:pb-3 xs:pb-3.5 sm:pb-4">
-        <div className="max-w-7xl mx-auto">
-          <h2 className="text-2xl mobile:text-xl xs:text-xl sm:text-2xl font-bold text-gray-900 text-center">
-            {activeTab === 'booking-saya'
-              ? 'E-Tiket & Voucher Aktif'
-              : 'Riwayat Booking'}
-          </h2>
-        </div>
-      </div>
+      {/* Notification Popup */}
+      <PopupNotifikasi
+        variant={popupVariant}
+        title={
+          popupVariant === 'success'
+            ? 'Berhasil Mengirim Review'
+            : 'Gagal Mengirim Review'
+        }
+        description={popupMessage}
+        buttonText="OK"
+        isOpen={showPopup}
+        onClose={() => setShowPopup(false)}
+        onButtonClick={() => setShowPopup(false)}
+      />
+    </>
+  );
+}
 
-      {/* Content Section */}
-      <div className="pb-16 mobile:pb-12 xs:pb-14 sm:pb-16">
+function HeroSection({ activeTab }: { activeTab: TabKey }) {
+  return (
+    <section className="px-4 py-8 md:py-8 lg:mt-20 md:mt-20">
+      <div className="mx-auto max-w-7xl">
+        <h1 className="mb-3 text-3xl font-bold text-gray-900 sm:text-4xl">
+          Riwayat Booking
+        </h1>
+        <p className="text-base text-gray-600 sm:text-lg">
+          {activeTab === 'booking-saya'
+            ? 'Lihat daftar pemesanan, lihat detail e-tiket perjalanan Anda di sini'
+            : 'Lihat riwayat pembelian Anda dan tambahkan review untuk setiap perjalanan yang sudah selesai'}
+        </p>
+      </div>
+    </section>
+  );
+}
+
+function TabsSection({
+  activeTab,
+  onTabChange,
+}: {
+  activeTab: TabKey;
+  onTabChange: (tabId: string) => void;
+}) {
+  return (
+    <section className="px-4 pb-6 sm:px-6 md:px-8">
+      <div className="mx-auto max-w-2xl">
+        <SnackBar items={TABS} activeId={activeTab} onItemClick={onTabChange} />
+      </div>
+    </section>
+  );
+}
+
+function ContentSection({
+  activeTab,
+  activeBookings,
+  bookingHistory,
+  loading,
+  onDetailClick,
+  onCancelSuccess,
+  onReviewClick,
+}: {
+  activeTab: TabKey;
+  activeBookings: Booking[];
+  bookingHistory: Booking[];
+  loading: boolean;
+  onDetailClick: (id: string | number) => void;
+  onCancelSuccess: () => void;
+  onReviewClick: (bookingId: string, packageName: string) => void;
+}) {
+  return (
+    <section className="px-4 pb-16 sm:px-6 md:px-8">
+      <div className="mx-auto max-w-7xl">
+        <h2 className="mb-4 text-center text-xl font-bold text-gray-900 sm:text-2xl">
+          {activeTab === 'booking-saya'
+            ? 'E-Tiket & Voucher Aktif'
+            : 'Riwayat Booking'}
+        </h2>
+
         {activeTab === 'booking-saya' ? (
           <PesananSayaSection
             bookings={activeBookings}
             loading={loading}
-            onDetailClick={handleDetailClick}
-            onCancelSuccess={handleCancelSuccess}
+            onDetailClick={onDetailClick}
+            onCancelSuccess={onCancelSuccess}
           />
         ) : (
           <RiwayatPesananSection
             bookings={bookingHistory}
             loading={loading}
-            onReviewClick={handleReviewClick}
+            onReviewClick={onReviewClick}
           />
         )}
       </div>
-    </div>
+    </section>
   );
 }

@@ -5,7 +5,7 @@ import { formatHelper } from '@/helper/format';
 interface RiwayatPesananSectionProps {
   bookings: Booking[];
   loading?: boolean;
-  onReviewClick: (id: string | number) => void;
+  onReviewClick: (bookingId: string, packageName: string) => void;
 }
 
 export default function RiwayatPesananSection({
@@ -13,16 +13,6 @@ export default function RiwayatPesananSection({
   loading = false,
   onReviewClick,
 }: RiwayatPesananSectionProps) {
-  const formatPrice = (price: number | undefined): string => {
-    if (!price) return 'Hubungi kami';
-    return `Rp${price.toLocaleString('id-ID')}`;
-  };
-
-  const formatPeriod = (period: string[] | undefined): string => {
-    if (!period || period.length === 0) return 'Jadwal tersedia';
-    return period[0];
-  };
-
   if (loading) {
     return (
       <div className="w-full max-w-[1200px] mx-auto px-4 mobile:px-3 xs:px-4 sm:px-6 md:px-8 py-8 mobile:py-6 xs:py-7 sm:py-8">
@@ -51,27 +41,32 @@ export default function RiwayatPesananSection({
   return (
     <div className="w-full max-w-[1200px] mx-auto px-4 mobile:px-3 xs:px-4 sm:px-6 md:px-8 py-8 mobile:py-6 xs:py-7 sm:py-8">
       <div className="space-y-6 mobile:space-y-4 xs:space-y-5 sm:space-y-6">
-        {bookings.map((booking) => (
-          <CardBs
-            key={booking.id}
-            id={String(booking.id)}
-            variant="with-review"
-            image={booking.package_image || ''}
-            title={booking.package_name || 'Paket Tour'}
-            location={booking.departure_month || ''}
-            date={
-              booking.departureDate
-                ? formatHelper.Period(booking.departureDate)
-                : booking.bookingDate
-                  ? formatHelper.Period(booking.bookingDate)
-                  : '-'
-            }
-            airline={booking.airline || 'Maskapai tersedia'}
-            airport={booking.airport || 'Bandara tersedia'}
-            status="Selesai"
-            onReviewClick={() => onReviewClick(booking.packageId)}
-          />
-        ))}
+        {bookings.map(
+          (booking) => (
+            console.log('type', typeof booking.has_review),
+            (
+              <CardBs
+                key={booking.booking_id}
+                id={String(booking.booking_id)}
+                variant="with-review"
+                image={booking.package_image}
+                title={booking.package_name}
+                location={booking.package_location}
+                date={formatHelper.Period(booking.booking_date)}
+                airline={booking.package_maskapai}
+                airport={booking.package_bandara}
+                status="Selesai"
+                hasReview={Boolean(booking.has_review)}
+                onReviewClick={() =>
+                  onReviewClick(
+                    String(booking.booking_id || ''),
+                    booking.package_name || ''
+                  )
+                }
+              />
+            )
+          )
+        )}
       </div>
     </div>
   );

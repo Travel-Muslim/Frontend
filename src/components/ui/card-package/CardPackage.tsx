@@ -408,7 +408,7 @@ const CardPackage = ({
 
               {/* Button */}
               <Button
-                className="flex w-[110px]! h-[40px]! items-center justify-center rounded-[10px] transition-colors cursor-pointer mb-2"
+                className="flex w-[20px]! h-[40px]! items-center justify-center rounded-[10px] transition-colors cursor-pointer mb-2"
                 onClick={onDetailsClick}
                 type="button"
                 variant="light-purple-hover-dark-purple"

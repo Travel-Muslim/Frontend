@@ -22,47 +22,33 @@ export interface BookingPassenger {
 }
 
 export interface Booking {
-  id: string;
-  userId: string;
-  packageId: string;
-  bookingCode: string;
-  bookingDate: string;
-  departureDate?: string;
-  totalParticipants: number;
-  totalPrice: number;
-  status: BookingStatus;
-  paymentStatus: PaymentStatus;
-  fullname?: string;
-  email?: string;
-  phoneNumber?: string;
-  whatsappContact?: string;
-  passportNumber?: string;
-  passportExpiry?: string;
-  passportUrl?: string;
-  nationality?: string;
-  notes?: string;
-  createdAt: string;
-  updatedAt: string;
-  bookingPassengers?: BookingPassenger[];
-  facilities?: any;
-  specialRequests?: string;
-  cancelReason?: string;
-  cancelledAt?: string;
-  paymentDeadline?: string;
-
-  // Fields for compatibility with different response formats
   user_id?: string;
   package_id?: string;
+  booking_id?: string;
   booking_code?: string;
   booking_date?: string;
-  total_participants?: number;
-  total_price?: number;
+  booking_departure_date?: string;
+  booking_return_date?: string;
+  booking_total_participants?: number;
+  booking_total_price?: string;
+  booking_status?: BookingStatus;
+  booking_payment_status?: PaymentStatus;
+  booking_payment_deadline?: string;
+  booking_fullname?: string;
+  booking_phone_number?: string;
+  booking_email?: string;
+  booking_passport_number?: string;
+  booking_passport_expiry?: string;
+  booking_nationality?: string;
   package_name?: string;
   package_image?: string;
-  duration?: string;
-  airline?: string;
-  airport?: string;
-  departure_month?: string;
+  package_location?: string;
+  package_benua?: string;
+  package_periode_start?: string;
+  package_periode_end?: string;
+  package_maskapai?: string;
+  package_bandara?: string;
+  has_review?: boolean;
 }
 
 // Type untuk pembuatan booking baru
@@ -101,41 +87,37 @@ const handlePaginatedResponse = <T>(response: any): T[] => {
 };
 
 const normalizeBooking = (raw: any): Booking => ({
-  id: raw?.id ?? raw?._id ?? raw?.booking_id ?? '',
-  userId: raw?.userId ?? raw?.user_id ?? '',
-  packageId: raw?.packageId ?? raw?.package_id ?? '',
-  bookingCode: raw?.bookingCode ?? raw?.booking_code ?? '',
-  bookingDate: raw?.bookingDate ?? raw?.booking_date ?? '',
-  departureDate: raw?.departureDate ?? raw?.departure_date,
-  totalParticipants: raw?.totalParticipants ?? raw?.total_participants ?? 0,
-  totalPrice: raw?.totalPrice ?? raw?.total_price ?? 0,
-  status: raw?.status ?? 'pending',
-  paymentStatus: raw?.paymentStatus ?? raw?.payment_status ?? 'unpaid',
-  fullname: raw?.fullname ?? raw?.name ?? '',
-  email: raw?.email ?? '',
-  phoneNumber: raw?.phoneNumber ?? raw?.phone_number ?? '',
-  whatsappContact: raw?.whatsappContact ?? raw?.whatsapp_contact ?? '',
-  passportNumber: raw?.passportNumber ?? raw?.passport_number ?? '',
-  passportExpiry: raw?.passportExpiry ?? raw?.passport_expiry,
-  passportUrl: raw?.passportUrl ?? raw?.passport_url,
-  nationality: raw?.nationality ?? raw?.nationality ?? 'Indonesia',
-  notes: raw?.notes ?? '',
-  createdAt: raw?.createdAt ?? raw?.created_at ?? '',
-  updatedAt: raw?.updatedAt ?? raw?.updated_at ?? '',
-  bookingPassengers: raw?.bookingPassengers ?? raw?.booking_passengers,
-  facilities: raw?.facilities,
-  specialRequests: raw?.specialRequests ?? raw?.special_requests,
-  cancelReason: raw?.cancelReason ?? raw?.cancel_reason,
-  cancelledAt: raw?.cancelledAt ?? raw?.cancelled_at,
-  paymentDeadline: raw?.paymentDeadline ?? raw?.payment_deadline,
-
-  // Fields for compatibility
+  // Backend sends 'id', frontend uses 'booking_id'
+  booking_id: raw?.booking_id || raw?.id,
+  user_id: raw?.user_id,
+  package_id: raw?.package_id,
+  booking_code: raw?.booking_code,
+  // Handle both formats for dates
+  booking_date: raw?.booking_date,
+  booking_departure_date: raw?.booking_departure_date || raw?.departure_date,
+  booking_return_date: raw?.booking_return_date || raw?.return_date,
+  booking_total_participants:
+    raw?.booking_total_participants || raw?.total_participants,
+  booking_total_price: raw?.booking_total_price || raw?.total_price,
+  booking_status: raw?.booking_status || raw?.status,
+  booking_payment_status: raw?.booking_payment_status || raw?.payment_status,
+  booking_payment_deadline:
+    raw?.booking_payment_deadline || raw?.payment_deadline,
+  booking_fullname: raw?.booking_fullname || raw?.fullname || raw?.full_name,
+  booking_phone_number: raw?.booking_phone_number || raw?.phone_number,
+  booking_email: raw?.booking_email || raw?.email,
+  booking_passport_number: raw?.booking_passport_number || raw?.passport_number,
+  booking_passport_expiry: raw?.booking_passport_expiry || raw?.passport_expiry,
+  booking_nationality: raw?.booking_nationality || raw?.nationality,
   package_name: raw?.package_name,
   package_image: raw?.package_image,
-  duration: raw?.duration,
-  airline: raw?.airline,
-  airport: raw?.airport,
-  departure_month: raw?.departure_month,
+  package_location: raw?.package_location || raw?.destination_name,
+  package_benua: raw?.package_benua || raw?.destination_location,
+  package_periode_start: raw?.package_periode_start,
+  package_periode_end: raw?.package_periode_end,
+  package_maskapai: raw?.package_maskapai,
+  package_bandara: raw?.package_bandara,
+  has_review: raw?.has_review || raw?.hasReview || false,
 });
 
 export async function fetchActiveBookings(): Promise<Booking[]> {
@@ -153,7 +135,10 @@ export async function fetchBookingHistory(): Promise<Booking[]> {
   try {
     const res = await api.get(`${apiRoutes.bookings}/history`);
     const bookings = handlePaginatedResponse<Booking>(res.data);
-    return Array.isArray(bookings) ? bookings.map(normalizeBooking) : [];
+    const normalized = Array.isArray(bookings)
+      ? bookings.map(normalizeBooking)
+      : [];
+    return normalized;
   } catch (error) {
     console.error('Gagal memuat riwayat booking', error);
     return [];
@@ -189,17 +174,27 @@ export async function fetchBookingDetail(
   bookingId: string
 ): Promise<Booking | null> {
   try {
+    console.log('Fetching booking detail for ID:', bookingId);
     const res = await api.get(`${apiRoutes.bookings}/${bookingId}`);
+    console.log('Raw booking response:', res.data);
     const data = unwrapData<any>(res.data);
+    console.log('Unwrapped data:', data);
 
     // Handle different response structures
+    let rawBooking = null;
     if (data?.results) {
-      return normalizeBooking(data.results);
+      rawBooking = data.results;
     } else if (data?.data) {
-      return normalizeBooking(data.data);
+      rawBooking = data.data;
     } else {
-      return data ? normalizeBooking(data) : null;
+      rawBooking = data;
     }
+
+    console.log('Raw booking before normalize:', rawBooking);
+    const normalized = rawBooking ? normalizeBooking(rawBooking) : null;
+    console.log('Normalized booking:', normalized);
+
+    return normalized;
   } catch (error) {
     console.error('Gagal memuat detail booking', error);
     return null;
@@ -260,15 +255,23 @@ export async function cancelBooking(
 
 export async function downloadTicket(bookingId: string): Promise<Blob | null> {
   try {
+    console.log('Downloading ticket for booking ID:', bookingId);
     const res = await api.get(
       `${apiRoutes.bookings}/${bookingId}/download-ticket`,
       {
         responseType: 'blob',
+        headers: {
+          Accept: 'application/pdf',
+        },
       }
     );
+    console.log('Ticket download response:', res);
     return res.data;
   } catch (error) {
     console.error('Gagal mengunduh tiket', error);
+    if (error instanceof Error) {
+      console.error('Error message:', error.message);
+    }
     return null;
   }
 }

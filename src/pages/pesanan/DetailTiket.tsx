@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import DetailTiket from '../../components/section/unduh-tiket/DetailTiket';
+import DetailTiket from '../../components/section/unduh-tiket/DetailTiketSection';
 import PopupNotifikasi from '../../components/ui/popup-notifikasi/PopupNotifikasi';
 import {
   fetchBookingDetail,
@@ -36,19 +36,13 @@ export default function TicketDetailPage() {
   // Load booking detail and package info
   useEffect(() => {
     const loadData = async () => {
-      const bookingId = id || locationState?.bookingId;
-
-      if (!bookingId) {
-        setError('Booking ID tidak ditemukan');
-        setLoading(false);
-        return;
-      }
-
       try {
         setLoading(true);
 
         // Fetch booking detail
-        const bookingData = await fetchBookingDetail(bookingId);
+        const bookingData = await fetchBookingDetail(
+          id || locationState?.bookingId || ''
+        );
 
         if (!bookingData) {
           setError('Booking tidak ditemukan');
@@ -56,11 +50,15 @@ export default function TicketDetailPage() {
           return;
         }
 
+        console.log('Booking data loaded:', bookingData);
+        console.log('Booking ID:', bookingData.booking_id);
+        console.log('Payment status:', bookingData.booking_payment_status);
+
         setBooking(bookingData);
 
         // Fetch package detail if packageId exists
-        if (bookingData.packageId) {
-          const packageData = await fetchPackage(bookingData.packageId);
+        if (bookingData.package_id) {
+          const packageData = await fetchPackage(bookingData.package_id);
           setPackageDetail(packageData);
         }
       } catch (err) {
@@ -75,19 +73,39 @@ export default function TicketDetailPage() {
   }, [id, locationState?.bookingId]);
 
   const handleDownloadTicket = async () => {
-    if (!booking?.id) return;
+    if (!booking?.booking_id) {
+      console.error('No booking_id available');
+      setPopupVariant('error');
+      setPopupMessage('ID booking tidak ditemukan.');
+      setShowPopup(true);
+      return;
+    }
+
+    console.log('Starting download for booking:', booking.booking_id);
+    console.log('Booking payment status:', booking.booking_payment_status);
+
+    // Check payment status before downloading
+    if (booking.booking_payment_status !== 'paid') {
+      setPopupVariant('error');
+      setPopupMessage(
+        'Tiket hanya dapat diunduh setelah pembayaran dikonfirmasi.'
+      );
+      setShowPopup(true);
+      return;
+    }
 
     setDownloading(true);
 
     try {
-      const blob = await downloadTicket(booking.id);
+      const blob = await downloadTicket(booking.booking_id);
 
-      if (blob) {
+      if (blob && blob instanceof Blob) {
+        console.log('Blob received, size:', blob.size);
         // Create download link
         const url = window.URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
-        link.download = `Tiket-${booking.bookingCode || booking.id}.pdf`;
+        link.download = `Tiket-${booking.booking_code || booking.booking_id}.pdf`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -101,6 +119,7 @@ export default function TicketDetailPage() {
         setShowPopup(true);
       } else {
         // Show error popup
+        console.error('No valid blob received');
         setPopupVariant('error');
         setPopupMessage('Gagal mengunduh tiket. Silakan coba lagi.');
         setShowPopup(true);
@@ -109,7 +128,9 @@ export default function TicketDetailPage() {
       console.error('Error downloading ticket:', error);
       setPopupVariant('error');
       setPopupMessage(
-        'Terjadi kesalahan saat mengunduh tiket. Silakan coba lagi.'
+        error instanceof Error
+          ? error.message
+          : 'Terjadi kesalahan saat mengunduh tiket. Silakan coba lagi.'
       );
       setShowPopup(true);
     } finally {
@@ -200,40 +221,43 @@ export default function TicketDetailPage() {
   };
 
   const berangkat = parseDepartureDate(
-    booking.departureDate || booking.bookingDate
+    booking.booking_departure_date || booking.booking_date
   );
   const pulang = calculateReturnDate(
-    booking.departureDate || booking.bookingDate,
-    packageDetail?.duration || booking.duration
+    booking.booking_departure_date || booking.booking_date,
+    packageDetail?.duration
   );
 
   return (
     <>
       <DetailTiket
-        namaLengkap={booking.fullname || '-'}
+        namaLengkap={booking.booking_fullname || '-'}
         paketTour={packageDetail?.name || booking.package_name || '-'}
-        nomorTelepon={booking.phoneNumber || '-'}
+        nomorTelepon={booking.booking_phone_number || '-'}
         tanggalHabisBerlaku={
-          booking.passportExpiry
-            ? new Date(booking.passportExpiry).toLocaleDateString('id-ID', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric',
-              })
+          booking.booking_passport_expiry
+            ? new Date(booking.booking_passport_expiry).toLocaleDateString(
+                'id-ID',
+                {
+                  day: '2-digit',
+                  month: '2-digit',
+                  year: 'numeric',
+                }
+              )
             : '-'
         }
-        alamatEmail={booking.email || '-'}
+        alamatEmail={booking.booking_email || '-'}
         statusPembayaran={
-          booking.paymentStatus === 'paid'
+          booking.booking_payment_status === 'paid'
             ? 'Terkonfirmasi'
-            : booking.paymentStatus === 'unpaid'
+            : booking.booking_payment_status === 'unpaid'
               ? 'Menunggu Pembayaran'
-              : booking.paymentStatus || '-'
+              : booking.booking_payment_status || '-'
         }
-        tourId={booking.bookingCode || booking.id}
+        tourId={booking.booking_code || ''}
         berangkat={berangkat}
         pulang={pulang}
-        jumlahPenumpang={booking.totalParticipants || 1}
+        jumlahPenumpang={booking.booking_total_participants || 1}
         onDownload={handleDownloadTicket}
         isDownloading={downloading}
       />

@@ -105,11 +105,11 @@ export default function Button({
         font-semibold rounded-${rest.rounded || 'sm'} 
         transition-all duration-200 ease-out
         disabled:opacity-50 disabled:cursor-not-allowed
-        min-w-15
+        min-w-30
         min-h-10 max-h-20 px-3 text-base gap-2
-        sm:w-30 sm:h-10 sm:px-4 sm:text-base sm:gap-2
-        md:w-50 md:h-14 md:px-4 md:text-base md:gap-2
-        lg:w-50 lg:h-16 lg:px-3 lg:text-lg lg:gap-2.5
+        sm:min-w-30 sm:h-10 sm:px-4 sm:text-base sm:gap-2
+        md:min-w-30 md:h-14 md:px-4 md:text-base md:gap-2
+        lg:min-w-30 lg:h-16 lg:px-3 lg:text-lg lg:gap-2.5
         ${className}
       `}
       style={buttonStyle}

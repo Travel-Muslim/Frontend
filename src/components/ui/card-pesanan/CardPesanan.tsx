@@ -1,4 +1,4 @@
-import PropTypes from 'prop-types';
+import PropTypes, { bool } from 'prop-types';
 import React from 'react';
 import { Bookmark } from 'lucide-react';
 import Button from '../button/Button';
@@ -24,6 +24,7 @@ interface CardBsProps {
   isWishlisted?: boolean;
   showDetailButton?: boolean;
   showReviewButton?: boolean;
+  hasReview?: boolean;
   className?: string;
   locationIcon?: string;
   periodIcon?: string;
@@ -51,6 +52,7 @@ const CardBs: React.FC<CardBsProps> = ({
   isWishlisted = false,
   showDetailButton = true,
   showReviewButton = false,
+  hasReview,
   className = '',
 }) => {
   return (
@@ -60,7 +62,11 @@ const CardBs: React.FC<CardBsProps> = ({
       {/* Image Section */}
       <div className="flex flex-col w-full lg:w-[420px] xl:w-[460px] h-[200px] sm:h-[240px] lg:h-[340px] xl:h-[360px] items-start relative shrink-0">
         <div className="relative w-full h-full shadow-[0px_3.14px_4.71px_-1.57px_#0a0d1208,0px_9.42px_12.57px_-3.14px_#0a0d1214] rounded-[14px] overflow-hidden">
-          <img src={image} alt={title} className="w-full h-full object-cover" />
+          <img
+            src={image}
+            alt={title}
+            className="w-full h-full object-cover cursor-zoom-in hover:scale-115 transition-transform duration-300"
+          />
         </div>
       </div>
 
@@ -74,7 +80,7 @@ const CardBs: React.FC<CardBsProps> = ({
                 {title}
               </div>
             </div>
-            {status && variant !== 'with-booking' && (
+            {paymentStatus == 'paid' && variant !== 'with-booking' && (
               <div className="flex w-full sm:w-auto sm:min-w-[140px] lg:min-w-[160px] justify-center px-3 py-2 lg:py-2.5 bg-white rounded-[10px] border border-solid border-[#34e43b] items-center relative shrink-0">
                 <div className="inline-flex gap-2 p-1 lg:p-1.5 items-center relative">
                   <svg
@@ -94,7 +100,38 @@ const CardBs: React.FC<CardBsProps> = ({
                   </svg>
                 </div>
                 <div className="relative w-fit font-medium text-black text-sm lg:text-lg tracking-[0] leading-[normal] whitespace-nowrap">
-                  {status}
+                  {paymentStatus}
+                </div>
+              </div>
+            )}
+            {paymentStatus == 'unpaid' && variant !== 'with-booking' && (
+              <div className="flex w-full sm:w-auto sm:min-w-[140px] lg:min-w-[160px] justify-center px-3 py-2 lg:py-2.5 bg-white rounded-[10px] border border-solid border-[#ff3b3b] items-center relative shrink-0">
+                <div className="inline-flex gap-2 p-1 lg:p-1.5 items-center relative">
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    className="w-4 h-4 lg:w-5 lg:h-5"
+                  >
+                    <path
+                      d="M18 6L6 18"
+                      stroke="#FF3B3B"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                    <path
+                      d="M6 6L18 18"
+                      stroke="#FF3B3B"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </div>
+                <div className="relative w-fit font-medium text-black text-sm lg:text-lg tracking-[0] leading-[normal] whitespace-nowrap">
+                  {paymentStatus}
                 </div>
               </div>
             )}
@@ -247,13 +284,19 @@ const CardBs: React.FC<CardBsProps> = ({
           {/* Button Section */}
           {variant === 'with-review' && (
             <div className="w-full">
-              <Button
-                variant="light-teal-hover-dark-teal"
-                onClick={() => onReviewClick?.(id)}
-                className="w-full h-12 sm:h-14"
-              >
-                Tambahkan Ulasan
-              </Button>
+              {hasReview == true ? (
+                <div className="flex flex-1 mb-3 text-sm sm:text-base text-gray-600 justify-center">
+                  Terima kasih telah memberikan ulasan untuk paket ini!
+                </div>
+              ) : (
+                <Button
+                  variant="light-teal-hover-dark-teal"
+                  onClick={() => onReviewClick?.(id)}
+                  className="w-full h-12 sm:h-14"
+                >
+                  Tambahkan Ulasan
+                </Button>
+              )}
             </div>
           )}
 
@@ -285,7 +328,7 @@ const CardBs: React.FC<CardBsProps> = ({
                   <Button
                     variant="light-pink-hover-dark-pink"
                     onClick={() => onDetailClick?.(id)}
-                    className="h-12 sm:h-14 w-auto px-6"
+                    className="h-12 sm:h-14 w-full"
                   >
                     Lihat Detail Tiket
                   </Button>

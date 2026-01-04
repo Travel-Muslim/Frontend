@@ -43,6 +43,7 @@ export default function Header() {
       '/wishlist',
       '/riwayat',
       '/pembayaran-pesanan/:id',
+      '/tiket/:id',
     ];
 
     const isTransparentPage = transparentRoutes.some((route) =>

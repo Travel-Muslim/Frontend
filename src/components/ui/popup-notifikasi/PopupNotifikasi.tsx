@@ -1,5 +1,5 @@
 import React from 'react';
-import { Check, X, MessageCircle } from 'lucide-react';
+import { Check, X, AlertCircle } from 'lucide-react';
 import Button from '../button/Button';
 
 interface PopupNotifikasiProps {
@@ -8,12 +8,16 @@ interface PopupNotifikasiProps {
     | 'error'
     | 'whatsapp'
     | 'whatsapp-success'
-    | 'whatsapp-failed';
+    | 'whatsapp-failed'
+    | 'confirm';
   title: string;
   description: string;
-  buttonText: string;
+  buttonText?: string;
+  confirmButtonText?: string;
+  cancelButtonText?: string;
   isOpen: boolean;
   onClose: () => void;
+  onConfirm?: () => void;
   onButtonClick?: () => void;
 }
 
@@ -24,6 +28,7 @@ export default function PopupNotifikasi({
   buttonText,
   isOpen,
   onClose,
+  onConfirm,
   onButtonClick,
 }: PopupNotifikasiProps) {
   if (!isOpen) return null;
@@ -39,6 +44,14 @@ export default function PopupNotifikasi({
       case 'error':
         return {
           icon: <X className="w-16 h-16 text-white" strokeWidth={3} />,
+          bgColor: 'bg-[#FFB4C4]',
+          iconSize: 'w-28 h-28',
+        };
+      case 'confirm':
+        return {
+          icon: (
+            <AlertCircle className="w-16 h-16 text-white" strokeWidth={3} />
+          ),
           bgColor: 'bg-[#FFB4C4]',
           iconSize: 'w-28 h-28',
         };
@@ -151,14 +164,36 @@ export default function PopupNotifikasi({
           {description}
         </p>
 
-        {/* Button */}
-        <Button
-          variant="light-pink-hover-dark-pink"
-          className="w-full max-w-[220px] py-3"
-          onClick={handleButtonClick}
-        >
-          {buttonText}
-        </Button>
+        {/* Buttons */}
+        {variant === 'confirm' ? (
+          <div className="flex gap-3 w-full max-w-[280px]">
+            <Button
+              variant="light-pink-hover-dark-pink"
+              className="flex-1 py-3"
+              onClick={onClose}
+            >
+              {'Batal'}
+            </Button>
+            <Button
+              variant="light-pink-hover-dark-pink"
+              className="flex-1 py-3"
+              onClick={() => {
+                onConfirm?.();
+                onClose();
+              }}
+            >
+              {'Ya'}
+            </Button>
+          </div>
+        ) : (
+          <Button
+            variant="light-pink-hover-dark-pink"
+            className="w-full max-w-[220px] py-3"
+            onClick={handleButtonClick}
+          >
+            {buttonText}
+          </Button>
+        )}
       </div>
     </div>
   );

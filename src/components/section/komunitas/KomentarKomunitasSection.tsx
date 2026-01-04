@@ -168,7 +168,7 @@ export default function KomentarKomunitasSection({
                 type="submit"
                 variant="light-teal-hover-super-dark-teal"
                 disabled={loading}
-                className="px-8 py-3 text-base font-semibold"
+                className="px-8 py-3 w-full text-base font-semibold"
               >
                 {loading ? (
                   <span className="flex items-center gap-2">

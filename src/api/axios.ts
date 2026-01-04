@@ -13,12 +13,12 @@ api.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
     }
 
-    // Only set Content-Type for non-FormData requests
-    if (!(config.data instanceof FormData)) {
+    // Only set Content-Type for non-FormData and non-blob requests
+    if (!(config.data instanceof FormData) && config.responseType !== 'blob') {
       config.headers = config.headers || {};
       config.headers['Content-Type'] = 'application/json';
       config.headers['Accept'] = 'application/json';
-    } else {
+    } else if (config.data instanceof FormData) {
       console.log('=== AXIOS INTERCEPTOR: FormData detected ===');
       console.log('Config data:', config.data);
       console.log('Headers before send:', config.headers);

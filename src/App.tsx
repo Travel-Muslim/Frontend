@@ -105,7 +105,7 @@ function AppWrapper() {
             element={<PembayaranPesanan />}
           />
           <Route path="/review" element={<ReviewDestinasi />} />
-          <Route path="/tiket" element={<TicketPage />} />
+          <Route path="/tiket/:id" element={<TicketPage />} />
 
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/admin/users" element={<AdminUsers />} />
