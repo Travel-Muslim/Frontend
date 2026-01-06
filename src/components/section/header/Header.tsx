@@ -88,6 +88,16 @@ export default function Header() {
       icon: 'edit' as const,
       action: 'edit-profile' as const,
     },
+    ...(user?.role === 'admin'
+      ? [
+          {
+            id: 'admin',
+            label: 'Dashboard Admin',
+            icon: 'dashboard' as const,
+            action: 'admin-dashboard' as const,
+          },
+        ]
+      : []),
     {
       id: 'signout',
       label: 'Sign Out',

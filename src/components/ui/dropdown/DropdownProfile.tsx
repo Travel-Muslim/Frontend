@@ -1,14 +1,14 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { LogOut, UserPen, ChevronDown } from 'lucide-react';
+import { LogOut, UserPen, ChevronDown, LayoutDashboard } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { logout } from '../../../api/auth';
 
 export interface ProfileMenuItem {
   id: string;
   label: string;
-  icon?: 'logout' | 'edit' | React.ReactNode;
+  icon?: 'logout' | 'edit' | 'dashboard' | React.ReactNode;
   onClick?: () => void;
-  action?: 'edit-profile' | 'logout' | 'custom';
+  action?: 'edit-profile' | 'logout' | 'admin-dashboard' | 'custom';
 }
 
 interface DropdownProfileProps {
@@ -19,6 +19,7 @@ interface DropdownProfileProps {
   buttonClassName?: string;
   menuClassName?: string;
   onLogoutSuccess?: () => void;
+  showAdminDashboard?: boolean; // Control visibility of admin dashboard option
 }
 
 export default function DropdownProfile({
@@ -29,6 +30,7 @@ export default function DropdownProfile({
   buttonClassName = '',
   menuClassName = '',
   onLogoutSuccess,
+  showAdminDashboard = false,
 }: DropdownProfileProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
@@ -43,6 +45,16 @@ export default function DropdownProfile({
       icon: 'edit',
       action: 'edit-profile',
     },
+    ...(showAdminDashboard
+      ? [
+          {
+            id: 'admin',
+            label: 'Dashboard Admin',
+            icon: 'dashboard' as const,
+            action: 'admin-dashboard' as const,
+          },
+        ]
+      : []),
     {
       id: 'signout',
       label: 'Sign Out',
@@ -96,7 +108,18 @@ export default function DropdownProfile({
   const handleEditProfile = () => {
     navigate('/profile');
   };
-
+  const handleAdminDashboard = () => {
+    // Token sudah tersimpan di localStorage saat login
+    // Akan otomatis diambil oleh axios interceptor untuk API calls
+    const token = localStorage.getItem('token');
+    if (token) {
+      navigate('/admin');
+    } else {
+      console.error('No authentication token found');
+      // Redirect to login if no token
+      navigate('/login');
+    }
+  };
   const handleMenuItemClick = async (item: ProfileMenuItem) => {
     setIsOpen(false);
 
@@ -110,7 +133,10 @@ export default function DropdownProfile({
       handleEditProfile();
       return;
     }
-
+    if (item.action === 'admin-dashboard') {
+      handleAdminDashboard();
+      return;
+    }
     // Handle custom onClick
     if (item.onClick) {
       item.onClick();
@@ -123,6 +149,9 @@ export default function DropdownProfile({
     }
     if (icon === 'edit') {
       return <UserPen className="w-5 h-5" />;
+    }
+    if (icon === 'dashboard') {
+      return <LayoutDashboard className="w-5 h-5" />;
     }
     return icon;
   };
@@ -252,6 +281,12 @@ export function DropdownProfileDemo() {
       action: 'edit-profile', // Will navigate to /profile
     },
     {
+      id: 'admin',
+      label: 'Dashboard Admin',
+      icon: 'dashboard',
+      action: 'admin-dashboard', // Will navigate to /admin with token check
+    },
+    {
       id: 'signout',
       label: 'Sign Out',
       icon: 'logout',
@@ -266,6 +301,12 @@ export function DropdownProfileDemo() {
       label: 'Edit Profil',
       icon: 'edit',
       action: 'edit-profile',
+    },
+    {
+      id: 'admin',
+      label: 'Dashboard Admin',
+      icon: 'dashboard',
+      action: 'admin-dashboard',
     },
     {
       id: 'settings',
@@ -306,6 +347,23 @@ export function DropdownProfileDemo() {
           </div>
           <p className="text-sm text-gray-500 mt-4">
             Uses default menu items with built-in navigation and logout
+          </p>
+        </div>
+
+        {/* Example 1b: With Admin Dashboard */}
+        <div className="bg-white rounded-2xl p-6 shadow-lg">
+          <h2 className="text-xl font-semibold text-gray-700 mb-4">
+            Example 1b: With Admin Dashboard Option
+          </h2>
+          <div className="flex justify-end">
+            <DropdownProfile
+              userName="Admin User"
+              userAvatar={sampleAvatar}
+              showAdminDashboard={true}
+            />
+          </div>
+          <p className="text-sm text-gray-500 mt-4">
+            Shows admin dashboard option for authorized users
           </p>
         </div>
 
@@ -371,6 +429,13 @@ export function DropdownProfileDemo() {
   userAvatar="https://example.com/avatar.jpg"
 />
 
+// With admin dashboard option
+<DropdownProfile
+  userName="Admin User"
+  userAvatar="https://example.com/avatar.jpg"
+  showAdminDashboard={true}
+/>
+
 // With custom menu items
 const menuItems = [
   {
@@ -378,6 +443,12 @@ const menuItems = [
     label: 'Edit Profil',
     icon: 'edit',
     action: 'edit-profile', // Auto-navigate to /profile
+  },
+  {
+    id: 'admin',
+    label: 'Dashboard Admin',
+    icon: 'dashboard',
+    action: 'admin-dashboard', // Auto-navigate to /admin with token
   },
   {
     id: 'settings',
@@ -418,11 +489,21 @@ const menuItems = [
             </li>
             <li className="flex items-start gap-2">
               <span className="text-purple-500 font-bold">✓</span>
+              <span>
+                Built-in navigation to /admin dashboard with token check
+              </span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-purple-500 font-bold">✓</span>
               <span>Integrated logout API call</span>
             </li>
             <li className="flex items-start gap-2">
               <span className="text-purple-500 font-bold">✓</span>
               <span>Auto-clear localStorage on logout</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-purple-500 font-bold">✓</span>
+              <span>Token validation before accessing admin dashboard</span>
             </li>
             <li className="flex items-start gap-2">
               <span className="text-purple-500 font-bold">✓</span>

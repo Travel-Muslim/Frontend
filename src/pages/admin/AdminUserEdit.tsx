@@ -1,6 +1,6 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, useLocation, useParams } from 'react-router-dom';
-import { loadUsers, upsertUser } from '../../utils/userStorage';
+import { getUserById, updateUserById } from '../../api/users';
 
 interface NavItem {
   key: string;
@@ -206,6 +206,10 @@ export default function AdminUserEdit() {
   const [navOpen, setNavOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [successModal, setSuccessModal] = useState(false);
+  const [errorModal, setErrorModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
   const [form, setForm] = useState({
     name: '',
     email: '',
@@ -216,29 +220,54 @@ export default function AdminUserEdit() {
   const navigate = useNavigate();
   const location = useLocation();
   const params = useParams<{ id: string }>();
+
   const isActive = (current: string, target: string) =>
     target === '/admin'
       ? current === target
       : current === target || current.startsWith(`${target}/`);
 
-  const [users, setUsers] = useState(loadUsers());
-  const user = useMemo(
-    () => users.find((u) => u.id === Number(params.id)),
-    [params.id, users]
-  );
-
+  // Fetch user data from API
   useEffect(() => {
-    if (user) {
-      setForm({
-        name: user.name,
-        email: user.email,
-        phone: user.phone,
-        password: user.password || '',
-      });
-    } else if (params.id) {
+    if (!params.id) {
       navigate('/admin/users', { replace: true });
+      return;
     }
-  }, [user, params.id, navigate]);
+
+    let active = true;
+    setLoading(true);
+
+    getUserById(params.id)
+      .then((userData) => {
+        if (!active) return;
+
+        if (userData) {
+          const user = userData.data || userData.results || userData;
+          setForm({
+            name: user.fullname || user.name || '',
+            email: user.email || '',
+            phone: user.phone || user.telephone || '',
+            password: '', // Don't populate password for security
+          });
+        } else {
+          setErrorMessage('User tidak ditemukan');
+          setTimeout(() => navigate('/admin/users', { replace: true }), 2000);
+        }
+      })
+      .catch((error) => {
+        console.error('Error fetching user:', error);
+        if (active) {
+          setErrorMessage('Gagal memuat data user');
+          setTimeout(() => navigate('/admin/users', { replace: true }), 2000);
+        }
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [params.id, navigate]);
 
   useEffect(() => {
     const close = (e: MouseEvent) => {
@@ -254,6 +283,42 @@ export default function AdminUserEdit() {
     }
     return () => document.removeEventListener('click', close);
   }, [profileOpen]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!params.id) return;
+
+    setSubmitting(true);
+
+    try {
+      const payload: any = {
+        fullname: form.name,
+        email: form.email,
+        phone: form.phone,
+      };
+
+      // Only include password if it's not empty
+      if (form.password && form.password.trim() !== '') {
+        payload.password = form.password;
+      }
+
+      const success = await updateUserById(params.id, payload);
+
+      if (success) {
+        setSuccessModal(true);
+      } else {
+        setErrorMessage('Gagal memperbarui user');
+        setErrorModal(true);
+      }
+    } catch (error) {
+      console.error('Error updating user:', error);
+      setErrorMessage('Terjadi kesalahan saat memperbarui user');
+      setErrorModal(true);
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   return (
     <div className="flex min-h-screen bg-[#faf5f0]">
@@ -366,102 +431,99 @@ export default function AdminUserEdit() {
           </div>
         </header>
 
-        <section className="bg-white rounded-[18px] px-7 py-[26px] pb-[30px] shadow-[0_20px_40px_rgba(0,0,0,0.08)] border border-[#f1e9ff] max-w-[1100px] w-full mx-auto mt-2">
+        <section className="bg-white rounded-[18px] px-7 py-[26px] pb-[30px] shadow-[0_20px_40px_rgba(0,0,0,0.08)] border border-[#f1e9ff] max-w-[1100px] w-full mx-auto mt-6 m-4">
           <h2 className="m-0 mb-5 text-[22px] text-[#2b2b2b] font-extrabold">
             Edit User
           </h2>
-          <form
-            className="flex flex-col gap-[18px]"
-            onSubmit={(e) => {
-              e.preventDefault();
-              const payload = {
-                id: user?.id ?? Date.now(),
-                name: form.name,
-                email: form.email,
-                phone: form.phone,
-                password: form.password,
-              };
-              const next = upsertUser(payload);
-              setUsers(next);
-              setSuccessModal(true);
-            }}
-          >
-            <div className="grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-[18px_22px] w-full">
-              <label className="flex flex-col gap-2 font-bold text-[#4a4a4a] text-lg">
-                <span>Nama Lengkap</span>
-                <input
-                  type="text"
-                  value={form.name}
-                  onChange={(e) =>
-                    setForm((prev) => ({ ...prev, name: e.target.value }))
-                  }
-                  required
-                  className="w-full border border-[#f5b5be] rounded-[10px] px-4 py-[13px] min-h-[46px] text-[15px] bg-[#fffdfd] outline-none box-border break-words focus:border-[#f28b95] focus:shadow-[0_0_0_2px_rgba(242,139,149,0.15)]"
-                />
-              </label>
 
-              <label className="flex flex-col gap-2 font-bold text-[#4a4a4a] text-lg">
-                <span>Email</span>
-                <input
-                  type="email"
-                  value={form.email}
-                  onChange={(e) =>
-                    setForm((prev) => ({ ...prev, email: e.target.value }))
-                  }
-                  required
-                  className="w-full border border-[#f5b5be] rounded-[10px] px-4 py-[13px] min-h-[46px] text-[15px] bg-[#fffdfd] outline-none box-border break-words focus:border-[#f28b95] focus:shadow-[0_0_0_2px_rgba(242,139,149,0.15)]"
-                />
-              </label>
-
-              <label className="flex flex-col gap-2 font-bold text-[#4a4a4a] text-lg">
-                <span>Password</span>
-                <input
-                  type="text"
-                  value={form.password}
-                  onChange={(e) =>
-                    setForm((prev) => ({ ...prev, password: e.target.value }))
-                  }
-                  required
-                  className="w-full border border-[#f5b5be] rounded-[10px] px-4 py-[13px] min-h-[46px] text-[15px] bg-[#fffdfd] outline-none box-border break-words focus:border-[#f28b95] focus:shadow-[0_0_0_2px_rgba(242,139,149,0.15)]"
-                />
-              </label>
-
-              <label className="flex flex-col gap-2 font-bold text-[#4a4a4a] text-lg">
-                <span>Nomor Telepon</span>
-                <input
-                  type="tel"
-                  value={form.phone}
-                  onChange={(e) =>
-                    setForm((prev) => ({ ...prev, phone: e.target.value }))
-                  }
-                  required
-                  className="w-full border border-[#f5b5be] rounded-[10px] px-4 py-[13px] min-h-[46px] text-[15px] bg-[#fffdfd] outline-none box-border break-words focus:border-[#f28b95] focus:shadow-[0_0_0_2px_rgba(242,139,149,0.15)]"
-                />
-              </label>
+          {loading ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#8b6bd6]"></div>
             </div>
-
-            <div className="flex flex-col sm:flex-row justify-end gap-[14px] mt-[10px]">
-              <button
-                type="button"
-                className="border-none rounded-[10px] px-5 py-3 font-extrabold cursor-pointer text-white min-w-[140px] text-[15px] bg-[#f87171] hover:bg-[#ef4444] transition-colors duration-150 w-full sm:w-auto"
-                onClick={() => navigate('/admin/users')}
-              >
-                Batalkan
-              </button>
-              <button
-                type="submit"
-                className="border-none rounded-[10px] px-5 py-3 font-extrabold cursor-pointer text-white min-w-[140px] text-[15px] bg-[#22c6b6] hover:bg-[#1eab9d] transition-colors duration-150 w-full sm:w-auto"
-              >
-                Edit User
-              </button>
+          ) : errorMessage ? (
+            <div className="text-center py-12">
+              <p className="text-[#f87171] font-bold text-lg">{errorMessage}</p>
             </div>
-          </form>
+          ) : (
+            <form className="flex flex-col gap-[18px]" onSubmit={handleSubmit}>
+              <div className="grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-[18px_22px] w-full">
+                <label className="flex flex-col gap-2 font-bold text-[#4a4a4a] text-lg">
+                  <span>Nama Lengkap</span>
+                  <input
+                    type="text"
+                    value={form.name}
+                    onChange={(e) =>
+                      setForm((prev) => ({ ...prev, name: e.target.value }))
+                    }
+                    required
+                    className="w-full border border-[#f5b5be] rounded-[10px] px-4 py-[13px] min-h-[46px] text-[15px] bg-[#fffdfd] outline-none box-border break-words focus:border-[#f28b95] focus:shadow-[0_0_0_2px_rgba(242,139,149,0.15)]"
+                  />
+                </label>
+
+                <label className="flex flex-col gap-2 font-bold text-[#4a4a4a] text-lg">
+                  <span>Email</span>
+                  <input
+                    type="email"
+                    value={form.email}
+                    onChange={(e) =>
+                      setForm((prev) => ({ ...prev, email: e.target.value }))
+                    }
+                    required
+                    className="w-full border border-[#f5b5be] rounded-[10px] px-4 py-[13px] min-h-[46px] text-[15px] bg-[#fffdfd] outline-none box-border break-words focus:border-[#f28b95] focus:shadow-[0_0_0_2px_rgba(242,139,149,0.15)]"
+                  />
+                </label>
+
+                <label className="flex flex-col gap-2 font-bold text-[#4a4a4a] text-lg">
+                  <span>Password (Kosongkan jika tidak ingin diubah)</span>
+                  <input
+                    type="password"
+                    value={form.password}
+                    onChange={(e) =>
+                      setForm((prev) => ({ ...prev, password: e.target.value }))
+                    }
+                    placeholder="Masukkan password baru"
+                    className="w-full border border-[#f5b5be] rounded-[10px] px-4 py-[13px] min-h-[46px] text-[15px] bg-[#fffdfd] outline-none box-border break-words focus:border-[#f28b95] focus:shadow-[0_0_0_2px_rgba(242,139,149,0.15)]"
+                  />
+                </label>
+
+                <label className="flex flex-col gap-2 font-bold text-[#4a4a4a] text-lg">
+                  <span>Nomor Telepon</span>
+                  <input
+                    type="tel"
+                    value={form.phone}
+                    onChange={(e) =>
+                      setForm((prev) => ({ ...prev, phone: e.target.value }))
+                    }
+                    required
+                    className="w-full border border-[#f5b5be] rounded-[10px] px-4 py-[13px] min-h-[46px] text-[15px] bg-[#fffdfd] outline-none box-border break-words focus:border-[#f28b95] focus:shadow-[0_0_0_2px_rgba(242,139,149,0.15)]"
+                  />
+                </label>
+              </div>
+
+              <div className="flex flex-col sm:flex-row justify-end gap-[14px] mt-[10px]">
+                <button
+                  type="button"
+                  className="border-none rounded-[10px] px-5 py-3 font-extrabold cursor-pointer text-white min-w-[140px] text-[15px] bg-[#f87171] hover:bg-[#ef4444] transition-colors duration-150 w-full sm:w-auto"
+                  onClick={() => navigate('/admin/users')}
+                >
+                  Batalkan
+                </button>
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="border-none rounded-[10px] px-5 py-3 font-extrabold cursor-pointer text-white min-w-[140px] text-[15px] bg-[#22c6b6] hover:bg-[#1eab9d] transition-colors duration-150 w-full sm:w-auto disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {submitting ? 'Menyimpan...' : 'Edit User'}
+                </button>
+              </div>
+            </form>
+          )}
         </section>
 
         {successModal && (
           <div className="fixed inset-0 bg-black/35 grid place-items-center p-4 z-50">
             <div className="bg-white rounded-[18px] px-5 py-6 pb-[22px] max-w-[480px] w-full text-center shadow-[0_20px_40px_rgba(15,23,42,0.2)]">
-              <div className="w-[92px] h-[92px] rounded-full grid place-items-center mx-auto mb-4 text-[46px] font-extrabold text-white bg-[#f7b5c2]">
+              <div className="w-[92px] h-[92px] rounded-full grid place-items-center mx-auto mb-4 text-[46px] font-extrabold text-white bg-[#22c6b6]">
                 ✓
               </div>
               <h3 className="m-0 mb-[10px] text-[22px] text-[#414141] font-bold">
@@ -473,13 +535,41 @@ export default function AdminUserEdit() {
               <div className="flex justify-center gap-[10px] flex-wrap">
                 <button
                   type="button"
-                  className="border-none rounded-xl px-[22px] py-3 font-extrabold cursor-pointer text-white min-w-[140px] text-[15px] bg-[#f7b5c2] hover:bg-[#f59cad] transition-colors duration-150"
+                  className="border-none rounded-xl px-[22px] py-3 font-extrabold cursor-pointer text-white min-w-[140px] text-[15px] bg-[#22c6b6] hover:bg-[#1eab9d] transition-colors duration-150"
                   onClick={() => {
                     setSuccessModal(false);
                     navigate('/admin/users');
                   }}
                 >
-                  Selanjutnya
+                  Kembali ke Daftar
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {errorModal && (
+          <div className="fixed inset-0 bg-black/35 grid place-items-center p-4 z-50">
+            <div className="bg-white rounded-[18px] px-5 py-6 pb-[22px] max-w-[480px] w-full text-center shadow-[0_20px_40px_rgba(15,23,42,0.2)]">
+              <div className="w-[92px] h-[92px] rounded-full grid place-items-center mx-auto mb-4 text-[46px] font-extrabold text-white bg-[#f87171]">
+                ✕
+              </div>
+              <h3 className="m-0 mb-[10px] text-[22px] text-[#414141] font-bold">
+                Gagal Memperbarui User
+              </h3>
+              <p className="m-0 mb-4 text-[#5a5a5a] text-base">
+                {errorMessage || 'Terjadi kesalahan saat memperbarui user'}
+              </p>
+              <div className="flex justify-center gap-[10px] flex-wrap">
+                <button
+                  type="button"
+                  className="border-none rounded-xl px-[22px] py-3 font-extrabold cursor-pointer text-white min-w-[140px] text-[15px] bg-[#f87171] hover:bg-[#ef4444] transition-colors duration-150"
+                  onClick={() => {
+                    setErrorModal(false);
+                    setErrorMessage('');
+                  }}
+                >
+                  Tutup
                 </button>
               </div>
             </div>
