@@ -1,7 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import './AdminDashboard.css';
-import './AdminPackages.css';
 import { fetchPackages, type PackageDetail } from '../../api/packages';
 
 interface NavItem {
@@ -440,34 +438,52 @@ export default function AdminPackages() {
   };
 
   return (
-    <div className={`ad-root ${navOpen ? 'nav-open' : ''}`}>
+    <div
+      className={`min-h-screen grid grid-cols-1 lg:grid-cols-[250px_1fr] bg-[#fdf7f0] text-[#1d1d1f] ${navOpen ? 'overflow-hidden' : ''}`}
+    >
       <div
-        className={`ad-nav-backdrop ${navOpen ? 'show' : ''}`}
+        className={`fixed inset-0 bg-black/25 z-[15] transition-opacity duration-200 ${navOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
         onClick={() => setNavOpen(false)}
       />
 
-      <aside className={`ad-sidebar ${navOpen ? 'is-open' : ''}`}>
-        <div className="ad-logo">
-          <div className="ad-logo-badge">
-            <img src="/logo.svg" alt="Saleema" />
+      <aside
+        className={`fixed lg:sticky top-0 left-0 h-screen w-[260px] max-w-[82vw] sm:max-w-[90vw] bg-white border-r border-[#f0e8e2] px-[18px] lg:px-[18px] py-6 flex flex-col gap-6 lg:gap-6 z-30 transition-transform duration-[280ms] ease-out overflow-y-auto ${navOpen ? 'translate-x-0 shadow-[18px_0_38px_rgba(15,23,42,0.14)]' : '-translate-x-full lg:translate-x-0'}`}
+      >
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 bg-[#f4ebff] rounded-[14px] grid place-items-center shadow-[0_10px_30px_rgba(157,129,224,0.2)]">
+            <img src="/logo.svg" alt="Saleema" className="w-8 h-8" />
           </div>
-          <div className="ad-logo-text">
-            <strong>Saleema</strong>
-            <span>Tour</span>
+          <div>
+            <strong className="block text-[17px] sm:text-[15px]">
+              Saleema
+            </strong>
+            <span className="text-[#b08cf2] font-bold text-[14px] sm:text-[12px] tracking-[0.1px]">
+              Tour
+            </span>
           </div>
         </div>
-        <nav className="ad-nav">
+        <nav className="flex flex-col gap-2 w-full">
           {NAV_ITEMS.map((item) => (
             <button
               key={item.key}
-              className={`ad-nav-item ${isActive(location.pathname, item.path) ? 'active' : ''}`}
+              className={`border-0 flex items-center gap-3 px-[14px] py-3 rounded-xl font-bold cursor-pointer transition-all duration-150 whitespace-normal text-left ${
+                isActive(location.pathname, item.path)
+                  ? 'bg-gradient-to-r from-[#efebff] to-[#f7f1ff] text-[#6f4ab1] shadow-[0_8px_18px_rgba(140,107,214,0.15)]'
+                  : 'bg-transparent text-[#4a4a4f] hover:bg-gradient-to-r hover:from-[#efebff] hover:to-[#f7f1ff] hover:text-[#6f4ab1] hover:shadow-[0_8px_18px_rgba(140,107,214,0.15)]'
+              } sm:text-[12.5px] sm:px-[10px] sm:py-2 sm:leading-tight`}
               type="button"
               onClick={() => {
                 setNavOpen(false);
                 navigate(item.path);
               }}
             >
-              <span className="ad-nav-icon">
+              <span
+                className={`w-8 h-8 rounded-[10px] grid place-items-center ${
+                  isActive(location.pathname, item.path)
+                    ? 'bg-[#d6c2ff] shadow-[0_8px_18px_rgba(140,107,214,0.2)]'
+                    : 'bg-[#f7f0ff] shadow-[inset_0_0_0_1px_#efe6fc]'
+                }`}
+              >
                 <NavIcon name={item.key as NavItem['key']} />
               </span>
               {item.label}
@@ -476,57 +492,67 @@ export default function AdminPackages() {
         </nav>
       </aside>
 
-      <main className="ad-main">
-        <header className="ad-topbar">
-          <div className="ad-topbar-left">
+      <main className="px-4 sm:px-8 py-7 pb-12 flex flex-col gap-[18px]">
+        <header className="flex flex-row items-center justify-between gap-3">
+          <div className="flex items-center gap-[10px]">
             <button
-              className="ad-menu-toggle"
+              className="lg:hidden w-10 h-10 rounded-xl border border-[#e6dafd] bg-[#f7f0ff] p-2 flex flex-col justify-center items-center gap-[5px] shadow-[0_10px_22px_rgba(140,107,214,0.2)] cursor-pointer"
               type="button"
               aria-label="Buka navigasi"
               onClick={() => setNavOpen(true)}
             >
-              <span />
-              <span />
-              <span />
+              <span className="block w-full h-[2px] rounded-full bg-[#7b5ad3]" />
+              <span className="block w-full h-[2px] rounded-full bg-[#7b5ad3]" />
+              <span className="block w-full h-[2px] rounded-full bg-[#7b5ad3]" />
             </button>
-            <h1>Manajemen Paket</h1>
+            <h1 className="m-0 text-[22px] sm:text-[18px] md:text-[20px] text-[#1f1f28]">
+              Manajemen Paket
+            </h1>
           </div>
-          <div className="ad-user-wrapper" ref={userMenuRef}>
+          <div className="relative" ref={userMenuRef}>
             <button
-              className="ad-user"
+              className="flex items-center gap-[10px] sm:gap-2 bg-white px-3 py-2 rounded-[14px] shadow-[0_12px_30px_rgba(15,23,42,0.12)] border border-[#f2e9ff] cursor-pointer"
               type="button"
               onClick={() => setProfileOpen((v) => !v)}
             >
-              <img src="/avatar.jpg" alt="Admin" />
+              <img
+                src="/avatar.jpg"
+                alt="Admin"
+                className="w-[42px] h-[42px] sm:w-[38px] sm:h-[38px] rounded-full object-cover"
+              />
               <div>
-                <div className="ad-user-name">Madam</div>
-                <div className="ad-user-role">Admin</div>
+                <div className="font-extrabold text-[14px] sm:text-[13px]">
+                  Madam
+                </div>
+                <div className="text-[#9b9aa5] text-xs sm:text-[11px]">
+                  Admin
+                </div>
               </div>
             </button>
             {profileOpen && (
-              <div className="ad-user-menu">
+              <div className="absolute right-0 top-[calc(100%+8px)] bg-white border border-[#ece9f6] shadow-[0_14px_32px_rgba(0,0,0,0.12)] rounded-xl p-[6px] min-w-[170px] z-[35]">
                 <button
                   type="button"
-                  className="ad-user-menu-item"
+                  className="w-full flex items-center gap-[10px] px-[10px] py-[10px] border-0 bg-transparent font-bold text-[#3a3a3a] rounded-[10px] cursor-pointer transition-colors duration-150 hover:bg-[#f5f2ff]"
                   onClick={() => {
                     setProfileOpen(false);
                     navigate('/');
                   }}
                 >
-                  <span className="ad-user-menu-icon">
+                  <span className="w-5 h-5 inline-flex items-center justify-center">
                     <IconLogout />
                   </span>
                   <span>Sign Out</span>
                 </button>
                 <button
                   type="button"
-                  className="ad-user-menu-item"
+                  className="w-full flex items-center gap-[10px] px-[10px] py-[10px] border-0 bg-transparent font-bold text-[#3a3a3a] rounded-[10px] cursor-pointer transition-colors duration-150 hover:bg-[#f5f2ff]"
                   onClick={() => {
                     setProfileOpen(false);
                     navigate('/admin/profile');
                   }}
                 >
-                  <span className="ad-user-menu-icon">
+                  <span className="w-5 h-5 inline-flex items-center justify-center">
                     <IconProfile />
                   </span>
                   <span>Edit Profil</span>
@@ -536,12 +562,16 @@ export default function AdminPackages() {
           </div>
         </header>
 
-        <section className="ap-card">
-          <div className="ap-card-head">
-            <h2>Daftar Paket</h2>
-            <div className="ap-actions">
-              <div className="ap-search">
-                <svg viewBox="0 0 24 24" aria-hidden="true">
+        <section className="bg-white rounded-2xl p-[18px] sm:p-[14px] shadow-[0_18px_38px_rgba(15,23,42,0.12)] border border-[#f0e8ff]">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-[14px]">
+            <h2 className="m-0 text-lg text-[#2a2a2a]">Daftar Paket</h2>
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-[10px] sm:gap-[10px] w-full sm:w-auto flex-wrap sm:justify-end">
+              <div className="flex items-center gap-2 bg-white border border-[#e7dff4] px-[10px] py-[7px] rounded-lg min-w-0 w-full sm:w-[320px] sm:max-w-[320px] h-10 sm:flex-[0_0_auto] shadow-[inset_0_0_0_1px_#f5eefc]">
+                <svg
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                  className="w-4 h-4 flex-shrink-0"
+                >
                   <circle
                     cx="11"
                     cy="11"
@@ -562,11 +592,12 @@ export default function AdminPackages() {
                   placeholder="Cari Paket"
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
+                  className="border-0 outline-none w-full text-sm bg-transparent text-[#2f2f2f]"
                 />
               </div>
               <button
                 type="button"
-                className="ap-add-btn"
+                className="border-0 bg-[#22c6b6] text-white rounded-xl px-[14px] py-[10px] font-extrabold inline-flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap w-full sm:w-auto"
                 onClick={() => navigate('/admin/packages/new')}
               >
                 <IconPlus />
@@ -575,9 +606,9 @@ export default function AdminPackages() {
             </div>
           </div>
 
-          <div className="ap-table-wrap">
-            <div className="ap-table">
-              <div className="ap-thead">
+          <div className="w-full overflow-x-auto">
+            <div className="grid gap-2 min-w-[980px] lg:min-w-0">
+              <div className="hidden lg:grid grid-cols-[0.5fr_2fr_1.6fr_2fr_1.6fr_1.3fr_1fr] bg-[#b28be2] text-white font-extrabold px-[14px] py-3 rounded-xl shadow-[0_12px_24px_rgba(130,94,197,0.2)]">
                 <span>ID</span>
                 <span>Nama Paket</span>
                 <span>Lokasi</span>
@@ -587,28 +618,62 @@ export default function AdminPackages() {
                 <span>Aksi</span>
               </div>
               {loading ? (
-                <div className="ap-row">
+                <div className="grid lg:grid-cols-[0.5fr_2fr_1.6fr_2fr_1.6fr_1.3fr_1fr] grid-cols-1 lg:items-center bg-white border border-[#f0d7e1] rounded-xl px-[14px] py-3 shadow-[0_10px_18px_rgba(15,23,42,0.08)] text-[#323232] font-semibold gap-2">
                   <span data-label="ID">Memuat data...</span>
                 </div>
               ) : filtered.length === 0 ? (
-                <div className="ap-row">
+                <div className="grid lg:grid-cols-[0.5fr_2fr_1.6fr_2fr_1.6fr_1.3fr_1fr] grid-cols-1 lg:items-center bg-white border border-[#f0d7e1] rounded-xl px-[14px] py-3 shadow-[0_10px_18px_rgba(15,23,42,0.08)] text-[#323232] font-semibold gap-2">
                   <span data-label="ID">Belum ada paket</span>
                 </div>
               ) : (
                 filtered.map((p) => (
-                  <div className="ap-row" key={p.id}>
-                    <span data-label="ID">{p.id}</span>
-                    <span data-label="Nama Paket">{p.name}</span>
-                    <span data-label="Lokasi">{p.location}</span>
-                    <span data-label="Keberangkatan">{p.periode_start}</span>
-                    <span data-label="Maskapai">{p.maskapai}</span>
-                    <span data-label="Harga">
+                  <div
+                    className="grid lg:grid-cols-[0.5fr_2fr_1.6fr_2fr_1.6fr_1.3fr_1fr] grid-cols-1 lg:items-center bg-white border border-[#f0d7e1] rounded-xl px-[14px] sm:px-3 py-3 shadow-[0_10px_18px_rgba(15,23,42,0.08)] text-[#323232] font-semibold gap-2 lg:gap-2"
+                    key={p.id}
+                  >
+                    <span
+                      data-label="ID"
+                      className="overflow-hidden text-ellipsis lg:whitespace-nowrap whitespace-normal before:content-[attr(data-label)':_'] before:font-bold before:text-[#5a5275] lg:before:content-none"
+                    >
+                      {p.id}
+                    </span>
+                    <span
+                      data-label="Nama Paket"
+                      className="overflow-hidden text-ellipsis lg:whitespace-nowrap whitespace-normal before:content-[attr(data-label)':_'] before:font-bold before:text-[#5a5275] lg:before:content-none"
+                    >
+                      {p.name}
+                    </span>
+                    <span
+                      data-label="Lokasi"
+                      className="overflow-hidden text-ellipsis lg:whitespace-nowrap whitespace-normal before:content-[attr(data-label)':_'] before:font-bold before:text-[#5a5275] lg:before:content-none"
+                    >
+                      {p.location}
+                    </span>
+                    <span
+                      data-label="Keberangkatan"
+                      className="overflow-hidden text-ellipsis lg:whitespace-nowrap whitespace-normal before:content-[attr(data-label)':_'] before:font-bold before:text-[#5a5275] lg:before:content-none"
+                    >
+                      {p.periode_start}
+                    </span>
+                    <span
+                      data-label="Maskapai"
+                      className="overflow-hidden text-ellipsis lg:whitespace-nowrap whitespace-normal before:content-[attr(data-label)':_'] before:font-bold before:text-[#5a5275] lg:before:content-none"
+                    >
+                      {p.maskapai}
+                    </span>
+                    <span
+                      data-label="Harga"
+                      className="overflow-hidden text-ellipsis lg:whitespace-nowrap whitespace-normal before:content-[attr(data-label)':_'] before:font-bold before:text-[#5a5275] lg:before:content-none"
+                    >
                       {p.price ? `Rp${p.price.toLocaleString('id-ID')}` : '-'}
                     </span>
-                    <span className="ap-actions-row" data-label="Aksi">
+                    <span
+                      className="inline-flex items-center gap-2 lg:justify-end justify-start before:content-[attr(data-label)':_'] before:font-bold before:text-[#5a5275] lg:before:content-none"
+                      data-label="Aksi"
+                    >
                       <button
                         type="button"
-                        className="ap-btn ap-btn-view"
+                        className="w-[34px] h-[34px] sm:w-8 sm:h-8 rounded-[10px] border border-[#d6eaff] bg-[#f4f9ff] grid place-items-center cursor-pointer shadow-[0_8px_16px_rgba(0,0,0,0.08)] text-sm"
                         aria-label="Lihat paket"
                         onClick={() => navigate(`/admin/packages/${p.id}`)}
                       >
@@ -616,7 +681,7 @@ export default function AdminPackages() {
                       </button>
                       <button
                         type="button"
-                        className="ap-btn ap-btn-edit"
+                        className="w-[34px] h-[34px] sm:w-8 sm:h-8 rounded-[10px] border border-[#ffeec2] bg-[#fffaf0] grid place-items-center cursor-pointer shadow-[0_8px_16px_rgba(0,0,0,0.08)] text-sm"
                         aria-label="Edit paket"
                         onClick={() => navigate(`/admin/packages/${p.id}`)}
                       >
@@ -624,7 +689,7 @@ export default function AdminPackages() {
                       </button>
                       <button
                         type="button"
-                        className="ap-btn ap-btn-delete"
+                        className="w-[34px] h-[34px] sm:w-8 sm:h-8 rounded-[10px] border border-[#ffd6d6] bg-[#fff5f5] grid place-items-center cursor-pointer shadow-[0_8px_16px_rgba(0,0,0,0.08)] text-sm"
                         aria-label="Hapus paket"
                         onClick={() => handleDelete(Number(p.id))}
                       >
@@ -639,22 +704,28 @@ export default function AdminPackages() {
         </section>
 
         {confirmId !== null && (
-          <div className="ap-modal">
-            <div className="ap-modal-card">
-              <div className="ap-modal-icon ap-modal-icon-alert">!</div>
-              <h3>Hapus Paket?</h3>
-              <p>Paket ini akan terhapus dari daftar.</p>
-              <div className="ap-modal-actions">
+          <div className="fixed inset-0 bg-black/35 grid place-items-center p-4 z-50">
+            <div className="bg-white rounded-[18px] px-5 py-6 max-w-[480px] w-full text-center shadow-[0_20px_40px_rgba(15,23,42,0.2)]">
+              <div className="w-[92px] h-[92px] rounded-full grid place-items-center mx-auto mb-4 text-[46px] font-extrabold text-white bg-[#f7b5c2]">
+                !
+              </div>
+              <h3 className="m-0 mb-[10px] text-[22px] text-[#414141]">
+                Hapus Paket?
+              </h3>
+              <p className="m-0 mb-4 text-[#5a5a5a] text-base">
+                Paket ini akan terhapus dari daftar.
+              </p>
+              <div className="flex justify-center gap-[10px] flex-wrap">
                 <button
                   type="button"
-                  className="ap-modal-btn cancel"
+                  className="border-0 rounded-xl px-[22px] py-3 font-extrabold cursor-pointer text-white min-w-[140px] text-[15px] bg-[#f87171]"
                   onClick={() => setConfirmId(null)}
                 >
                   Batal
                 </button>
                 <button
                   type="button"
-                  className="ap-modal-btn confirm"
+                  className="border-0 rounded-xl px-[22px] py-3 font-extrabold cursor-pointer text-white min-w-[140px] text-[15px] bg-[#22c6b6]"
                   onClick={confirmDelete}
                 >
                   Hapus
@@ -665,17 +736,21 @@ export default function AdminPackages() {
         )}
 
         {deleteSuccess && (
-          <div className="ap-modal">
-            <div className="ap-modal-card">
-              <div className="ap-modal-icon ap-modal-icon-success">
+          <div className="fixed inset-0 bg-black/35 grid place-items-center p-4 z-50">
+            <div className="bg-white rounded-[18px] px-5 py-6 max-w-[480px] w-full text-center shadow-[0_20px_40px_rgba(15,23,42,0.2)]">
+              <div className="w-[92px] h-[92px] rounded-full grid place-items-center mx-auto mb-4 text-[46px] font-extrabold text-white bg-[#22c6b6]">
                 <IconCheck />
               </div>
-              <h3>Paket Berhasil Dihapus</h3>
-              <p>Paket telah dihapus dari daftar.</p>
-              <div className="ap-modal-actions">
+              <h3 className="m-0 mb-[10px] text-[22px] text-[#414141]">
+                Paket Berhasil Dihapus
+              </h3>
+              <p className="m-0 mb-4 text-[#5a5a5a] text-base">
+                Paket telah dihapus dari daftar.
+              </p>
+              <div className="flex justify-center gap-[10px] flex-wrap">
                 <button
                   type="button"
-                  className="ap-modal-btn confirm"
+                  className="border-0 rounded-xl px-[22px] py-3 font-extrabold cursor-pointer text-white min-w-[140px] text-[15px] bg-[#22c6b6]"
                   onClick={() => setDeleteSuccess(false)}
                 >
                   Selanjutnya

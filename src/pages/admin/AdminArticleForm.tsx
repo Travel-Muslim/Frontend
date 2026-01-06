@@ -1,8 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import './AdminDashboard.css';
-import './AdminPackageDetail.css';
-import './AdminArticleForm.css';
 import type { Article, ArticleBlock } from '../../api/articles';
 import { loadArticles, upsertArticle } from '../../utils/articleStorage';
 
@@ -779,34 +776,38 @@ export default function AdminArticleForm() {
   };
 
   return (
-    <div className={`ad-root ${navOpen ? 'nav-open' : ''}`}>
+    <div className="flex min-h-screen bg-[#faf5f0] font-sans">
       <div
-        className={`ad-nav-backdrop ${navOpen ? 'show' : ''}`}
+        className={`fixed inset-0 bg-black/50 z-40 transition-opacity duration-300 lg:hidden ${navOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
         onClick={() => setNavOpen(false)}
       />
 
-      <aside className={`ad-sidebar ${navOpen ? 'is-open' : ''}`}>
-        <div className="ad-logo">
-          <div className="ad-logo-badge">
-            <img src="/logo.svg" alt="Saleema" />
+      <aside
+        className={`fixed left-0 top-0 h-screen w-[260px] bg-white shadow-[4px_0_18px_rgba(15,23,42,0.08)] z-50 flex flex-col transition-transform duration-300 lg:translate-x-0 ${navOpen ? 'translate-x-0' : '-translate-x-full'}`}
+      >
+        <div className="flex items-center gap-3 p-6 border-b border-[#e8dfd6]">
+          <div className="w-[46px] h-[46px] rounded-xl bg-gradient-to-br from-[#8b6bd6] to-[#6a4cb8] grid place-items-center shadow-[0_8px_20px_rgba(123,90,211,0.25)]">
+            <img src="/logo.svg" alt="Saleema" className="w-[30px] h-[30px]" />
           </div>
-          <div className="ad-logo-text">
-            <strong>Saleema</strong>
-            <span>Tour</span>
+          <div className="flex flex-col leading-tight">
+            <strong className="text-[17px] text-[#2a2a2a] font-extrabold">
+              Saleema
+            </strong>
+            <span className="text-[13px] text-[#8b6bd6] font-bold">Tour</span>
           </div>
         </div>
-        <nav className="ad-nav">
+        <nav className="flex-1 flex flex-col gap-[6px] p-4 overflow-y-auto">
           {NAV_ITEMS.map((item) => (
             <button
               key={item.key}
-              className={`ad-nav-item ${isActive(location.pathname, item.path) ? 'active' : ''}`}
+              className={`flex items-center gap-3 px-4 py-[13px] rounded-[12px] text-[15px] font-bold transition-all duration-150 ${isActive(location.pathname, item.path) ? 'bg-gradient-to-r from-[#8b6bd6] to-[#7557c9] text-white shadow-[0_8px_20px_rgba(123,90,211,0.28)]' : 'text-[#6a6a6a] hover:bg-[#f7f4ff]'}`}
               type="button"
               onClick={() => {
                 setNavOpen(false);
                 navigate(item.path);
               }}
             >
-              <span className="ad-nav-icon">
+              <span className="w-[22px] h-[22px] flex-shrink-0">
                 <NavIcon name={item.key as NavItem['key']} />
               </span>
               {item.label}
@@ -815,68 +816,76 @@ export default function AdminArticleForm() {
         </nav>
       </aside>
 
-      <main className="ad-main">
-        <header className="ad-topbar">
-          <div className="ad-topbar-left">
+      <main className="flex-1 flex flex-col lg:ml-[260px]">
+        <header className="sticky top-0 z-30 flex items-center justify-between gap-4 bg-white px-6 py-4 shadow-[0_2px_12px_rgba(15,23,42,0.08)] min-h-[74px]">
+          <div className="flex items-center gap-4">
             <button
-              className="ad-menu-toggle"
+              className="lg:hidden flex flex-col gap-[5px] w-[28px] h-[28px] justify-center cursor-pointer"
               type="button"
               aria-label="Buka navigasi"
               onClick={() => setNavOpen(true)}
             >
-              <span />
-              <span />
-              <span />
+              <span className="block w-full h-[3px] bg-[#7b5ad3] rounded-full" />
+              <span className="block w-full h-[3px] bg-[#7b5ad3] rounded-full" />
+              <span className="block w-full h-[3px] bg-[#7b5ad3] rounded-full" />
             </button>
             <button
-              className="ap-back-btn"
+              className="hidden sm:flex items-center gap-2 px-4 py-[10px] bg-white border border-[#e8dfd6] rounded-[10px] text-[#7b5ad3] font-bold cursor-pointer transition-all duration-150 hover:bg-[#f7f4ff]"
               type="button"
               onClick={() => navigate('/admin/articles')}
               aria-label="Kembali"
             >
-              <IconArrowLeft />
+              <span className="w-[18px] h-[18px]">
+                <IconArrowLeft />
+              </span>
               <span>Kembali</span>
             </button>
-            <h1>
+            <h1 className="text-xl sm:text-2xl font-extrabold text-[#2a2a2a] m-0">
               {isEditMode && hasArticle ? 'Edit Artikel' : 'Tambahkan Artikel'}
             </h1>
           </div>
-          <div className="ad-user-wrapper" ref={userMenuRef}>
+          <div className="relative" ref={userMenuRef}>
             <button
-              className="ad-user"
+              className="flex items-center gap-3 cursor-pointer bg-transparent border-none"
               type="button"
               onClick={() => setProfileOpen((v) => !v)}
             >
-              <img src="/avatar.jpg" alt="Admin" />
-              <div>
-                <div className="ad-user-name">Sofia Nugraheni</div>
-                <div className="ad-user-role">Admin</div>
+              <img
+                src="/avatar.jpg"
+                alt="Admin"
+                className="w-[44px] h-[44px] rounded-full object-cover border-2 border-[#e8dfd6]"
+              />
+              <div className="hidden sm:flex flex-col items-start leading-tight">
+                <div className="text-[15px] font-bold text-[#2a2a2a]">
+                  Sofia Nugraheni
+                </div>
+                <div className="text-[13px] text-[#8a8a8a]">Admin</div>
               </div>
             </button>
             {profileOpen && (
-              <div className="ad-user-menu">
+              <div className="absolute right-0 top-[calc(100%+8px)] bg-white rounded-[14px] shadow-[0_10px_32px_rgba(15,23,42,0.12)] min-w-[180px] py-2 z-50">
                 <button
                   type="button"
-                  className="ad-user-menu-item"
+                  className="w-full flex items-center gap-3 px-4 py-[10px] text-[15px] font-bold text-[#4a4a4a] bg-transparent border-none cursor-pointer hover:bg-[#f7f4ff] transition-colors duration-150"
                   onClick={() => {
                     setProfileOpen(false);
                     navigate('/');
                   }}
                 >
-                  <span className="ad-user-menu-icon">
+                  <span className="w-[20px] h-[20px] flex-shrink-0">
                     <IconLogout />
                   </span>
                   <span>Sign Out</span>
                 </button>
                 <button
                   type="button"
-                  className="ad-user-menu-item"
+                  className="w-full flex items-center gap-3 px-4 py-[10px] text-[15px] font-bold text-[#4a4a4a] bg-transparent border-none cursor-pointer hover:bg-[#f7f4ff] transition-colors duration-150"
                   onClick={() => {
                     setProfileOpen(false);
                     navigate('/admin/profile');
                   }}
                 >
-                  <span className="ad-user-menu-icon">
+                  <span className="w-[20px] h-[20px] flex-shrink-0">
                     <IconProfile />
                   </span>
                   <span>Edit Profil</span>
@@ -886,17 +895,19 @@ export default function AdminArticleForm() {
           </div>
         </header>
 
-        <section className="aaf-card aaf-meta-card">
-          <div className="aaf-card-head">
-            <h2>Tambah Artikel</h2>
-            <p className="apd-sub">
+        <section className="m-6 bg-[#fffdfd] border border-[#f4d6dc] rounded-[20px] p-6 shadow-[0_8px_18px_rgba(0,0,0,0.08)] mb-4">
+          <div className="mb-6">
+            <h2 className="m-0 text-[22px] text-[#1d1d1f] font-bold">
+              Tambah Artikel
+            </h2>
+            <p className="mt-[6px] mb-0 text-sm text-[#8a8a8a]">
               Isi kolom di bawah ini secara lengkap untuk{' '}
               {isEditMode && hasArticle ? 'memperbarui' : 'membuat'} draft
               artikel.
             </p>
           </div>
-          <div className="aaf-grid">
-            <label className="apd-field">
+          <div className="grid grid-cols-1 md:grid-cols-[repeat(auto-fit,minmax(260px,1fr))] gap-4">
+            <label className="flex flex-col gap-2 font-bold text-[#4a4a4a]">
               <span>Judul Artikel*</span>
               <input
                 type="text"
@@ -904,28 +915,30 @@ export default function AdminArticleForm() {
                 placeholder="Bukan Seoul Aja! Hidden Gems Korea dalam Paket Wisata Muslimah"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
+                className="border border-[#f5b5be] rounded-[10px] py-3 px-[14px] text-[15px] bg-[#fffdfd] outline-none focus:border-[#f28b95] focus:shadow-[0_0_0_2px_rgba(242,139,149,0.18)] placeholder:text-[#b3b3b3]"
               />
             </label>
-            <label className="apd-field">
+            <label className="flex flex-col gap-2 font-bold text-[#4a4a4a]">
               <span>Tanggal*</span>
-              <div className="aaf-date-field">
+              <div className="flex items-center border border-[#f5b5be] rounded-[10px] bg-[#fffdfd] px-[10px] focus-within:border-[#f28b95] focus-within:shadow-[0_0_0_2px_rgba(242,139,149,0.18)]">
                 <input
                   type="date"
                   required
                   placeholder="30/11/2025"
                   value={date}
                   onChange={(e) => setDate(e.target.value)}
+                  className="border-none outline-none py-3 px-1 w-full bg-transparent text-[15px]"
                 />
-                <span className="aaf-date-icon">
+                <span className="w-[20px] h-[20px] flex-shrink-0 text-[#f28b95]">
                   <IconCalendar />
                 </span>
               </div>
             </label>
           </div>
-          <div className="aaf-card-actions">
+          <div className="mt-6 flex justify-end">
             <button
               type="button"
-              className="apd-btn apd-btn-save"
+              className="rounded-[16px] font-extrabold bg-[#22c6b6] border border-[#16b3a6] text-white shadow-[0_10px_22px_rgba(34,198,182,0.2)] px-6 py-[14px] cursor-pointer hover:bg-[#1eab9d] hover:shadow-[0_14px_28px_rgba(34,198,182,0.3)] transition-all duration-150"
               onClick={handleSave}
             >
               Simpan Perubahan
@@ -933,31 +946,35 @@ export default function AdminArticleForm() {
           </div>
         </section>
 
-        <section className="aaf-card aaf-content-card">
-          <div className="aaf-card-head">
-            <h2>Isi Artikel</h2>
-            <p className="apd-sub">
+        <section className="m-6 bg-white border border-[#f5d4de] rounded-[20px] p-6 shadow-[0_8px_18px_rgba(0,0,0,0.08)] mb-4">
+          <div className="mb-6">
+            <h2 className="m-0 text-[22px] text-[#1d1d1f] font-bold">
+              Isi Artikel
+            </h2>
+            <p className="mt-[6px] mb-0 text-sm text-[#8a8a8a]">
               Tulis konten artikel Anda di sini. Pastikan narasi mengalir dengan
               baik, informatif, dan relevan dengan kategori yang dipilih.
             </p>
           </div>
 
-          <div className="aaf-toolbar">
-            <div className="aaf-select">
-              <span className="aaf-select-prefix">T</span>
+          <div className="flex items-center gap-2 flex-wrap my-[10px] mb-3">
+            <div className="flex items-center border border-[#f0c7cb] rounded-[10px] px-[10px] bg-white">
+              <span className="text-[#f28b95] font-extrabold mr-1">T</span>
               <select
                 value={fontWeight}
                 onChange={(e) => setFontWeight(e.target.value as TextWeight)}
+                className="border-none bg-transparent text-[#2f2f2f] font-bold py-2 cursor-pointer outline-none"
               >
                 <option value="Semi-Bold">Semi-Bold</option>
                 <option value="Bold">Bold</option>
                 <option value="Regular">Regular</option>
               </select>
             </div>
-            <div className="aaf-select">
+            <div>
               <select
                 value={fontSize}
                 onChange={(e) => setFontSize(e.target.value)}
+                className="border border-[#f0c7cb] rounded-[10px] px-[10px] py-2 bg-white text-[#2f2f2f] font-bold min-w-[86px] cursor-pointer outline-none"
               >
                 <option value="20px">20px</option>
                 <option value="18px">18px</option>
@@ -967,97 +984,115 @@ export default function AdminArticleForm() {
             <button
               type="button"
               aria-label="Bold"
-              className={bold ? 'aaf-btn-active' : ''}
+              className={`border rounded-lg p-2 cursor-pointer inline-flex items-center justify-center transition-all duration-150 ${bold ? 'border-[#22c6b6] bg-[#e1faf6] text-[#158f83] shadow-[0_8px_16px_rgba(34,198,182,0.2)]' : 'border-[#e4d5ff] bg-white text-[#b08cf2]'}`}
               onClick={() => {
                 applyCommand('bold');
                 setBold((v) => !v);
               }}
             >
-              <IconBold />
+              <span className="w-4 h-4">
+                <IconBold />
+              </span>
             </button>
             <button
               type="button"
               aria-label="Italic"
-              className={italic ? 'aaf-btn-active' : ''}
+              className={`border rounded-lg p-2 cursor-pointer inline-flex items-center justify-center transition-all duration-150 ${italic ? 'border-[#22c6b6] bg-[#e1faf6] text-[#158f83] shadow-[0_8px_16px_rgba(34,198,182,0.2)]' : 'border-[#e4d5ff] bg-white text-[#b08cf2]'}`}
               onClick={() => {
                 applyCommand('italic');
                 setItalic((v) => !v);
               }}
             >
-              <IconItalic />
+              <span className="w-4 h-4">
+                <IconItalic />
+              </span>
             </button>
             <button
               type="button"
               aria-label="Underline"
-              className={underline ? 'aaf-btn-active' : ''}
+              className={`border rounded-lg p-2 cursor-pointer inline-flex items-center justify-center transition-all duration-150 ${underline ? 'border-[#22c6b6] bg-[#e1faf6] text-[#158f83] shadow-[0_8px_16px_rgba(34,198,182,0.2)]' : 'border-[#e4d5ff] bg-white text-[#b08cf2]'}`}
               onClick={() => {
                 applyCommand('underline');
                 setUnderline((v) => !v);
               }}
             >
-              <span className="aaf-underline">U</span>
+              <span className="underline font-extrabold text-[#b08cf2]">U</span>
             </button>
             <button
               type="button"
               aria-label="Rata kiri"
-              className={align === 'left' ? 'aaf-btn-active' : ''}
+              className={`border rounded-lg p-2 cursor-pointer inline-flex items-center justify-center transition-all duration-150 ${align === 'left' ? 'border-[#22c6b6] bg-[#e1faf6] text-[#158f83] shadow-[0_8px_16px_rgba(34,198,182,0.2)]' : 'border-[#e4d5ff] bg-white text-[#b08cf2]'}`}
               onClick={() => {
                 setAlign('left');
                 applyCommand('justifyLeft');
               }}
             >
-              <IconAlignLeft />
+              <span className="w-4 h-4">
+                <IconAlignLeft />
+              </span>
             </button>
             <button
               type="button"
               aria-label="Rata tengah"
-              className={align === 'center' ? 'aaf-btn-active' : ''}
+              className={`border rounded-lg p-2 cursor-pointer inline-flex items-center justify-center transition-all duration-150 ${align === 'center' ? 'border-[#22c6b6] bg-[#e1faf6] text-[#158f83] shadow-[0_8px_16px_rgba(34,198,182,0.2)]' : 'border-[#e4d5ff] bg-white text-[#b08cf2]'}`}
               onClick={() => {
                 setAlign('center');
                 applyCommand('justifyCenter');
               }}
             >
-              <IconAlignCenter />
+              <span className="w-4 h-4">
+                <IconAlignCenter />
+              </span>
             </button>
             <button
               type="button"
               aria-label="Rata kanan"
-              className={align === 'justify' ? 'aaf-btn-active' : ''}
+              className={`border rounded-lg p-2 cursor-pointer inline-flex items-center justify-center transition-all duration-150 ${align === 'justify' ? 'border-[#22c6b6] bg-[#e1faf6] text-[#158f83] shadow-[0_8px_16px_rgba(34,198,182,0.2)]' : 'border-[#e4d5ff] bg-white text-[#b08cf2]'}`}
               onClick={() => {
                 setAlign('justify');
                 applyCommand('justifyFull');
               }}
             >
-              <IconAlignJustify />
+              <span className="w-4 h-4">
+                <IconAlignJustify />
+              </span>
             </button>
             <button
               type="button"
               aria-label="Bullet list"
-              className={listMode === 'bullet' ? 'aaf-btn-active' : ''}
+              className={`border rounded-lg p-2 cursor-pointer inline-flex items-center justify-center transition-all duration-150 ${listMode === 'bullet' ? 'border-[#22c6b6] bg-[#e1faf6] text-[#158f83] shadow-[0_8px_16px_rgba(34,198,182,0.2)]' : 'border-[#e4d5ff] bg-white text-[#b08cf2]'}`}
               onClick={() => {
                 const next = listMode === 'bullet' ? 'none' : 'bullet';
                 setListMode(next);
                 applyCommand('insertUnorderedList');
               }}
             >
-              <IconList />
+              <span className="w-4 h-4">
+                <IconList />
+              </span>
             </button>
             <button
               type="button"
               aria-label="Tambahkan link"
+              className="border border-[#e4d5ff] bg-white rounded-lg p-2 cursor-pointer inline-flex items-center justify-center text-[#b08cf2] transition-all duration-150 hover:bg-[#f7f4ff]"
               onClick={() => {
                 const url = window.prompt('Masukkan URL');
                 if (url) applyCommand('createLink', url);
               }}
             >
-              <IconLinkInline />
+              <span className="w-4 h-4">
+                <IconLinkInline />
+              </span>
             </button>
             <button
               type="button"
               aria-label="Tambahkan gambar"
+              className="border border-[#e4d5ff] bg-white rounded-lg p-2 cursor-pointer inline-flex items-center justify-center text-[#b08cf2] transition-all duration-150 hover:bg-[#f7f4ff]"
               onClick={() => contentImageInputRef.current?.click()}
             >
-              <IconImage />
+              <span className="w-4 h-4">
+                <IconImage />
+              </span>
             </button>
           </div>
           <input
@@ -1091,7 +1126,7 @@ export default function AdminArticleForm() {
 
           <div
             ref={editorRef}
-            className="aaf-editor"
+            className="w-full border border-[#f5b5be] rounded-[12px] p-[14px] text-[15px] bg-[#fffdfd] outline-none min-h-[320px] box-border leading-[1.6] [direction:ltr] text-left [unicode-bidi:normal] [writing-mode:horizontal-tb] focus:border-[#f28b95] focus:shadow-[0_0_0_2px_rgba(242,139,149,0.18)] empty:before:content-[attr(data-placeholder)] empty:before:text-[#b3b3b3]"
             contentEditable
             dir="ltr"
             suppressContentEditableWarning
@@ -1114,10 +1149,10 @@ export default function AdminArticleForm() {
             dangerouslySetInnerHTML={{ __html: contentHtml }}
           />
 
-          <div className="aaf-card-actions">
+          <div className="mt-5 flex justify-end">
             <button
               type="button"
-              className="apd-btn apd-btn-save"
+              className="border border-[#16b3a6] bg-[#22c6b6] text-white px-5 py-3 rounded-[10px] font-bold cursor-pointer shadow-[0_10px_22px_rgba(34,198,182,0.2)] transition-transform duration-150 hover:scale-105"
               onClick={handleSave}
             >
               Simpan Perubahan
@@ -1125,25 +1160,25 @@ export default function AdminArticleForm() {
           </div>
         </section>
 
-        <div className="aaf-preview-actions">
+        <div className="bg-white rounded-[20px] border border-[#f0e0ef] p-5 shadow-[0_18px_35px_rgba(0,0,0,0.08)] mt-3 mx-6 mb-6 flex flex-col gap-[14px]">
           <button
             type="button"
-            className="apd-btn-secondary aaf-preview-btn"
+            className="w-full rounded-[18px] font-extrabold bg-[#22c6b6] text-white shadow-[0_12px_24px_rgba(34,198,182,0.3)] px-5 py-[14px] cursor-pointer hover:bg-[#1eab9d] hover:shadow-[0_16px_32px_rgba(34,198,182,0.4)] transition-all duration-150"
             onClick={() => setPreviewOpen(true)}
           >
             Tampilkan Detail Preview
           </button>
-          <div className="aaf-footer-row">
+          <div className="grid grid-cols-1 sm:grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-3">
             <button
               type="button"
-              className="apd-btn apd-btn-cancel"
+              className="rounded-[16px] font-extrabold bg-[#f87171] border border-[#f87171] text-white shadow-[0_10px_22px_rgba(248,113,113,0.2)] px-5 py-[14px] cursor-pointer hover:bg-[#ef4444] hover:shadow-[0_14px_28px_rgba(248,113,113,0.3)] transition-all duration-150"
               onClick={() => navigate('/admin/articles')}
             >
               Batalkan Artikel
             </button>
             <button
               type="button"
-              className="apd-btn apd-btn-save"
+              className="rounded-[16px] font-extrabold bg-[#22c6b6] border border-[#16b3a6] text-white shadow-[0_10px_22px_rgba(34,198,182,0.2)] px-5 py-[14px] cursor-pointer hover:bg-[#1eab9d] hover:shadow-[0_14px_28px_rgba(34,198,182,0.3)] transition-all duration-150"
               onClick={handleSave}
             >
               {isEditMode && hasArticle
@@ -1154,22 +1189,24 @@ export default function AdminArticleForm() {
         </div>
 
         {successModal && (
-          <div className="ap-modal">
-            <div className="ap-modal-card">
-              <div className="ap-modal-icon ap-modal-icon-success">
-                <IconCheck />
+          <div className="fixed inset-0 bg-black/40 grid place-items-center z-[9999] p-4">
+            <div className="bg-white rounded-[18px] p-8 text-center shadow-[0_10px_32px_rgba(0,0,0,0.15)] max-w-[380px] w-full">
+              <div className="w-[92px] h-[92px] rounded-full bg-[#22c6b6] grid place-items-center mx-auto mb-[18px] shadow-[0_10px_26px_rgba(34,198,182,0.28)]">
+                <span className="w-[48px] h-[48px]">
+                  <IconCheck />
+                </span>
               </div>
-              <h3>
+              <h3 className="m-0 mb-2 text-xl text-[#2a2a2a] font-bold">
                 Artikel {isEditMode && hasArticle ? 'Diperbarui' : 'Tersimpan'}
               </h3>
-              <p>
+              <p className="text-[#757575] mb-6 text-[15px]">
                 Artikel berhasil{' '}
                 {isEditMode && hasArticle ? 'diperbarui' : 'disimpan'}.
               </p>
-              <div className="ap-modal-actions">
+              <div className="flex justify-center">
                 <button
                   type="button"
-                  className="ap-modal-btn confirm"
+                  className="w-full border border-[#16b3a6] bg-[#22c6b6] text-white px-5 py-[14px] rounded-[10px] font-bold cursor-pointer shadow-[0_10px_22px_rgba(34,198,182,0.2)] transition-transform duration-150 hover:scale-105"
                   onClick={() => {
                     setSuccessModal(false);
                     navigate('/admin/articles');
@@ -1183,23 +1220,29 @@ export default function AdminArticleForm() {
         )}
 
         {previewOpen && (
-          <div className="ap-preview-modal">
-            <div className="ap-preview-card">
+          <div className="fixed inset-0 bg-black/50 grid place-items-center z-[9999] p-4">
+            <div className="bg-white rounded-[18px] p-6 max-w-[920px] w-full max-h-[85vh] overflow-y-auto relative shadow-[0_10px_32px_rgba(0,0,0,0.15)]">
               <button
-                className="ap-preview-close"
+                className="absolute top-4 right-4 w-[38px] h-[38px] rounded-full bg-[#f3f3f3] grid place-items-center cursor-pointer text-[#8a8a8a] transition-all duration-150 hover:bg-[#e4e4e4]"
                 type="button"
                 onClick={() => setPreviewOpen(false)}
               >
                 <IconClose />
               </button>
-              <h3>Detail Preview</h3>
-              <div className="aaf-preview">
-                <div className="aaf-preview-meta">
-                  <strong>{previewTitle}</strong>
-                  <span>{previewDate}</span>
+              <h3 className="m-0 mb-5 text-xl font-bold text-[#2a2a2a]">
+                Detail Preview
+              </h3>
+              <div className="grid gap-2">
+                <div className="flex flex-col gap-1">
+                  <strong className="text-lg text-[#2b2b2b]">
+                    {previewTitle}
+                  </strong>
+                  <span className="text-[#d56780] font-extrabold">
+                    {previewDate}
+                  </span>
                   {previewLink && (
                     <a
-                      className="aaf-preview-link"
+                      className="text-[#1aa7b6] break-all font-bold"
                       href={previewLink}
                       target="_blank"
                       rel="noreferrer"
@@ -1209,21 +1252,26 @@ export default function AdminArticleForm() {
                   )}
                 </div>
                 {imageSrc && (
-                  <div className="aaf-preview-image">
-                    <img src={imageSrc} alt={previewTitle} />
+                  <div>
+                    <img
+                      src={imageSrc}
+                      alt={previewTitle}
+                      className="w-full max-h-[320px] object-cover rounded-[12px] mb-[10px]"
+                    />
                   </div>
                 )}
                 <div
-                  className="aaf-preview-body"
+                  className="m-0 leading-[1.6] text-[#383838] [direction:ltr] text-left [unicode-bidi:isolate] [writing-mode:horizontal-tb]"
                   dangerouslySetInnerHTML={{ __html: previewContent }}
                 />
                 {previewGallery.length > 0 && (
-                  <div className="aaf-preview-gallery">
+                  <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-3 mt-3">
                     {previewGallery.map((src, idx) => (
                       <img
                         key={`${src}-${idx}`}
                         src={src}
                         alt={`${previewTitle} ${idx + 1}`}
+                        className="w-full h-[180px] object-cover rounded-[10px]"
                       />
                     ))}
                   </div>

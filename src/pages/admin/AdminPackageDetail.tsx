@@ -1,7 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useLocation, useParams } from 'react-router-dom';
-import './AdminDashboard.css';
-import './AdminPackageDetail.css';
 import { fetchPackage, savePackage } from '../../api/packages';
 import { formatHelper } from '@/helper/format';
 
@@ -564,34 +562,52 @@ export default function AdminPackageDetail() {
   };
 
   return (
-    <div className={`ad-root ${navOpen ? 'nav-open' : ''}`}>
+    <div
+      className={`min-h-screen grid grid-cols-1 lg:grid-cols-[250px_1fr] bg-[#fdf7f0] text-[#1d1d1f] ${navOpen ? 'overflow-hidden' : ''}`}
+    >
       <div
-        className={`ad-nav-backdrop ${navOpen ? 'show' : ''}`}
+        className={`fixed inset-0 bg-black/25 z-[15] transition-opacity duration-200 ${navOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
         onClick={() => setNavOpen(false)}
       />
 
-      <aside className={`ad-sidebar ${navOpen ? 'is-open' : ''}`}>
-        <div className="ad-logo">
-          <div className="ad-logo-badge">
-            <img src="/logo.svg" alt="Saleema" />
+      <aside
+        className={`fixed lg:sticky top-0 left-0 h-screen w-[260px] max-w-[82vw] sm:max-w-[90vw] bg-white border-r border-[#f0e8e2] px-[18px] lg:px-[18px] py-6 flex flex-col gap-6 lg:gap-6 z-30 transition-transform duration-[280ms] ease-out overflow-y-auto ${navOpen ? 'translate-x-0 shadow-[18px_0_38px_rgba(15,23,42,0.14)]' : '-translate-x-full lg:translate-x-0'}`}
+      >
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 bg-[#f4ebff] rounded-[14px] grid place-items-center shadow-[0_10px_30px_rgba(157,129,224,0.2)]">
+            <img src="/logo.svg" alt="Saleema" className="w-8 h-8" />
           </div>
-          <div className="ad-logo-text">
-            <strong>Saleema</strong>
-            <span>Tour</span>
+          <div>
+            <strong className="block text-[17px] sm:text-[15px]">
+              Saleema
+            </strong>
+            <span className="text-[#b08cf2] font-bold text-[14px] sm:text-[12px] tracking-[0.1px]">
+              Tour
+            </span>
           </div>
         </div>
-        <nav className="ad-nav">
+        <nav className="flex flex-col gap-2 w-full">
           {NAV_ITEMS.map((item) => (
             <button
               key={item.key}
-              className={`ad-nav-item ${isActive(location.pathname, item.path) ? 'active' : ''}`}
+              className={`border-0 flex items-center gap-3 px-[14px] py-3 rounded-xl font-bold cursor-pointer transition-all duration-150 whitespace-normal text-left ${
+                isActive(location.pathname, item.path)
+                  ? 'bg-gradient-to-r from-[#efebff] to-[#f7f1ff] text-[#6f4ab1] shadow-[0_8px_18px_rgba(140,107,214,0.15)]'
+                  : 'bg-transparent text-[#4a4a4f] hover:bg-gradient-to-r hover:from-[#efebff] hover:to-[#f7f1ff] hover:text-[#6f4ab1] hover:shadow-[0_8px_18px_rgba(140,107,214,0.15)]'
+              } sm:text-[12.5px] sm:px-[10px] sm:py-2 sm:leading-tight`}
               type="button"
               onClick={() => {
                 setNavOpen(false);
                 navigate(item.path);
               }}
             >
-              <span className="ad-nav-icon">
+              <span
+                className={`w-8 h-8 rounded-[10px] grid place-items-center ${
+                  isActive(location.pathname, item.path)
+                    ? 'bg-[#d6c2ff] shadow-[0_8px_18px_rgba(140,107,214,0.2)]'
+                    : 'bg-[#f7f0ff] shadow-[inset_0_0_0_1px_#efe6fc]'
+                }`}
+              >
                 <NavIcon name={item.key as NavItem['key']} />
               </span>
               {item.label}
@@ -600,21 +616,21 @@ export default function AdminPackageDetail() {
         </nav>
       </aside>
 
-      <main className="ad-main">
-        <header className="ad-topbar">
-          <div className="ad-topbar-left">
+      <main className="px-4 sm:px-8 py-7 pb-12 flex flex-col gap-[18px]">
+        <header className="flex flex-row items-center justify-between gap-3">
+          <div className="flex items-center gap-[10px]">
             <button
-              className="ad-menu-toggle"
+              className="lg:hidden w-10 h-10 rounded-xl border border-[#e6dafd] bg-[#f7f0ff] p-2 flex flex-col justify-center items-center gap-[5px] shadow-[0_10px_22px_rgba(140,107,214,0.2)] cursor-pointer"
               type="button"
               aria-label="Buka navigasi"
               onClick={() => setNavOpen(true)}
             >
-              <span />
-              <span />
-              <span />
+              <span className="block w-full h-[2px] rounded-full bg-[#7b5ad3]" />
+              <span className="block w-full h-[2px] rounded-full bg-[#7b5ad3]" />
+              <span className="block w-full h-[2px] rounded-full bg-[#7b5ad3]" />
             </button>
             <button
-              className="ap-back-btn"
+              className="border-0 bg-[#f7f0ff] rounded-[10px] px-3 py-2 font-extrabold cursor-pointer shadow-[0_10px_22px_rgba(140,107,214,0.18)]"
               type="button"
               onClick={() => navigate('/admin/packages')}
               aria-label="Kembali"
@@ -622,44 +638,54 @@ export default function AdminPackageDetail() {
               <IconArrowLeft />
               <span>Kembali</span>
             </button>
-            <h1>{pageTitle}</h1>
+            <h1 className="m-0 text-[22px] sm:text-[18px] md:text-[20px] text-[#1f1f28]">
+              {pageTitle}
+            </h1>
           </div>
-          <div className="ad-user-wrapper" ref={userMenuRef}>
+          <div className="relative" ref={userMenuRef}>
             <button
-              className="ad-user"
+              className="flex items-center gap-[10px] sm:gap-2 bg-white px-3 py-2 rounded-[14px] shadow-[0_12px_30px_rgba(15,23,42,0.12)] border border-[#f2e9ff] cursor-pointer"
               type="button"
               onClick={() => setProfileOpen((v) => !v)}
             >
-              <img src="/avatar.jpg" alt="Admin" />
+              <img
+                src="/avatar.jpg"
+                alt="Admin"
+                className="w-[42px] h-[42px] sm:w-[38px] sm:h-[38px] rounded-full object-cover"
+              />
               <div>
-                <div className="ad-user-name">Madam</div>
-                <div className="ad-user-role">Admin</div>
+                <div className="font-extrabold text-[14px] sm:text-[13px]">
+                  Madam
+                </div>
+                <div className="text-[#9b9aa5] text-xs sm:text-[11px]">
+                  Admin
+                </div>
               </div>
             </button>
             {profileOpen && (
-              <div className="ad-user-menu">
+              <div className="absolute right-0 top-[calc(100%+8px)] bg-white border border-[#ece9f6] shadow-[0_14px_32px_rgba(0,0,0,0.12)] rounded-xl p-[6px] min-w-[170px] z-[35]">
                 <button
                   type="button"
-                  className="ad-user-menu-item"
+                  className="w-full flex items-center gap-[10px] px-[10px] py-[10px] border-0 bg-transparent font-bold text-[#3a3a3a] rounded-[10px] cursor-pointer transition-colors duration-150 hover:bg-[#f5f2ff]"
                   onClick={() => {
                     setProfileOpen(false);
                     navigate('/');
                   }}
                 >
-                  <span className="ad-user-menu-icon">
+                  <span className="w-5 h-5 inline-flex items-center justify-center">
                     <IconLogout />
                   </span>
                   <span>Sign Out</span>
                 </button>
                 <button
                   type="button"
-                  className="ad-user-menu-item"
+                  className="w-full flex items-center gap-[10px] px-[10px] py-[10px] border-0 bg-transparent font-bold text-[#3a3a3a] rounded-[10px] cursor-pointer transition-colors duration-150 hover:bg-[#f5f2ff]"
                   onClick={() => {
                     setProfileOpen(false);
                     navigate('/admin/profile');
                   }}
                 >
-                  <span className="ad-user-menu-icon">
+                  <span className="w-5 h-5 inline-flex items-center justify-center">
                     <IconProfile />
                   </span>
                   <span>Edit Profil</span>
@@ -669,21 +695,23 @@ export default function AdminPackageDetail() {
           </div>
         </header>
 
-        <section className="apd-card">
-          <h2>Tambah Detail Paket</h2>
-          <p className="apd-sub">
+        <section className="bg-[#fffaf5] rounded-[18px] px-6 py-6 pb-[30px] shadow-[0_18px_38px_rgba(15,23,42,0.08)] border border-[#f2e3d7] w-full max-w-[1180px] mx-auto mt-[14px] lg:px-6 md:px-4 sm:px-4">
+          <h2 className="m-0 mb-[6px] text-xl text-[#2b2b2b] font-extrabold">
+            Tambah Detail Paket
+          </h2>
+          <p className="m-0 mb-[14px] text-[#8a8a8a] text-sm">
             Isi kolom di bawah ini secara lengkap untuk membuat paket destinasi
             baru.
           </p>
           <form
-            className="apd-form"
+            className="flex flex-col gap-[18px]"
             onSubmit={(e) => {
               e.preventDefault();
               handleSave();
             }}
           >
-            <div className="apd-grid">
-              <label className="apd-field">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-[repeat(auto-fit,minmax(260px,1fr))] gap-y-4 gap-x-5">
+              <label className="flex flex-col gap-2 font-bold text-[#4a4a4a]">
                 <span>Nama Paket*</span>
                 <input
                   type="text"
@@ -692,9 +720,10 @@ export default function AdminPackageDetail() {
                     setForm((prev) => ({ ...prev, name: e.target.value }))
                   }
                   required
+                  className="w-full border border-[#f5b5be] rounded-[10px] px-[14px] py-3 min-h-[46px] text-[15px] bg-[#fffdfd] outline-none box-border focus:border-[#f28b95] focus:shadow-[0_0_0_2px_rgba(242,139,149,0.15)]"
                 />
               </label>
-              <label className="apd-field">
+              <label className="flex flex-col gap-2 font-bold text-[#4a4a4a]">
                 <span>Lokasi*</span>
                 <input
                   type="text"
@@ -703,9 +732,10 @@ export default function AdminPackageDetail() {
                     setForm((prev) => ({ ...prev, location: e.target.value }))
                   }
                   required
+                  className="w-full border border-[#f5b5be] rounded-[10px] px-[14px] py-3 min-h-[46px] text-[15px] bg-[#fffdfd] outline-none box-border focus:border-[#f28b95] focus:shadow-[0_0_0_2px_rgba(242,139,149,0.15)]"
                 />
               </label>
-              <label className="apd-field">
+              <label className="flex flex-col gap-2 font-bold text-[#4a4a4a]">
                 <span>Benua*</span>
                 <input
                   type="text"
@@ -714,9 +744,10 @@ export default function AdminPackageDetail() {
                     setForm((prev) => ({ ...prev, continent: e.target.value }))
                   }
                   required
+                  className="w-full border border-[#f5b5be] rounded-[10px] px-[14px] py-3 min-h-[46px] text-[15px] bg-[#fffdfd] outline-none box-border focus:border-[#f28b95] focus:shadow-[0_0_0_2px_rgba(242,139,149,0.15)]"
                 />
               </label>
-              <label className="apd-field">
+              <label className="flex flex-col gap-2 font-bold text-[#4a4a4a]">
                 <span>Maskapai*</span>
                 <input
                   type="text"
@@ -725,9 +756,10 @@ export default function AdminPackageDetail() {
                     setForm((prev) => ({ ...prev, airline: e.target.value }))
                   }
                   required
+                  className="w-full border border-[#f5b5be] rounded-[10px] px-[14px] py-3 min-h-[46px] text-[15px] bg-[#fffdfd] outline-none box-border focus:border-[#f28b95] focus:shadow-[0_0_0_2px_rgba(242,139,149,0.15)]"
                 />
               </label>
-              <label className="apd-field">
+              <label className="flex flex-col gap-2 font-bold text-[#4a4a4a]">
                 <span>Bandara*</span>
                 <input
                   type="text"
@@ -736,9 +768,10 @@ export default function AdminPackageDetail() {
                     setForm((prev) => ({ ...prev, airport: e.target.value }))
                   }
                   required
+                  className="w-full border border-[#f5b5be] rounded-[10px] px-[14px] py-3 min-h-[46px] text-[15px] bg-[#fffdfd] outline-none box-border focus:border-[#f28b95] focus:shadow-[0_0_0_2px_rgba(242,139,149,0.15)]"
                 />
               </label>
-              <label className="apd-field">
+              <label className="flex flex-col gap-2 font-bold text-[#4a4a4a]">
                 <span>Periode Keberangkatan*</span>
                 <input
                   type="text"
@@ -750,9 +783,10 @@ export default function AdminPackageDetail() {
                     }))
                   }
                   required
+                  className="w-full border border-[#f5b5be] rounded-[10px] px-[14px] py-3 min-h-[46px] text-[15px] bg-[#fffdfd] outline-none box-border focus:border-[#f28b95] focus:shadow-[0_0_0_2px_rgba(242,139,149,0.15)]"
                 />
               </label>
-              <label className="apd-field">
+              <label className="flex flex-col gap-2 font-bold text-[#4a4a4a]">
                 <span>Harga*</span>
                 <input
                   type="text"
@@ -761,25 +795,34 @@ export default function AdminPackageDetail() {
                     setForm((prev) => ({ ...prev, price: e.target.value }))
                   }
                   required
+                  className="w-full border border-[#f5b5be] rounded-[10px] px-[14px] py-3 min-h-[46px] text-[15px] bg-[#fffdfd] outline-none box-border focus:border-[#f28b95] focus:shadow-[0_0_0_2px_rgba(242,139,149,0.15)]"
                 />
               </label>
             </div>
 
-            <div className="apd-image-block">
+            <div className="flex flex-col gap-[10px]">
               <h3>Gambar Paket</h3>
               <div
-                className={`apd-image-placeholder ${imageSrc ? 'has-image' : ''}`}
+                className={`border-dashed border-[#f5b5be] rounded-xl p-[14px] bg-gradient-to-b from-[#fff8f3] to-white min-h-[280px] grid place-items-center text-center relative cursor-pointer transition-all duration-150 ${imageSrc ? 'border-solid border-[#f2d5db] shadow-[0_16px_32px_rgba(242,181,190,0.18)]' : 'border-[1.2px]'}`}
                 onClick={() => fileInputRef.current?.click()}
               >
                 {imageSrc ? (
-                  <img src={imageSrc} alt={form.name || 'Paket'} />
+                  <img
+                    src={imageSrc}
+                    alt={form.name || 'Paket'}
+                    className="w-full max-w-[520px] rounded-[10px] block mx-auto"
+                  />
                 ) : (
-                  <div className="apd-upload-empty">
-                    <div className="apd-upload-icon">
+                  <div className="grid place-items-center gap-2 text-[#c77482]">
+                    <div className="w-[50px] h-[50px] rounded-xl bg-[#ffe8ee] grid place-items-center shadow-[0_10px_22px_rgba(242,139,149,0.15)]">
                       <IconUpload />
                     </div>
-                    <p>Unggah gambar paket</p>
-                    <small>PNG atau JPG, maksimal 2MB</small>
+                    <p className="m-0 font-extrabold text-[#d16d7d]">
+                      Unggah gambar paket
+                    </p>
+                    <small className="text-[#b0848d]">
+                      PNG atau JPG, maksimal 2MB
+                    </small>
                   </div>
                 )}
                 <input
@@ -797,7 +840,7 @@ export default function AdminPackageDetail() {
                 />
                 <button
                   type="button"
-                  className="apd-upload-btn"
+                  className="mt-[10px] border border-[#e4d5ff] bg-[#f7f0ff] text-[#6b53b8] px-[14px] py-[10px] rounded-[10px] cursor-pointer font-bold transition-all duration-150 hover:bg-[#efdfff]"
                   onClick={() => fileInputRef.current?.click()}
                 >
                   Pilih Gambar
@@ -805,14 +848,19 @@ export default function AdminPackageDetail() {
               </div>
             </div>
 
-            <div className="apd-section">
-              <h3>Tambah Destinasi Itenary</h3>
-              <p className="apd-sub">
+            <div className="bg-[#fffaf7] border border-[#f3e4d9] rounded-[14px] p-4 flex flex-col gap-[10px] shadow-[0_10px_22px_rgba(15,23,42,0.04)]">
+              <h3 className="m-0 text-base text-[#3a3a3a]">
+                Tambah Destinasi Itenary
+              </h3>
+              <p className="m-0 mb-[14px] text-[#8a8a8a] text-sm">
                 Isi kolom di bawah ini secara lengkap untuk menambahkan
                 destinasi pada itenary paket.
               </p>
               {form.itinerary.destination.map((v, idx) => (
-                <label className="apd-field" key={`dest-${idx}`}>
+                <label
+                  className="flex flex-col gap-2 font-bold text-[#4a4a4a]"
+                  key={`dest-${idx}`}
+                >
                   <span>Hari {idx + 1}*</span>
                   <input
                     type="text"
@@ -820,35 +868,36 @@ export default function AdminPackageDetail() {
                     onChange={(e) =>
                       updateItinerary('destination', idx, e.target.value)
                     }
+                    className="w-full border border-[#f5b5be] rounded-[10px] px-[14px] py-3 min-h-[46px] text-[15px] bg-[#fffdfd] outline-none box-border focus:border-[#f28b95] focus:shadow-[0_0_0_2px_rgba(242,139,149,0.15)]"
                   />
                 </label>
               ))}
-              <div className="apd-section-actions">
+              <div className="flex gap-2 flex-wrap">
                 <button
                   type="button"
-                  className="apd-btn-ghost"
+                  className="bg-[#fff7f7] text-[#f15b6c] border border-[#ffd1d7] rounded-lg px-3 py-2 font-bold cursor-pointer inline-flex items-center gap-2"
                   onClick={() => removeDay('destination')}
                 >
-                  <span className="apd-btn-icon">
+                  <span className="w-[18px] h-[18px] grid place-items-center">
                     <IconMinus />
                   </span>
                   Hapus Hari
                 </button>
                 <button
                   type="button"
-                  className="apd-btn-outline"
+                  className="bg-[#22c6b6] text-white border border-[#16b3a6] rounded-lg px-3 py-2 font-bold cursor-pointer shadow-[0_10px_22px_rgba(34,198,182,0.16)] inline-flex items-center gap-2"
                   onClick={() => addDay('destination')}
                 >
-                  <span className="apd-btn-icon">
+                  <span className="w-[18px] h-[18px] grid place-items-center">
                     <IconPlus />
                   </span>
                   Tambahkan Hari
                 </button>
               </div>
-              <div className="apd-actions apd-actions-inline">
+              <div className="flex justify-end">
                 <button
                   type="button"
-                  className="apd-btn apd-btn-save"
+                  className="border border-[#16b3a6] rounded-[10px] px-5 py-3 font-extrabold cursor-pointer text-white min-w-[200px] text-[15px] bg-[#22c6b6] shadow-[0_10px_22px_rgba(34,198,182,0.2)] transition-transform duration-150 hover:scale-105"
                   onClick={() => setSuccessModal(true)}
                 >
                   Simpan Perubahan
@@ -856,14 +905,19 @@ export default function AdminPackageDetail() {
               </div>
             </div>
 
-            <div className="apd-section">
-              <h3>Tambah Tempat Makan Itenary</h3>
-              <p className="apd-sub">
+            <div className="bg-[#fffaf7] border border-[#f3e4d9] rounded-[14px] p-4 flex flex-col gap-[10px] shadow-[0_10px_22px_rgba(15,23,42,0.04)]">
+              <h3 className="m-0 text-base text-[#3a3a3a]">
+                Tambah Tempat Makan Itenary
+              </h3>
+              <p className="m-0 mb-[14px] text-[#8a8a8a] text-sm">
                 Isi kolom di bawah ini secara lengkap untuk menambahkan tempat
                 makan pada itenary paket.
               </p>
               {form.itinerary.food.map((v, idx) => (
-                <label className="apd-field" key={`food-${idx}`}>
+                <label
+                  className="flex flex-col gap-2 font-bold text-[#4a4a4a]"
+                  key={`food-${idx}`}
+                >
                   <span>Hari {idx + 1}*</span>
                   <input
                     type="text"
@@ -871,35 +925,36 @@ export default function AdminPackageDetail() {
                     onChange={(e) =>
                       updateItinerary('food', idx, e.target.value)
                     }
+                    className="w-full border border-[#f5b5be] rounded-[10px] px-[14px] py-3 min-h-[46px] text-[15px] bg-[#fffdfd] outline-none box-border focus:border-[#f28b95] focus:shadow-[0_0_0_2px_rgba(242,139,149,0.15)]"
                   />
                 </label>
               ))}
-              <div className="apd-section-actions">
+              <div className="flex gap-2 flex-wrap">
                 <button
                   type="button"
-                  className="apd-btn-ghost"
+                  className="bg-[#fff7f7] text-[#f15b6c] border border-[#ffd1d7] rounded-lg px-3 py-2 font-bold cursor-pointer inline-flex items-center gap-2"
                   onClick={() => removeDay('food')}
                 >
-                  <span className="apd-btn-icon">
+                  <span className="w-[18px] h-[18px] grid place-items-center">
                     <IconMinus />
                   </span>
                   Hapus Hari
                 </button>
                 <button
                   type="button"
-                  className="apd-btn-outline"
+                  className="bg-[#22c6b6] text-white border border-[#16b3a6] rounded-lg px-3 py-2 font-bold cursor-pointer shadow-[0_10px_22px_rgba(34,198,182,0.16)] inline-flex items-center gap-2"
                   onClick={() => addDay('food')}
                 >
-                  <span className="apd-btn-icon">
+                  <span className="w-[18px] h-[18px] grid place-items-center">
                     <IconPlus />
                   </span>
                   Tambahkan Hari
                 </button>
               </div>
-              <div className="apd-actions apd-actions-inline">
+              <div className="flex justify-end">
                 <button
                   type="button"
-                  className="apd-btn apd-btn-save"
+                  className="border border-[#16b3a6] rounded-[10px] px-5 py-3 font-extrabold cursor-pointer text-white min-w-[200px] text-[15px] bg-[#22c6b6] shadow-[0_10px_22px_rgba(34,198,182,0.2)] transition-transform duration-150 hover:scale-105"
                   onClick={() => setSuccessModal(true)}
                 >
                   Simpan Perubahan
@@ -907,14 +962,19 @@ export default function AdminPackageDetail() {
               </div>
             </div>
 
-            <div className="apd-section">
-              <h3>Tambah Masjid Itenary</h3>
-              <p className="apd-sub">
+            <div className="bg-[#fffaf7] border border-[#f3e4d9] rounded-[14px] p-4 flex flex-col gap-[10px] shadow-[0_10px_22px_rgba(15,23,42,0.04)]">
+              <h3 className="m-0 text-base text-[#3a3a3a]">
+                Tambah Masjid Itenary
+              </h3>
+              <p className="m-0 mb-[14px] text-[#8a8a8a] text-sm">
                 Isi kolom di bawah ini secara lengkap untuk menambahkan masjid
                 pada itenary paket.
               </p>
               {form.itinerary.mosque.map((v, idx) => (
-                <label className="apd-field" key={`mosque-${idx}`}>
+                <label
+                  className="flex flex-col gap-2 font-bold text-[#4a4a4a]"
+                  key={`mosque-${idx}`}
+                >
                   <span>Hari {idx + 1}*</span>
                   <input
                     type="text"
@@ -922,35 +982,36 @@ export default function AdminPackageDetail() {
                     onChange={(e) =>
                       updateItinerary('mosque', idx, e.target.value)
                     }
+                    className="w-full border border-[#f5b5be] rounded-[10px] px-[14px] py-3 min-h-[46px] text-[15px] bg-[#fffdfd] outline-none box-border focus:border-[#f28b95] focus:shadow-[0_0_0_2px_rgba(242,139,149,0.15)]"
                   />
                 </label>
               ))}
-              <div className="apd-section-actions">
+              <div className="flex gap-2 flex-wrap">
                 <button
                   type="button"
-                  className="apd-btn-ghost"
+                  className="bg-[#fff7f7] text-[#f15b6c] border border-[#ffd1d7] rounded-lg px-3 py-2 font-bold cursor-pointer inline-flex items-center gap-2"
                   onClick={() => removeDay('mosque')}
                 >
-                  <span className="apd-btn-icon">
+                  <span className="w-[18px] h-[18px] grid place-items-center">
                     <IconMinus />
                   </span>
                   Hapus Hari
                 </button>
                 <button
                   type="button"
-                  className="apd-btn-outline"
+                  className="bg-[#22c6b6] text-white border border-[#16b3a6] rounded-lg px-3 py-2 font-bold cursor-pointer shadow-[0_10px_22px_rgba(34,198,182,0.16)] inline-flex items-center gap-2"
                   onClick={() => addDay('mosque')}
                 >
-                  <span className="apd-btn-icon">
+                  <span className="w-[18px] h-[18px] grid place-items-center">
                     <IconPlus />
                   </span>
                   Tambahkan Hari
                 </button>
               </div>
-              <div className="apd-actions apd-actions-inline">
+              <div className="flex justify-end">
                 <button
                   type="button"
-                  className="apd-btn apd-btn-save"
+                  className="border border-[#16b3a6] rounded-[10px] px-5 py-3 font-extrabold cursor-pointer text-white min-w-[200px] text-[15px] bg-[#22c6b6] shadow-[0_10px_22px_rgba(34,198,182,0.2)] transition-transform duration-150 hover:scale-105"
                   onClick={() => setSuccessModal(true)}
                 >
                   Simpan Perubahan
@@ -958,14 +1019,19 @@ export default function AdminPackageDetail() {
               </div>
             </div>
 
-            <div className="apd-section">
-              <h3>Tambah Transportasi Itenary</h3>
-              <p className="apd-sub">
+            <div className="bg-[#fffaf7] border border-[#f3e4d9] rounded-[14px] p-4 flex flex-col gap-[10px] shadow-[0_10px_22px_rgba(15,23,42,0.04)]">
+              <h3 className="m-0 text-base text-[#3a3a3a]">
+                Tambah Transportasi Itenary
+              </h3>
+              <p className="m-0 mb-[14px] text-[#8a8a8a] text-sm">
                 Isi kolom di bawah ini secara lengkap untuk menambahkan
                 transportasi pada itenary paket.
               </p>
               {form.itinerary.transport.map((v, idx) => (
-                <label className="apd-field" key={`transport-${idx}`}>
+                <label
+                  className="flex flex-col gap-2 font-bold text-[#4a4a4a]"
+                  key={`transport-${idx}`}
+                >
                   <span>Hari {idx + 1}*</span>
                   <input
                     type="text"
@@ -973,35 +1039,36 @@ export default function AdminPackageDetail() {
                     onChange={(e) =>
                       updateItinerary('transport', idx, e.target.value)
                     }
+                    className="w-full border border-[#f5b5be] rounded-[10px] px-[14px] py-3 min-h-[46px] text-[15px] bg-[#fffdfd] outline-none box-border focus:border-[#f28b95] focus:shadow-[0_0_0_2px_rgba(242,139,149,0.15)]"
                   />
                 </label>
               ))}
-              <div className="apd-section-actions">
+              <div className="flex gap-2 flex-wrap">
                 <button
                   type="button"
-                  className="apd-btn-ghost"
+                  className="bg-[#fff7f7] text-[#f15b6c] border border-[#ffd1d7] rounded-lg px-3 py-2 font-bold cursor-pointer inline-flex items-center gap-2"
                   onClick={() => removeDay('transport')}
                 >
-                  <span className="apd-btn-icon">
+                  <span className="w-[18px] h-[18px] grid place-items-center">
                     <IconMinus />
                   </span>
                   Hapus Hari
                 </button>
                 <button
                   type="button"
-                  className="apd-btn-outline"
+                  className="bg-[#22c6b6] text-white border border-[#16b3a6] rounded-lg px-3 py-2 font-bold cursor-pointer shadow-[0_10px_22px_rgba(34,198,182,0.16)] inline-flex items-center gap-2"
                   onClick={() => addDay('transport')}
                 >
-                  <span className="apd-btn-icon">
+                  <span className="w-[18px] h-[18px] grid place-items-center">
                     <IconPlus />
                   </span>
                   Tambahkan Hari
                 </button>
               </div>
-              <div className="apd-actions apd-actions-inline">
+              <div className="flex justify-end">
                 <button
                   type="button"
-                  className="apd-btn apd-btn-save"
+                  className="border border-[#16b3a6] rounded-[10px] px-5 py-3 font-extrabold cursor-pointer text-white min-w-[200px] text-[15px] bg-[#22c6b6] shadow-[0_10px_22px_rgba(34,198,182,0.2)] transition-transform duration-150 hover:scale-105"
                   onClick={() => setSuccessModal(true)}
                 >
                   Simpan Perubahan
@@ -1009,24 +1076,24 @@ export default function AdminPackageDetail() {
               </div>
             </div>
 
-            <div className="apd-footer-actions">
+            <div className="flex gap-[10px] justify-end flex-wrap">
               <button
                 type="button"
-                className="apd-btn apd-btn-secondary"
+                className="border border-[#afd5ff] bg-white text-[#5e97d1] px-5 py-3 rounded-[10px] font-bold cursor-pointer transition-all duration-150 hover:bg-[#f0f7ff]"
                 onClick={() => setPreviewOpen(true)}
               >
                 Tampilkan Detail Preview
               </button>
               <button
                 type="button"
-                className="apd-btn apd-btn-cancel"
+                className="border border-[#ffb5be] bg-[#fff7f7] text-[#f87171] px-5 py-3 rounded-[10px] font-bold cursor-pointer transition-all duration-150 hover:bg-[#ffecee]"
                 onClick={() => navigate('/admin/packages')}
               >
                 {cancelCta}
               </button>
               <button
                 type="button"
-                className="apd-btn apd-btn-save"
+                className="border border-[#16b3a6] bg-[#22c6b6] text-white px-5 py-3 rounded-[10px] font-bold cursor-pointer shadow-[0_10px_22px_rgba(34,198,182,0.2)] transition-transform duration-150 hover:scale-105"
                 onClick={handleSave}
               >
                 {primaryCta}
@@ -1036,17 +1103,19 @@ export default function AdminPackageDetail() {
         </section>
 
         {successModal && (
-          <div className="ap-modal">
-            <div className="ap-modal-card">
-              <div className="ap-modal-icon ap-modal-icon-success">
+          <div className="fixed inset-0 bg-black/40 grid place-items-center z-[9999] p-4">
+            <div className="bg-white rounded-[18px] p-8 text-center shadow-[0_10px_32px_rgba(0,0,0,0.15)] max-w-[380px] w-full">
+              <div className="w-[92px] h-[92px] rounded-full bg-[#22c6b6] grid place-items-center mx-auto mb-[18px] shadow-[0_10px_26px_rgba(34,198,182,0.28)]">
                 <IconCheck />
               </div>
-              <h3>{successTitle}</h3>
-              <p>{successDesc}</p>
-              <div className="ap-modal-actions">
+              <h3 className="m-0 mb-2 text-xl text-[#2a2a2a] font-bold">
+                {successTitle}
+              </h3>
+              <p className="text-[#757575] mb-6 text-[15px]">{successDesc}</p>
+              <div className="flex justify-center">
                 <button
                   type="button"
-                  className="ap-modal-btn confirm"
+                  className="w-full border border-[#16b3a6] bg-[#22c6b6] text-white px-5 py-[14px] rounded-[10px] font-bold cursor-pointer shadow-[0_10px_22px_rgba(34,198,182,0.2)] transition-transform duration-150 hover:scale-105"
                   onClick={() => {
                     setSuccessModal(false);
                     navigate('/admin/packages');
@@ -1060,79 +1129,118 @@ export default function AdminPackageDetail() {
         )}
 
         {previewOpen && (
-          <div className="ap-preview-modal">
-            <div className="ap-preview-card">
+          <div className="fixed inset-0 bg-black/50 grid place-items-center z-[9999] p-4">
+            <div className="bg-white rounded-[18px] p-6 max-w-[920px] w-full max-h-[85vh] overflow-y-auto relative shadow-[0_10px_32px_rgba(0,0,0,0.15)]">
               <button
-                className="ap-preview-close"
+                className="absolute top-4 right-4 w-[38px] h-[38px] rounded-full bg-[#f3f3f3] grid place-items-center cursor-pointer text-[#8a8a8a] transition-all duration-150 hover:bg-[#e4e4e4]"
                 type="button"
                 onClick={() => setPreviewOpen(false)}
               >
                 <IconClose />
               </button>
-              <h3>Detail Preview</h3>
-              <div className="ap-preview-hero">
-                <div className="ap-preview-img">
+              <h3 className="m-0 mb-5 text-xl font-bold text-[#2a2a2a]">
+                Detail Preview
+              </h3>
+              <div className="flex flex-col sm:flex-row gap-5 mb-6">
+                <div className="w-full sm:w-1/2 rounded-[14px] overflow-hidden">
                   {imageSrc ? (
-                    <img src={imageSrc} alt={form.name || 'Paket'} />
+                    <img
+                      src={imageSrc}
+                      alt={form.name || 'Paket'}
+                      className="w-full h-[280px] object-cover"
+                    />
                   ) : null}
                 </div>
-                <div className="ap-preview-meta">
-                  <h4>{form.name || pkg?.name || 'Paket Baru'}</h4>
-                  <div className="ap-preview-grid">
-                    <div>
-                      <strong>Lokasi</strong>
-                      <span>{form.location}</span>
+                <div className="flex flex-col gap-4 flex-1">
+                  <h4 className="m-0 text-lg font-bold text-[#3a3a3a]">
+                    {form.name || pkg?.name || 'Paket Baru'}
+                  </h4>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="flex flex-col gap-1">
+                      <strong className="text-sm text-[#8a8a8a]">Lokasi</strong>
+                      <span className="text-[#4a4a4a]">{form.location}</span>
                     </div>
-                    <div>
-                      <strong>Durasi</strong>
-                      <span>6 Hari 4 Malam</span>
+                    <div className="flex flex-col gap-1">
+                      <strong className="text-sm text-[#8a8a8a]">Durasi</strong>
+                      <span className="text-[#4a4a4a]">6 Hari 4 Malam</span>
                     </div>
-                    <div>
-                      <strong>Periode</strong>
-                      <span>
+                    <div className="flex flex-col gap-1">
+                      <strong className="text-sm text-[#8a8a8a]">
+                        Periode
+                      </strong>
+                      <span className="text-[#4a4a4a]">
                         {form.periode_start} - {form.periode_end}
                       </span>
                     </div>
-                    <div>
-                      <strong>Maskapai</strong>
-                      <span>{form.airline}</span>
+                    <div className="flex flex-col gap-1">
+                      <strong className="text-sm text-[#8a8a8a]">
+                        Maskapai
+                      </strong>
+                      <span className="text-[#4a4a4a]">{form.airline}</span>
                     </div>
-                    <div>
-                      <strong>Bandara</strong>
-                      <span>{form.airport}</span>
+                    <div className="flex flex-col gap-1">
+                      <strong className="text-sm text-[#8a8a8a]">
+                        Bandara
+                      </strong>
+                      <span className="text-[#4a4a4a]">{form.airport}</span>
                     </div>
-                    <div className="ap-preview-price">
-                      <strong>Harga</strong>
-                      <span>{form.price}</span>
+                    <div className="flex flex-col gap-1">
+                      <strong className="text-sm text-[#8a8a8a]">Harga</strong>
+                      <span className="text-lg font-bold text-[#22c6b6]">
+                        {form.price}
+                      </span>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <div className="ap-preview-titleblock">
-                <h4>{form.name || pkg?.name || 'Paket Baru'}</h4>
-                <div className="ap-preview-date">
+              <div className="bg-[#fffbf8] border-l-4 border-[#22c6b6] rounded-lg p-4 mb-5">
+                <h4 className="m-0 mb-1 text-base font-bold text-[#3a3a3a]">
+                  {form.name || pkg?.name || 'Paket Baru'}
+                </h4>
+                <div className="text-sm text-[#8a8a8a]">
                   {form.periode_start || '10 Desember 2025 - 16 Desember 2025'}
                 </div>
               </div>
 
-              <div className="ap-preview-table">
-                <div className="ap-preview-head">
-                  <span>Hari</span>
-                  <span>Destinasi</span>
-                  <span>Makan</span>
-                  <span>Masjid</span>
-                  <span>Transportasi</span>
-                </div>
-                {Array.from({ length: maxDays }).map((_, idx) => (
-                  <div className="ap-preview-row" key={`preview-${idx}`}>
-                    <span>{`Hari ${idx + 1}`}</span>
-                    <span>{form.itinerary.destination[idx] || ''}</span>
-                    <span>{form.itinerary.food[idx] || ''}</span>
-                    <span>{form.itinerary.mosque[idx] || ''}</span>
-                    <span>{form.itinerary.transport[idx] || ''}</span>
+              <div className="overflow-x-auto">
+                <div className="min-w-[600px] border border-[#e7e7e7] rounded-lg overflow-hidden">
+                  <div className="grid grid-cols-5 bg-[#22c6b6] text-white font-bold text-sm">
+                    <span className="px-4 py-3 border-r border-[#16b3a6]">
+                      Hari
+                    </span>
+                    <span className="px-4 py-3 border-r border-[#16b3a6]">
+                      Destinasi
+                    </span>
+                    <span className="px-4 py-3 border-r border-[#16b3a6]">
+                      Makan
+                    </span>
+                    <span className="px-4 py-3 border-r border-[#16b3a6]">
+                      Masjid
+                    </span>
+                    <span className="px-4 py-3">Transportasi</span>
                   </div>
-                ))}
+                  {Array.from({ length: maxDays }).map((_, idx) => (
+                    <div
+                      className="grid grid-cols-5 border-t border-[#e7e7e7] text-sm"
+                      key={`preview-${idx}`}
+                    >
+                      <span className="px-4 py-3 border-r border-[#e7e7e7] font-bold text-[#4a4a4a]">{`Hari ${idx + 1}`}</span>
+                      <span className="px-4 py-3 border-r border-[#e7e7e7] text-[#5a5a5a]">
+                        {form.itinerary.destination[idx] || ''}
+                      </span>
+                      <span className="px-4 py-3 border-r border-[#e7e7e7] text-[#5a5a5a]">
+                        {form.itinerary.food[idx] || ''}
+                      </span>
+                      <span className="px-4 py-3 border-r border-[#e7e7e7] text-[#5a5a5a]">
+                        {form.itinerary.mosque[idx] || ''}
+                      </span>
+                      <span className="px-4 py-3 text-[#5a5a5a]">
+                        {form.itinerary.transport[idx] || ''}
+                      </span>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </div>

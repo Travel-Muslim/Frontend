@@ -18,7 +18,6 @@ const ArtikelDetail = lazy(() => import('./pages/artikel/DetailArtikel'));
 const Komunitas = lazy(() => import('./pages/komunitas/Komunitas'));
 const DetailDestinasi = lazy(() => import('./pages/destinasi/DetailDestinasi'));
 const Login = lazy(() => import('./pages/auth/Login'));
-const AdminLogin = lazy(() => import('./pages/admin/AdminLogin'));
 const SignUp = lazy(() => import('./pages/auth/Register'));
 const ReviewDestinasi = lazy(() => import('./pages/destinasi/ReviewDestinasi'));
 const TicketPage = lazy(() => import('./pages/pesanan/DetailTiket'));
@@ -42,7 +41,6 @@ const AdminArticleForm = lazy(() => import('./pages/admin/AdminArticleForm'));
 const AdminOrders = lazy(() => import('./pages/admin/AdminOrders'));
 const AdminCommunity = lazy(() => import('./pages/admin/AdminCommunity'));
 const Profile = lazy(() => import('./pages/profile/Profile'));
-const AdminProfile = lazy(() => import('./pages/admin/AdminProfile'));
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -117,8 +115,6 @@ function AppWrapper() {
           <Route path="/admin/articles/:id" element={<AdminArticleForm />} />
           <Route path="/admin/orders" element={<AdminOrders />} />
           <Route path="/admin/community" element={<AdminCommunity />} />
-          <Route path="/admin/login" element={<AdminLogin />} />
-          <Route path="/admin/profile" element={<AdminProfile />} />
 
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

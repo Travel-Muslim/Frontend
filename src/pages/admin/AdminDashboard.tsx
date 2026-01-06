@@ -5,7 +5,6 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import './AdminDashboard.css';
 import avatarDefault from '@/assets/icon/avatar-default.svg';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
@@ -415,34 +414,52 @@ export default function AdminDashboard() {
   }, [profileOpen]);
 
   return (
-    <div className={`ad-root ${navOpen ? 'nav-open' : ''}`}>
+    <div
+      className={`min-h-screen grid grid-cols-1 lg:grid-cols-[250px_1fr] bg-[#fdf7f0] text-[#1d1d1f] ${navOpen ? 'overflow-hidden' : ''}`}
+    >
       <div
-        className={`ad-nav-backdrop ${navOpen ? 'show' : ''}`}
+        className={`fixed inset-0 bg-black/25 z-[15] transition-opacity duration-200 ${navOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
         onClick={() => setNavOpen(false)}
       />
 
-      <aside className={`ad-sidebar ${navOpen ? 'is-open' : ''}`}>
-        <div className="ad-logo">
-          <div className="ad-logo-badge">
-            <img src="/logo.svg" alt="Saleema" />
+      <aside
+        className={`fixed lg:sticky top-0 left-0 h-screen w-[260px] max-w-[82vw] sm:max-w-[90vw] bg-white border-r border-[#f0e8e2] px-[18px] lg:px-[18px] py-6 flex flex-col gap-6 lg:gap-6 z-30 transition-transform duration-[280ms] ease-out overflow-y-auto ${navOpen ? 'translate-x-0 shadow-[18px_0_38px_rgba(15,23,42,0.14)]' : '-translate-x-full lg:translate-x-0'}`}
+      >
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 bg-[#f4ebff] rounded-[14px] grid place-items-center shadow-[0_10px_30px_rgba(157,129,224,0.2)]">
+            <img src="/logo.svg" alt="Saleema" className="w-8 h-8" />
           </div>
-          <div className="ad-logo-text">
-            <strong>Saleema</strong>
-            <span>Tour</span>
+          <div>
+            <strong className="block text-[17px] sm:text-[15px]">
+              Saleema
+            </strong>
+            <span className="text-[#b08cf2] font-bold text-[14px] sm:text-[12px] tracking-[0.1px]">
+              Tour
+            </span>
           </div>
         </div>
-        <nav className="ad-nav">
+        <nav className="flex flex-col gap-2 w-full">
           {NAV_ITEMS.map((item) => (
             <button
               key={item.key}
-              className={`ad-nav-item ${isActive(location.pathname, item.path) ? 'active' : ''}`}
+              className={`border-0 flex items-center gap-3 px-[14px] py-3 rounded-xl font-bold cursor-pointer transition-all duration-150 whitespace-normal text-left ${
+                isActive(location.pathname, item.path)
+                  ? 'bg-gradient-to-r from-[#efebff] to-[#f7f1ff] text-[#6f4ab1] shadow-[0_8px_18px_rgba(140,107,214,0.15)]'
+                  : 'bg-transparent text-[#4a4a4f] hover:bg-gradient-to-r hover:from-[#efebff] hover:to-[#f7f1ff] hover:text-[#6f4ab1] hover:shadow-[0_8px_18px_rgba(140,107,214,0.15)]'
+              } sm:text-[12.5px] sm:px-[10px] sm:py-2 sm:leading-tight`}
               type="button"
               onClick={() => {
                 setNavOpen(false);
                 navigate(item.path);
               }}
             >
-              <span className="ad-nav-icon">
+              <span
+                className={`w-8 h-8 rounded-[10px] grid place-items-center ${
+                  isActive(location.pathname, item.path)
+                    ? 'bg-[#d6c2ff] shadow-[0_8px_18px_rgba(140,107,214,0.2)]'
+                    : 'bg-[#f7f0ff] shadow-[inset_0_0_0_1px_#efe6fc]'
+                }`}
+              >
                 <NavIcon name={item.key as NavItem['key']} />
               </span>
               {item.label}
@@ -451,55 +468,69 @@ export default function AdminDashboard() {
         </nav>
       </aside>
 
-      <main className="ad-main">
-        <header className="ad-topbar">
-          <div className="ad-topbar-left">
+      <main className="px-4 sm:px-8 py-7 pb-12 flex flex-col gap-[18px]">
+        <header className="flex flex-row items-center justify-between gap-3">
+          <div className="flex items-center gap-[10px]">
             <button
-              className="ad-menu-toggle"
+              className="lg:hidden w-10 h-10 rounded-xl border border-[#e6dafd] bg-[#f7f0ff] p-2 flex flex-col justify-center items-center gap-[5px] shadow-[0_10px_22px_rgba(140,107,214,0.2)] cursor-pointer"
               type="button"
               aria-label="Buka navigasi"
               onClick={() => setNavOpen(true)}
             >
-              <span />
-              <span />
-              <span />
+              <span className="block w-full h-[2px] rounded-full bg-[#7b5ad3]" />
+              <span className="block w-full h-[2px] rounded-full bg-[#7b5ad3]" />
+              <span className="block w-full h-[2px] rounded-full bg-[#7b5ad3]" />
             </button>
-            <h1>Dashboard Admin</h1>
+            <h1 className="m-0 text-[22px] sm:text-[18px] md:text-[20px] text-[#1f1f28]">
+              Dashboard Admin
+            </h1>
           </div>
-          <div className="ad-user-wrapper" ref={userMenuRef}>
+          <div className="relative" ref={userMenuRef}>
             <button
-              className="ad-user"
+              className="flex items-center gap-[10px] sm:gap-2 bg-white px-3 py-2 rounded-[14px] shadow-[0_12px_30px_rgba(15,23,42,0.12)] border border-[#f2e9ff] cursor-pointer"
               type="button"
               onClick={() => setProfileOpen((v) => !v)}
             >
-              <img src="/avatar.jpg" alt="Admin" />
+              <img
+                src="/avatar.jpg"
+                alt="Admin"
+                className="w-[42px] h-[42px] sm:w-[38px] sm:h-[38px] rounded-full object-cover"
+              />
               <div>
-                <div className="ad-user-name">Madam</div>
-                <div className="ad-user-role">Admin</div>
+                <div className="font-extrabold text-[14px] sm:text-[13px]">
+                  Madam
+                </div>
+                <div className="text-[#9b9aa5] text-xs sm:text-[11px]">
+                  Admin
+                </div>
               </div>
             </button>
             {profileOpen && (
-              <div className="ad-user-menu">
+              <div className="absolute right-0 top-[calc(100%+8px)] bg-white border border-[#ece9f6] shadow-[0_14px_32px_rgba(0,0,0,0.12)] rounded-xl p-[6px] min-w-[170px] z-[35]">
                 <button
                   type="button"
-                  className="ad-user-menu-item"
+                  className="w-full flex items-center gap-[10px] px-[10px] py-[10px] border-0 bg-transparent font-bold text-[#3a3a3a] rounded-[10px] cursor-pointer transition-colors duration-150 hover:bg-[#f5f2ff]"
                   onClick={() => {
                     setProfileOpen(false);
                     navigate('/');
                   }}
                 >
-                  <span className="ad-user-menu-icon">↩</span>
+                  <span className="text-base inline-flex items-center justify-center w-5 h-5 text-center">
+                    ↩
+                  </span>
                   <span>Sign Out</span>
                 </button>
                 <button
                   type="button"
-                  className="ad-user-menu-item"
+                  className="w-full flex items-center gap-[10px] px-[10px] py-[10px] border-0 bg-transparent font-bold text-[#3a3a3a] rounded-[10px] cursor-pointer transition-colors duration-150 hover:bg-[#f5f2ff]"
                   onClick={() => {
                     setProfileOpen(false);
                     navigate('/admin/profile');
                   }}
                 >
-                  <span className="ad-user-menu-icon">👤</span>
+                  <span className="text-base inline-flex items-center justify-center w-5 h-5 text-center">
+                    👤
+                  </span>
                   <span>Edit Profil</span>
                 </button>
               </div>
@@ -507,7 +538,7 @@ export default function AdminDashboard() {
           </div>
         </header>
 
-        <section className="ad-stat-row">
+        <section className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-3 gap-[14px] sm:gap-3">
           {(dashboardData.stats
             ? [
                 {
@@ -528,34 +559,53 @@ export default function AdminDashboard() {
               ]
             : []
           ).map((s) => (
-            <div key={s.key} className="ad-stat-card">
-              <div className="ad-stat-icon">
+            <div
+              key={s.key}
+              className="bg-white p-4 sm:p-3 rounded-[14px] sm:rounded-2xl shadow-[0_16px_36px_rgba(15,23,42,0.12)] border border-[#f0e8ff] grid gap-2 content-start xs:grid-cols-[auto_1fr] xs:items-center"
+            >
+              <div className="w-12 h-12 xs:w-11 xs:h-11 rounded-xl bg-[#f2e9ff] grid place-items-center shadow-[inset_0_0_0_1px_#eadfff] xs:row-span-2">
                 <StatIcon name={s.key as StatKey} />
               </div>
-              <div className="ad-stat-label">{s.label}</div>
-              <div className="ad-stat-value">
+              <div className="text-[#7a7a80] font-bold leading-tight xs:col-start-2 text-sm">
+                {s.label}
+              </div>
+              <div className="block text-[clamp(17px,4vw,22px)] xs:text-lg font-extrabold text-[#222222] leading-tight whitespace-normal break-words overflow-anywhere max-w-full xs:col-start-2">
                 {s.key === 'profit' ? formatCurrency(s.value) : s.value}
               </div>
             </div>
           ))}
         </section>
 
-        <section className="ad-grid">
-          <div className="ad-card ad-packages">
-            <h3>Paket Tour Teratas</h3>
-            <div className="ad-package-list">
+        <section className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-4">
+          <div className="bg-white rounded-[14px] p-4 shadow-[0_18px_38px_rgba(15,23,42,0.12)] border border-[#f0e8ff]">
+            <h3 className="m-0 mb-[14px] text-[17px] text-[#252525]">
+              Paket Tour Teratas
+            </h3>
+            <div className="flex flex-col gap-[14px]">
               {(dashboardData.packages || []).map((p, index) => (
-                <div key={p.name || index} className="ad-package-item">
-                  <img src={p.imageUrl} alt={p.name} />
-                  <div className="ad-package-info">
-                    <div className="ad-package-title">{p.name}</div>
-                    <div className="ad-progress">
-                      <div className="ad-progress-bar">
+                <div
+                  key={p.name || index}
+                  className="grid grid-cols-1 md:grid-cols-[130px_1fr] gap-3 items-center"
+                >
+                  <img
+                    src={p.imageUrl}
+                    alt={p.name}
+                    className="w-full md:w-[130px] h-[180px] md:h-[90px] object-cover rounded-xl shadow-[0_10px_24px_rgba(0,0,0,0.12)]"
+                  />
+                  <div>
+                    <div className="font-extrabold mb-2 text-[#2c2c2c]">
+                      {p.name}
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="bg-[#ede7f6] h-[10px] rounded-full w-full overflow-hidden">
                         <span
+                          className="block h-full bg-gradient-to-r from-[#b99cec] to-[#8e6bdd] rounded-full transition-all duration-500"
                           style={{ width: `${Math.min(100, p.percentage)}%` }}
                         />
                       </div>
-                      <div className="ad-progress-value">{p.percentage}%</div>
+                      <div className="font-extrabold text-[#4c4c55]">
+                        {p.percentage}%
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -563,15 +613,26 @@ export default function AdminDashboard() {
             </div>
           </div>
 
-          <div className="ad-card ad-buyers">
-            <div className="ad-card-head">Pembeli Teratas</div>
-            <div className="ad-buyer-list">
+          <div className="bg-white rounded-[14px] p-4 shadow-[0_18px_38px_rgba(15,23,42,0.12)] border border-[#f0e8ff]">
+            <div className="bg-gradient-to-r from-[#b28be2] to-[#caa8f3] text-white px-[14px] py-3 rounded-[10px] font-extrabold -mx-4 -mt-4 mb-[14px] shadow-[0_12px_24px_rgba(130,94,197,0.25)]">
+              Pembeli Teratas
+            </div>
+            <div className="flex flex-col gap-3">
               {(dashboardData.buyers || []).map((b, index) => (
-                <div key={b.nama || index} className="ad-buyer-item">
-                  <img src={b.profileImage || avatarDefault} alt={b.nama} />
-                  <div className="ad-buyer-info">
-                    <div className="ad-buyer-name">{b.nama}</div>
-                    <div className="ad-buyer-meta">
+                <div
+                  key={b.nama || index}
+                  className="flex items-center gap-[10px] px-1 py-2 rounded-xl"
+                >
+                  <img
+                    src={b.profileImage || avatarDefault}
+                    alt={b.nama}
+                    className="w-10 h-10 rounded-full object-cover bg-[#f5eefb]"
+                  />
+                  <div>
+                    <div className="font-extrabold text-[#2c2c32]">
+                      {b.nama}
+                    </div>
+                    <div className="text-[#8b8894] text-xs">
                       {b.totalBooking} Booking • {b.totalUlasan} Ulasan
                     </div>
                   </div>
@@ -581,16 +642,25 @@ export default function AdminDashboard() {
           </div>
         </section>
 
-        <section className="ad-grid ad-bottom">
-          <div className="ad-card ad-status">
-            <h3>Status Booking</h3>
-            <div className="ad-status-content">
-              <div className="ad-donut">
-                <svg viewBox="0 0 120 120">
-                  <circle className="ad-donut-bg" cx="60" cy="60" r="42" />
+        <section className="grid grid-cols-1 lg:grid-cols-[1.05fr_1fr] gap-4 sm:gap-3">
+          <div className="bg-white rounded-[14px] p-4 shadow-[0_18px_38px_rgba(15,23,42,0.12)] border border-[#f0e8ff]">
+            <h3 className="m-0 mb-[14px] text-[17px] text-[#252525]">
+              Status Booking
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 items-center justify-items-center">
+              <div className="relative w-[190px] h-[190px] sm:w-[160px] sm:h-[160px]">
+                <svg
+                  viewBox="0 0 120 120"
+                  className="w-[190px] h-[190px] sm:w-[160px] sm:h-[160px] -rotate-90"
+                >
+                  <circle
+                    className="fill-none stroke-[#f1e9ff] stroke-[12]"
+                    cx="60"
+                    cy="60"
+                    r="42"
+                  />
                   {Object.entries(dashboardData.status || {}).map(
                     ([label, value], index, arr) => {
-                      // Calculate percentage for each segment
                       const total = Object.values(
                         dashboardData.status || {}
                       ).reduce((sum, val) => sum + val, 0);
@@ -598,7 +668,6 @@ export default function AdminDashboard() {
                       const dash = (pct * 2 * Math.PI * 42) / 100;
                       const gap = 2 * Math.PI * 42 - dash;
 
-                      // Define colors for each segment
                       const colors = [
                         '#55c0f6',
                         '#f776b9',
@@ -607,7 +676,6 @@ export default function AdminDashboard() {
                       ];
                       const color = colors[index % colors.length];
 
-                      // Calculate offset based on previous segments
                       const prevSegments = arr.slice(0, index);
                       const prevTotal = prevSegments.reduce(
                         (sum, [_, val]) => sum + (val / total) * 100,
@@ -618,7 +686,7 @@ export default function AdminDashboard() {
                       return (
                         <circle
                           key={label}
-                          className="ad-donut-seg"
+                          className="fill-none stroke-[12] [stroke-linecap:round]"
                           stroke={color}
                           cx="60"
                           cy="60"
@@ -630,8 +698,8 @@ export default function AdminDashboard() {
                     }
                   )}
                 </svg>
-                <div className="ad-donut-center">
-                  <div className="ad-donut-number">
+                <div className="absolute inset-0 grid place-items-center">
+                  <div className="text-2xl font-extrabold text-[#252525]">
                     {Object.values(dashboardData.status || {}).reduce(
                       (sum, val) => sum + val,
                       0
@@ -639,15 +707,18 @@ export default function AdminDashboard() {
                   </div>
                 </div>
               </div>
-              <div className="ad-legend">
+              <div className="flex flex-col gap-[10px]">
                 {Object.entries(dashboardData.status || {}).map(
                   ([label, value], index) => {
                     const colors = ['#55c0f6', '#f776b9', '#aabdf5', '#61d4a5'];
                     const color = colors[index % colors.length];
                     return (
-                      <div key={label} className="ad-legend-item">
+                      <div
+                        key={label}
+                        className="flex items-center gap-[10px] font-bold text-[#3b3b42]"
+                      >
                         <span
-                          className="ad-legend-dot"
+                          className="w-3 h-3 rounded-full"
                           style={{ backgroundColor: color }}
                         />
                         <span>
@@ -661,22 +732,35 @@ export default function AdminDashboard() {
             </div>
           </div>
 
-          <div className="ad-card ad-trips">
-            <div className="ad-card-head">Perjalanan Terbaru</div>
-            <div className="ad-trip-table">
-              <div className="ad-trip-head">
+          <div className="bg-white rounded-[14px] p-4 shadow-[0_18px_38px_rgba(15,23,42,0.12)] border border-[#f0e8ff]">
+            <div className="bg-gradient-to-b from-[#b58ee4] to-[#caa8f3] text-white px-[14px] py-3 rounded-[14px] font-extrabold -mx-4 -mt-4 mb-[14px] shadow-[0_12px_24px_rgba(130,94,197,0.25)]">
+              Perjalanan Terbaru
+            </div>
+            <div className="grid gap-3">
+              <div className="grid grid-cols-[1.3fr_1fr_1fr] sm:grid-cols-2 bg-gradient-to-b from-[#b58ee4] to-[#caa8f3] text-white px-[14px] sm:px-3 py-3 sm:py-[11px] rounded-[14px] font-extrabold shadow-[0_12px_24px_rgba(130,94,197,0.25)] text-left sm:text-[13px] sm:gap-y-1">
                 <span>Pembeli</span>
                 <span>Paket Tour</span>
-                <span>Harga</span>
+                <span className="text-right justify-self-end sm:col-span-2">
+                  Harga
+                </span>
               </div>
               {(dashboardData.trips || []).map((t, index) => (
-                <div key={`${t.buyer}-${index}`} className="ad-trip-row">
-                  <div className="ad-trip-buyer">
-                    <img src={avatarDefault} alt={t.buyer} />
+                <div
+                  key={`${t.buyer}-${index}`}
+                  className="grid grid-cols-[1.3fr_1fr_1fr] sm:grid-cols-2 items-start sm:items-center px-3 sm:px-[10px] py-3 bg-[#fffaf6] border border-[#f1e8ff] rounded-xl font-bold text-[#34343b] shadow-[0_10px_22px_rgba(0,0,0,0.06)] gap-2 sm:gap-[6px]"
+                >
+                  <div className="flex items-center gap-[10px]">
+                    <img
+                      src={avatarDefault}
+                      alt={t.buyer}
+                      className="w-8 h-8 rounded-full object-cover bg-[#f5eefb] shadow-[inset_0_0_0_1px_#efe6fc]"
+                    />
                     <span>{t.buyer}</span>
                   </div>
                   <span>{t.tour}</span>
-                  <span>{formatCurrency(t.price)}</span>
+                  <span className="font-extrabold text-[#2f2f35] whitespace-normal overflow-anywhere text-right justify-self-end sm:col-span-2">
+                    {formatCurrency(t.price)}
+                  </span>
                 </div>
               ))}
             </div>

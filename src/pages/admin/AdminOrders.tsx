@@ -1,8 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import './AdminDashboard.css';
-import './AdminPackages.css';
-import './AdminOrders.css';
 import type { OrderRow } from '../../api/orders';
 import { fetchOrders } from '../../api/orders';
 
@@ -287,7 +284,7 @@ function IconSearch() {
 
 function StatusBadge({ status }: { status: OrderRow['status'] }) {
   return (
-    <span className={`ao-status ao-status-${status.toLowerCase()}`}>
+    <span className="inline-flex items-center gap-[6px] border border-[#c8f0da] bg-[#ecfdf4] text-[#2a9e64] rounded-[10px] px-3 py-2 font-extrabold text-sm">
       {status}
     </span>
   );
@@ -346,34 +343,36 @@ export default function AdminOrders() {
   }, [orders, query]);
 
   return (
-    <div className={`ad-root ${navOpen ? 'nav-open' : ''}`}>
+    <div className="flex min-h-screen bg-[#faf5f0]">
       <div
-        className={`ad-nav-backdrop ${navOpen ? 'show' : ''}`}
+        className={`fixed inset-0 bg-black/50 z-40 lg:hidden transition-opacity duration-300 ${navOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
         onClick={() => setNavOpen(false)}
       />
 
-      <aside className={`ad-sidebar ${navOpen ? 'is-open' : ''}`}>
-        <div className="ad-logo">
-          <div className="ad-logo-badge">
-            <img src="/logo.svg" alt="Saleema" />
+      <aside
+        className={`fixed left-0 top-0 h-screen w-[260px] bg-white shadow-[4px_0_18px_rgba(15,23,42,0.08)] z-50 flex flex-col transition-transform duration-300 lg:translate-x-0 ${navOpen ? 'translate-x-0' : '-translate-x-full'}`}
+      >
+        <div className="flex items-center gap-3 p-6 border-b border-[#f0f0f0]">
+          <div className="w-[46px] h-[46px] rounded-xl bg-gradient-to-br from-[#8b6bd6] to-[#6a4cb8] grid place-items-center shadow-[0_8px_20px_rgba(123,90,211,0.25)]">
+            <img src="/logo.svg" alt="Saleema" className="w-[30px] h-[30px]" />
           </div>
-          <div className="ad-logo-text">
-            <strong>Saleema</strong>
-            <span>Tour</span>
+          <div className="flex flex-col leading-tight">
+            <strong className="text-[#2a2a2a] text-base">Saleema</strong>
+            <span className="text-[#8a8a8a] text-sm">Tour</span>
           </div>
         </div>
-        <nav className="ad-nav">
+        <nav className="flex-1 flex flex-col gap-[6px] p-4 overflow-y-auto">
           {NAV_ITEMS.map((item) => (
             <button
               key={item.key}
-              className={`ad-nav-item ${isActive(location.pathname, item.path) ? 'active' : ''}`}
+              className={`flex items-center gap-3 px-4 py-[13px] rounded-[12px] text-[15px] font-bold transition-all duration-150 ${isActive(location.pathname, item.path) ? 'bg-gradient-to-r from-[#8b6bd6] to-[#6a4cb8] text-white shadow-[0_8px_18px_rgba(123,90,211,0.28)]' : 'text-[#4a4a4a] hover:bg-[#f7f4ff]'}`}
               type="button"
               onClick={() => {
                 setNavOpen(false);
                 navigate(item.path);
               }}
             >
-              <span className="ad-nav-icon">
+              <span className="w-[22px] h-[22px] flex-shrink-0">
                 <NavIcon name={item.key as NavItem['key']} />
               </span>
               {item.label}
@@ -382,57 +381,65 @@ export default function AdminOrders() {
         </nav>
       </aside>
 
-      <main className="ad-main">
-        <header className="ad-topbar">
-          <div className="ad-topbar-left">
+      <main className="flex-1 flex flex-col lg:ml-[260px]">
+        <header className="sticky top-0 z-30 flex items-center justify-between gap-4 bg-white px-6 py-4 shadow-[0_2px_12px_rgba(15,23,42,0.08)] min-h-[74px]">
+          <div className="flex items-center gap-4">
             <button
-              className="ad-menu-toggle"
+              className="lg:hidden flex flex-col gap-[5px] w-[28px] h-[28px] justify-center cursor-pointer"
               type="button"
               aria-label="Buka navigasi"
               onClick={() => setNavOpen(true)}
             >
-              <span />
-              <span />
-              <span />
+              <span className="block w-full h-[3px] bg-[#7b5ad3] rounded-full" />
+              <span className="block w-full h-[3px] bg-[#7b5ad3] rounded-full" />
+              <span className="block w-full h-[3px] bg-[#7b5ad3] rounded-full" />
             </button>
-            <h1>Manajemen Order</h1>
+            <h1 className="text-[22px] font-bold text-[#1d1d1f] m-0">
+              Manajemen Order
+            </h1>
           </div>
-          <div className="ad-user-wrapper" ref={userMenuRef}>
+          <div className="relative" ref={userMenuRef}>
             <button
-              className="ad-user"
+              className="flex items-center gap-3 cursor-pointer bg-transparent border-none"
               type="button"
               onClick={() => setProfileOpen((v) => !v)}
             >
-              <img src="/avatar.jpg" alt="Admin" />
-              <div>
-                <div className="ad-user-name">Madam</div>
-                <div className="ad-user-role">Admin</div>
+              <img
+                src="/avatar.jpg"
+                alt="Admin"
+                className="w-[44px] h-[44px] rounded-full object-cover border-2 border-[#e8dfd6]"
+              />
+              <div className="hidden sm:flex flex-col items-start leading-tight">
+                <div className="text-[15px] font-bold text-[#2a2a2a]">
+                  Madam
+                </div>
+                <div className="text-[13px] text-[#8a8a8a]">Admin</div>
               </div>
             </button>
             {profileOpen && (
-              <div className="ad-user-menu">
+              <div className="absolute right-0 top-[calc(100%+8px)] bg-white rounded-[14px] shadow-[0_10px_32px_rgba(15,23,42,0.12)] min-w-[180px] py-2 z-50">
                 <button
                   type="button"
-                  className="ad-user-menu-item"
+                  className="w-full flex items-center gap-3 px-4 py-[10px] text-[15px] font-bold text-[#4a4a4a] bg-transparent border-none cursor-pointer hover:bg-[#f7f4ff] transition-colors duration-150"
                   onClick={() => {
                     setProfileOpen(false);
                     navigate('/');
                   }}
                 >
-                  <span className="ad-user-menu-icon">
+                  <span className="w-[20px] h-[20px] flex-shrink-0">
                     <IconLogout />
                   </span>
                   <span>Sign Out</span>
                 </button>
                 <button
                   type="button"
-                  className="ad-user-menu-item"
+                  className="w-full flex items-center gap-3 px-4 py-[10px] text-[15px] font-bold text-[#4a4a4a] bg-transparent border-none cursor-pointer hover:bg-[#f7f4ff] transition-colors duration-150"
                   onClick={() => {
                     setProfileOpen(false);
                     navigate('/admin/profile');
                   }}
                 >
-                  <span className="ad-user-menu-icon">
+                  <span className="w-[20px] h-[20px] flex-shrink-0">
                     <IconProfile />
                   </span>
                   <span>Edit Profil</span>
@@ -442,23 +449,28 @@ export default function AdminOrders() {
           </div>
         </header>
 
-        <section className="ap-card">
-          <div className="ap-card-head ao-head">
-            <h2>Daftar Order</h2>
-            <div className="ao-search">
-              <IconSearch />
+        <section className="m-6 bg-white border border-[#f0e8ff] rounded-[20px] p-6 shadow-[0_18px_38px_rgba(15,23,42,0.12)]">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
+            <h2 className="m-0 text-[22px] text-[#1d1d1f] font-bold">
+              Daftar Order
+            </h2>
+            <div className="inline-flex items-center gap-[10px] border border-[#e6e0ec] bg-white h-[42px] rounded-xl px-3 min-w-[280px] shadow-[inset_0_0_0_1px_#f1e9ff] w-full sm:w-auto">
+              <span className="w-[18px] h-[18px] flex-shrink-0">
+                <IconSearch />
+              </span>
               <input
                 type="text"
                 placeholder="Cari Order"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
+                className="border-none outline-none w-full text-sm bg-transparent"
               />
             </div>
           </div>
 
-          <div className="ap-table-wrap">
-            <div className="ap-table ao-table">
-              <div className="ao-thead">
+          <div className="overflow-x-auto -mx-6 px-6">
+            <div className="min-w-[980px] flex flex-col gap-3">
+              <div className="hidden lg:grid grid-cols-[1fr_1.4fr_1.4fr_1fr_0.8fr_1fr] bg-[#b28be2] text-white font-extrabold px-[14px] py-3 rounded-xl shadow-[0_12px_24px_rgba(130,94,197,0.2)]">
                 <span>Tour ID</span>
                 <span>Nama Lengkap</span>
                 <span>Nama Paket</span>
@@ -467,26 +479,39 @@ export default function AdminOrders() {
                 <span>Pembayaran</span>
               </div>
               {loading ? (
-                <div className="ao-row">
-                  <span data-label="Tour ID">Memuat...</span>
+                <div className="grid lg:grid-cols-[1fr_1.4fr_1.4fr_1fr_0.8fr_1fr] grid-cols-1 items-center bg-white border border-[#f0d7e1] rounded-xl px-[14px] py-3 shadow-[0_10px_18px_rgba(15,23,42,0.08)] gap-2 font-semibold">
+                  <span className="before:content-['Tour_ID:_'] before:font-bold before:text-[#5a5275] lg:before:content-none">
+                    Memuat...
+                  </span>
                 </div>
               ) : filtered.length === 0 ? (
-                <div className="ao-row">
-                  <span data-label="Tour ID">Belum ada order</span>
+                <div className="grid lg:grid-cols-[1fr_1.4fr_1.4fr_1fr_0.8fr_1fr] grid-cols-1 items-center bg-white border border-[#f0d7e1] rounded-xl px-[14px] py-3 shadow-[0_10px_18px_rgba(15,23,42,0.08)] gap-2 font-semibold">
+                  <span className="before:content-['Tour_ID:_'] before:font-bold before:text-[#5a5275] lg:before:content-none">
+                    Belum ada order
+                  </span>
                 </div>
               ) : (
                 filtered.map((order) => (
-                  <div className="ao-row" key={order.id}>
-                    <span data-label="Tour ID">{order.id}</span>
-                    <span data-label="Nama Lengkap">{order.name}</span>
-                    <span data-label="Nama Paket">{order.packageName}</span>
-                    <span data-label="Tanggal">
+                  <div
+                    className="grid lg:grid-cols-[1fr_1.4fr_1.4fr_1fr_0.8fr_1fr] grid-cols-1 items-center bg-white border border-[#f0d7e1] rounded-xl px-[14px] py-3 shadow-[0_10px_18px_rgba(15,23,42,0.08)] gap-2 font-semibold"
+                    key={order.id}
+                  >
+                    <span className="before:content-['Tour_ID:_'] before:font-bold before:text-[#5a5275] lg:before:content-none truncate">
+                      {order.id}
+                    </span>
+                    <span className="before:content-['Nama_Lengkap:_'] before:font-bold before:text-[#5a5275] lg:before:content-none">
+                      {order.name}
+                    </span>
+                    <span className="before:content-['Nama_Paket:_'] before:font-bold before:text-[#5a5275] lg:before:content-none">
+                      {order.packageName}
+                    </span>
+                    <span className="before:content-['Tanggal:_'] before:font-bold before:text-[#5a5275] lg:before:content-none truncate">
                       {order.date} {order.time}
                     </span>
-                    <span data-label="Status">
+                    <span className="before:content-['Status:_'] before:font-bold before:text-[#5a5275] lg:before:content-none">
                       <StatusBadge status={order.status} />
                     </span>
-                    <span data-label="Pembayaran" className="ao-payment">
+                    <span className="before:content-['Pembayaran:_'] before:font-bold before:text-[#5a5275] lg:before:content-none font-extrabold text-[#2f2f2f] truncate">
                       {order.payment}
                     </span>
                   </div>
