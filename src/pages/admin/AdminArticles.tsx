@@ -213,8 +213,12 @@ export default function AdminArticles() {
             Daftar Artikel
           </h2>
           <div className="flex flex-col sm:flex-row gap-3">
-            <div className="ap-search">
-              <svg viewBox="0 0 24 24" aria-hidden="true">
+            <div className="relative">
+              <svg
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+                className="absolute left-3 top-1/2 -translate-y-1/2 w-[18px] h-[18px] pointer-events-none"
+              >
                 <circle
                   cx="11"
                   cy="11"
@@ -243,7 +247,7 @@ export default function AdminArticles() {
               className="flex items-center justify-center gap-2 bg-[#22c6b6] text-white border border-[#16b3a6] rounded-[10px] px-5 py-[11px] font-bold text-[15px] cursor-pointer shadow-[0_10px_22px_rgba(34,198,182,0.2)] transition-transform duration-150 hover:scale-105"
               onClick={() => navigate('/admin/articles/new')}
             >
-              <span className="w-[18px] h-[18px]">
+              <span className="w-[16px] h-[16px] flex-shrink-0">
                 <IconPlus />
               </span>
               Tambahkan Artikel
