@@ -16,12 +16,14 @@ const NAV_ITEMS: NavItem[] = [
   { key: 'orders', label: 'Manajemen Order', path: '/admin/orders' },
 ];
 
-function NavIcon({ name }: { name: NavItem['key'] }) {
-  const stroke = '#8b6bd6';
+function NavIcon({ name, isActive }: { name: NavItem['key']; isActive: boolean }) {
+  const stroke = isActive ? '#ffffff' : '#9ca3af';
+  const fill = isActive ? '#ffffff' : 'none';
+  
   switch (name) {
     case 'dashboard':
       return (
-        <svg viewBox="0 0 24 24" aria-hidden="true">
+        <svg className="w-5 h-5" viewBox="0 0 24 24" aria-hidden="true">
           <rect
             x="3"
             y="3"
@@ -66,7 +68,7 @@ function NavIcon({ name }: { name: NavItem['key'] }) {
       );
     case 'users':
       return (
-        <svg viewBox="0 0 24 24" aria-hidden="true">
+        <svg className="w-5 h-5" viewBox="0 0 24 24" aria-hidden="true">
           <circle
             cx="9"
             cy="8"
@@ -101,7 +103,7 @@ function NavIcon({ name }: { name: NavItem['key'] }) {
       );
     case 'packages':
       return (
-        <svg viewBox="0 0 24 24" aria-hidden="true">
+        <svg className="w-5 h-5" viewBox="0 0 24 24" aria-hidden="true">
           <path
             d="M4 7.5 12 3l8 4.5-8 4.5L4 7.5Z"
             stroke={stroke}
@@ -119,7 +121,7 @@ function NavIcon({ name }: { name: NavItem['key'] }) {
       );
     case 'articles':
       return (
-        <svg viewBox="0 0 24 24" aria-hidden="true">
+        <svg className="w-5 h-5" viewBox="0 0 24 24" aria-hidden="true">
           <rect
             x="5"
             y="4"
@@ -141,32 +143,19 @@ function NavIcon({ name }: { name: NavItem['key'] }) {
       );
     case 'community':
       return (
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <circle
-            cx="7"
-            cy="9"
-            r="3"
-            stroke={stroke}
-            strokeWidth="2"
-            fill="none"
-          />
-          <circle
-            cx="17"
-            cy="9"
-            r="3"
+        <svg className="w-5 h-5" viewBox="0 0 24 24" aria-hidden="true">
+          <rect
+            x="5"
+            y="4"
+            width="14"
+            height="16"
+            rx="2"
             stroke={stroke}
             strokeWidth="2"
             fill="none"
           />
           <path
-            d="M3 18c0-3 3-5 7-5"
-            stroke={stroke}
-            strokeWidth="2"
-            fill="none"
-            strokeLinecap="round"
-          />
-          <path
-            d="M21 18c0-3-3-5-7-5"
+            d="M8 8h8M8 12h8M8 16h5"
             stroke={stroke}
             strokeWidth="2"
             fill="none"
@@ -176,7 +165,7 @@ function NavIcon({ name }: { name: NavItem['key'] }) {
       );
     case 'orders':
       return (
-        <svg viewBox="0 0 24 24" aria-hidden="true">
+        <svg className="w-5 h-5" viewBox="0 0 24 24" aria-hidden="true">
           <rect
             x="3"
             y="4"
@@ -217,50 +206,48 @@ export default function AdminSidebar({ navOpen, onClose }: AdminSidebarProps) {
 
   return (
     <aside
-      className={`fixed lg:sticky top-0 left-0 h-screen w-[260px] max-w-[82vw] sm:max-w-[90vw] bg-white border-r border-[#f0e8e2] px-[18px] lg:px-[18px] py-6 flex flex-col gap-6 lg:gap-6 z-30 transition-transform duration-[280ms] ease-out overflow-y-auto ${
+      className={`fixed lg:sticky top-0 left-0 h-screen w-[260px] max-w-[82vw] sm:max-w-[90vw] bg-white border-r border-gray-200 px-6 py-6 flex flex-col gap-6 z-30 transition-transform duration-[280ms] ease-out overflow-y-auto ${
         navOpen
           ? 'translate-x-0 shadow-[18px_0_38px_rgba(15,23,42,0.14)]'
           : '-translate-x-full lg:translate-x-0'
       }`}
     >
-      <div className="flex items-center gap-3">
-        <div className="w-12 h-12 bg-[#f4ebff] rounded-[14px] grid place-items-center shadow-[0_10px_30px_rgba(157,129,224,0.2)]">
-          <img src="/logo.svg" alt="Saleema" className="w-8 h-8" />
+      <div className="flex items-center gap-3 mb-2">
+        <div className="w-12 h-12 bg-gradient-to-br from-purple-100 to-purple-200 rounded-[14px] grid place-items-center shadow-[0_10px_30px_rgba(157,129,224,0.2)]">
+          <img src="/logo.svg" alt="Saleema" className="w-7 h-7" />
         </div>
         <div>
-          <strong className="block text-[17px] sm:text-[15px]">Saleema</strong>
-          <span className="text-[#b08cf2] font-bold text-[14px] sm:text-[12px] tracking-[0.1px]">
+          <strong className="block text-[17px] text-gray-900 font-bold">Saleema</strong>
+          <span className="text-gray-600 font-medium text-[14px] tracking-[0.1px]">
             Tour
           </span>
         </div>
       </div>
-      <nav className="flex flex-col gap-2 w-full">
-        {NAV_ITEMS.map((item) => (
-          <button
-            key={item.key}
-            className={`border-0 flex items-center gap-3 px-[14px] py-3 rounded-xl font-bold cursor-pointer transition-all duration-150 whitespace-normal text-left ${
-              isActive(location.pathname, item.path)
-                ? 'bg-gradient-to-r from-[#efebff] to-[#f7f1ff] text-[#6f4ab1] shadow-[0_8px_18px_rgba(140,107,214,0.15)]'
-                : 'bg-transparent text-[#4a4a4f] hover:bg-gradient-to-r hover:from-[#efebff] hover:to-[#f7f1ff] hover:text-[#6f4ab1] hover:shadow-[0_8px_18px_rgba(140,107,214,0.15)]'
-            } sm:text-[12.5px] sm:px-[10px] sm:py-2 sm:leading-tight`}
-            type="button"
-            onClick={() => {
-              onClose();
-              navigate(item.path);
-            }}
-          >
-            <span
-              className={`w-8 h-8 rounded-[10px] grid place-items-center ${
-                isActive(location.pathname, item.path)
-                  ? 'bg-[#d6c2ff] shadow-[0_8px_18px_rgba(140,107,214,0.2)]'
-                  : 'bg-[#f7f0ff] shadow-[inset_0_0_0_1px_#efe6fc]'
+      
+      <nav className="flex flex-col gap-1 w-full">
+        {NAV_ITEMS.map((item) => {
+          const isItemActive = isActive(location.pathname, item.path);
+          return (
+            <button
+              key={item.key}
+              className={`border-0 flex items-center gap-4 px-4 py-3 rounded-xl font-medium cursor-pointer transition-all duration-200 whitespace-normal text-left w-full ${
+                isItemActive
+                  ? 'bg-gradient-to-r from-[#b28be2] to-[#caa8f3] text-white shadow-lg'
+                  : 'text-gray-600 hover:bg-gray-50 hover:text-gray-700'
               }`}
+              type="button"
+              onClick={() => {
+                onClose();
+                navigate(item.path);
+              }}
             >
-              <NavIcon name={item.key as NavItem['key']} />
-            </span>
-            {item.label}
-          </button>
-        ))}
+              <span className="flex items-center justify-center flex-shrink-0">
+                <NavIcon name={item.key as NavItem['key']} isActive={isItemActive} />
+              </span>
+              <span className="text-[15px] font-medium">{item.label}</span>
+            </button>
+          );
+        })}
       </nav>
     </aside>
   );

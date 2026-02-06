@@ -49,14 +49,17 @@ export default function CardTambahUlasan({
             w-full 
             rounded-[20px] 
             border-2 border-[#FFC9D6] 
+            bg-white
             p-4 sm:p-6
             text-base sm:text-lg
             text-gray-800
             placeholder:text-gray-400
             resize-none
             outline-none
+            focus:bg-white
             focus:border-[#FFB4C4]
-            focus:shadow-[0_0_0_3px_rgba(255,180,196,0.2)]
+            focus:ring-2
+            focus:ring-pink-200
             transition-all
           "
           aria-label="Tulis ulasan anda"

@@ -9,11 +9,10 @@ interface AdminLayoutProps {
 
 export default function AdminLayout({ title, children }: AdminLayoutProps) {
   const [navOpen, setNavOpen] = useState(false);
-  const [profileOpen, setProfileOpen] = useState(false);
 
   return (
     <div
-      className={`min-h-screen grid grid-cols-1 lg:grid-cols-[250px_1fr] bg-[#fdf7f0] text-[#1d1d1f] ${
+      className={`min-h-screen grid grid-cols-1 lg:grid-cols-[250px_1fr] bg-gray-50 text-gray-900 ${
         navOpen ? 'overflow-hidden' : ''
       }`}
     >
@@ -35,8 +34,6 @@ export default function AdminLayout({ title, children }: AdminLayoutProps) {
         <AdminHeader
           title={title}
           onMenuClick={() => setNavOpen(true)}
-          profileOpen={profileOpen}
-          onProfileToggle={() => setProfileOpen(!profileOpen)}
         />
         {children}
       </main>

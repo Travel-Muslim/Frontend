@@ -113,3 +113,59 @@ export async function createCommunityPost(payload: {
     throw error;
   }
 }
+
+// Admin: Fetch all community posts for management
+export async function fetchCommunityPostsAdmin(params?: {
+  bulan?: string;
+  tahun?: string;
+  page?: number;
+  limit?: number;
+}): Promise<CommunityPost[]> {
+  try {
+    const res = await api.get(`${apiRoutes.community}/admin/all`, { params });
+    const posts = handlePaginatedResponse<CommunityPost>(res.data);
+    return Array.isArray(posts) ? posts.map(normalizePost) : [];
+  } catch (error) {
+    console.error('Gagal memuat komunitas admin', error);
+    return [];
+  }
+}
+
+// Admin: Get single community post by ID
+export async function fetchCommunityPost(id: string): Promise<CommunityPost | null> {
+  try {
+    const res = await api.get(`${apiRoutes.community}/${id}`);
+    const data = unwrapData<any>(res.data);
+    return data ? normalizePost(data) : null;
+  } catch (error) {
+    console.error('Gagal memuat detail komunitas', error);
+    return null;
+  }
+}
+
+// Admin: Update community post
+export async function updateCommunityPost(id: string, payload: {
+  judul: string;
+  deskripsi: string;
+  rating?: number;
+}): Promise<CommunityPost | null> {
+  try {
+    const res = await api.put(`${apiRoutes.community}/${id}`, payload);
+    const data = unwrapData<any>(res.data);
+    return data ? normalizePost(data) : null;
+  } catch (error) {
+    console.error('Gagal update post komunitas', error);
+    throw error;
+  }
+}
+
+// Admin: Delete community post
+export async function deleteCommunityPost(id: string): Promise<boolean> {
+  try {
+    await api.delete(`${apiRoutes.community}/${id}`);
+    return true;
+  } catch (error) {
+    console.error('Gagal delete post komunitas', error);
+    throw error;
+  }
+}

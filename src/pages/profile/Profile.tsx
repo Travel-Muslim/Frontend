@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+// import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Button from '../../components/ui/button/Button';
 import Input from '../../components/ui/input/Input';
@@ -13,6 +13,7 @@ import { getProfile, User } from '../../api/auth';
 import api from '../../api/axios';
 import { apiRoutes } from '../../api/routes';
 import { uploadAvatar } from '../../api/users';
+import { useEffect, useRef, useState } from 'react';
 
 interface UserProfile {
   fullname: string;

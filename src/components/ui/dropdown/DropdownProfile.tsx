@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { LogOut, UserPen, ChevronDown, LayoutDashboard } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { logout } from '../../../api/auth';
+import { useAuth } from '../../../contexts/AuthContext';
 
 export interface ProfileMenuItem {
   id: string;
@@ -36,6 +37,7 @@ export default function DropdownProfile({
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
+  const { setUser } = useAuth();
 
   // Default menu items if none provided
   const defaultMenuItems: ProfileMenuItem[] = [
@@ -91,6 +93,8 @@ export default function DropdownProfile({
     try {
       const success = await logout();
       if (success) {
+        // Update auth context
+        setUser(null);
         if (onLogoutSuccess) {
           onLogoutSuccess();
         } else {
@@ -100,6 +104,13 @@ export default function DropdownProfile({
       }
     } catch (error) {
       console.error('Logout error:', error);
+      // Even if API fails, clear local data
+      setUser(null);
+      if (onLogoutSuccess) {
+        onLogoutSuccess();
+      } else {
+        navigate('/');
+      }
     } finally {
       setIsLoggingOut(false);
     }
@@ -163,11 +174,8 @@ export default function DropdownProfile({
         onClick={handleToggle}
         className={`
           flex items-center gap-3
-          bg-linear-30 border-none border-gray-200
-          rounded-[15px] px-3 py-2 sm:px-0 sm:py-0
-          hover:border-gray-300
           transition-colors
-          ${buttonClassName}
+          ${buttonClassName || 'bg-linear-30 border-none border-gray-200 rounded-[15px] px-3 py-2 sm:px-0 sm:py-0 hover:border-gray-300'}
         `}
       >
         {/* Avatar */}
@@ -186,13 +194,13 @@ export default function DropdownProfile({
         </div>
 
         {/* Name */}
-        <span className="text-base font-semibold text-white hidden sm:block">
+        <span className="text-base font-semibold hidden sm:block">
           {userName}
         </span>
 
         {/* Chevron */}
         <ChevronDown
-          className={`w-5 h-5 text-white font-semibold transition-transform duration-200 hidden sm:block ${
+          className={`w-5 h-5 font-semibold transition-transform duration-200 hidden sm:block ${
             isOpen ? 'rotate-180' : ''
           }`}
         />

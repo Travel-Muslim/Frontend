@@ -9,6 +9,7 @@ import {
 } from 'react-router-dom';
 import Header from './components/section/header/Header';
 import Footer from './components/section/footer/Footer';
+import { AuthProvider } from './contexts/AuthContext';
 
 const Home = lazy(() => import('./pages/Home'));
 const Wishlist = lazy(() => import('./pages/destinasi/WishlistDestinasi'));
@@ -31,14 +32,27 @@ const PembayaranPesanan = lazy(
 );
 const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
 const AdminUsers = lazy(() => import('./pages/admin/AdminUsers'));
+const AdminUserCreate = lazy(() => import('./pages/admin/AdminUserCreate'));
+const AdminUserView = lazy(() => import('./pages/admin/AdminUserView'));
 const AdminUserEdit = lazy(() => import('./pages/admin/AdminUserEdit'));
 const AdminPackages = lazy(() => import('./pages/admin/AdminPackages'));
+const AdminPackageCreate = lazy(
+  () => import('./pages/admin/AdminPackageCreate')
+);
+const AdminPackageEdit = lazy(
+  () => import('./pages/admin/AdminPackageEdit')
+);
 const AdminPackageDetail = lazy(
   () => import('./pages/admin/AdminPackageDetail')
 );
 const AdminArticles = lazy(() => import('./pages/admin/AdminArticles'));
+const AdminArticleCreate = lazy(() => import('./pages/admin/AdminArticleCreate'));
+const AdminArticleEdit = lazy(() => import('./pages/admin/AdminArticleEdit'));
+const AdminArticleView = lazy(() => import('./pages/admin/AdminArticleView'));
 const AdminArticleForm = lazy(() => import('./pages/admin/AdminArticleForm'));
 const AdminOrders = lazy(() => import('./pages/admin/AdminOrders'));
+const AdminOrderView = lazy(() => import('./pages/admin/AdminOrderView'));
+const AdminOrderEdit = lazy(() => import('./pages/admin/AdminOrderEdit'));
 const AdminCommunity = lazy(() => import('./pages/admin/AdminCommunity'));
 const Profile = lazy(() => import('./pages/profile/Profile'));
 
@@ -107,13 +121,20 @@ function AppWrapper() {
 
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/admin/users" element={<AdminUsers />} />
+          <Route path="/admin/users/create" element={<AdminUserCreate />} />
+          <Route path="/admin/users/:id" element={<AdminUserView />} />
           <Route path="/admin/users/:id/edit" element={<AdminUserEdit />} />
           <Route path="/admin/packages" element={<AdminPackages />} />
+          <Route path="/admin/packages/create" element={<AdminPackageCreate />} />
+          <Route path="/admin/packages/edit/:id" element={<AdminPackageEdit />} />
           <Route path="/admin/packages/:id" element={<AdminPackageDetail />} />
           <Route path="/admin/articles" element={<AdminArticles />} />
-          <Route path="/admin/articles/new" element={<AdminArticleForm />} />
-          <Route path="/admin/articles/:id" element={<AdminArticleForm />} />
+          <Route path="/admin/articles/create" element={<AdminArticleCreate />} />
+          <Route path="/admin/articles/edit/:id" element={<AdminArticleEdit />} />
+          <Route path="/admin/articles/:id" element={<AdminArticleView />} />
           <Route path="/admin/orders" element={<AdminOrders />} />
+          <Route path="/admin/orders/view/:id" element={<AdminOrderView />} />
+          <Route path="/admin/orders/edit/:id" element={<AdminOrderEdit />} />
           <Route path="/admin/community" element={<AdminCommunity />} />
 
           <Route path="*" element={<Navigate to="/" replace />} />
@@ -128,7 +149,9 @@ function AppWrapper() {
 export default function App() {
   return (
     <BrowserRouter>
-      <AppWrapper />
+      <AuthProvider>
+        <AppWrapper />
+      </AuthProvider>
     </BrowserRouter>
   );
 }

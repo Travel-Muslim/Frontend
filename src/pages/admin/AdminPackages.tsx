@@ -1,119 +1,18 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { fetchPackages, type PackageDetail } from '../../api/packages';
 import AdminLayout from '../../components/admin/AdminLayout';
-
-function IconPlus() {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-      <path
-        d="M12 5v14M5 12h14"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2.2"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
-}
-
-function IconEye() {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-      <path
-        d="M3 12s3.5-6 9-6 9 6 9 6-3.5 6-9 6-9-6-9-6Z"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-      />
-      <circle
-        cx="12"
-        cy="12"
-        r="2.5"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-      />
-    </svg>
-  );
-}
-
-function IconPencil() {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-      <path
-        d="M15.5 5.5 18.5 8.5 9 18H6v-3L15.5 5.5Z"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M13.5 7.5 16.5 10.5"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-      />
-    </svg>
-  );
-}
-
-function IconTrash() {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-      <path
-        d="M6 7h12"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-      />
-      <path
-        d="M9 7v12m6-12v12"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-      />
-      <path
-        d="M10 4h4a1 1 0 0 1 1 1v2H9V5a1 1 0 0 1 1-1Z"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-      />
-      <path
-        d="M5 7h14v12.5a1.5 1.5 0 0 1-1.5 1.5h-11A1.5 1.5 0 0 1 5 19.5V7Z"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-      />
-    </svg>
-  );
-}
-
-function IconCheck() {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-      <path
-        d="M5 12.5 10 17.5 19 7"
-        fill="none"
-        stroke="#ffffff"
-        strokeWidth="2.4"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
+import { fetchPackages, deletePackage } from '../../api/packages';
+import type { PackageDetail } from '../../api/packages';
+import AdminTable, { TableColumn, TableAction } from '../../components/admin/AdminTable';
 
 export default function AdminPackages() {
   const [packages, setPackages] = useState<PackageDetail[]>([]);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState('');
-  const [confirmId, setConfirmId] = useState<number | null>(null);
+  const [confirmId, setConfirmId] = useState<number | string | null>(null);
   const [deleteSuccess, setDeleteSuccess] = useState(false);
+  const [deleteError, setDeleteError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -122,6 +21,12 @@ export default function AdminPackages() {
     fetchPackages()
       .then((data) => {
         if (active) setPackages(data);
+      })
+      .catch((error) => {
+        console.error('Error fetching packages:', error);
+        if (active) {
+          setErrorMessage('Gagal memuat data paket');
+        }
       })
       .finally(() => {
         if (active) setLoading(false);
@@ -149,213 +54,212 @@ export default function AdminPackages() {
     });
   }, [packages, query]);
 
-  const handleDelete = (id: number | string) => setConfirmId(Number(id));
-  const confirmDelete = () => {
-    if (confirmId == null) return;
-    setPackages((prev) => prev.filter((p) => Number(p.id) !== confirmId));
-    setConfirmId(null);
-    setDeleteSuccess(true);
+  const handleDelete = async (packageItem: PackageDetail) => {
+    setConfirmId(packageItem.id);
   };
+
+  const handleEdit = (packageItem: PackageDetail) => {
+    navigate(`/admin/packages/edit/${packageItem.id}`);
+  };
+
+  const handleView = (packageItem: PackageDetail) => {
+    navigate(`/admin/packages/${packageItem.id}`);
+  };
+
+  const handleAdd = () => {
+    navigate('/admin/packages/create');
+  };
+
+  const confirmDelete = async () => {
+    if (confirmId == null) return;
+
+    try {
+      const success = await deletePackage(confirmId);
+      
+      if (success) {
+        setPackages((prev) => prev.filter((p) => p.id !== confirmId));
+        setConfirmId(null);
+        setDeleteSuccess(true);
+      } else {
+        setConfirmId(null);
+        setErrorMessage('Gagal menghapus paket');
+        setDeleteError(true);
+      }
+    } catch (error) {
+      console.error('Error deleting package:', error);
+      setConfirmId(null);
+      setErrorMessage('Terjadi kesalahan saat menghapus paket');
+      setDeleteError(true);
+    }
+  };
+
+  // Format price to Indonesian currency
+  const formatPrice = (price: number | undefined) => {
+    if (!price) return '-';
+    return new Intl.NumberFormat('id-ID', {
+      style: 'currency',
+      currency: 'IDR',
+      minimumFractionDigits: 0,
+    }).format(price);
+  };
+
+  // Table configuration
+  const columns: TableColumn[] = [
+    {
+      key: 'id',
+      label: 'ID',
+      width: '200px',
+    },
+    {
+      key: 'name',
+      label: 'Nama Paket',
+      width: '200px',
+    },
+    {
+      key: 'location',
+      label: 'Lokasi',
+      width: '150px',
+    },
+    {
+      key: 'periode_start',
+      label: 'Keberangkatan',
+      width: '150px',
+      render: (value) => value || '-',
+    },
+    {
+      key: 'maskapai',
+      label: 'Maskapai',
+      width: '150px',
+    },
+    {
+      key: 'price',
+      label: 'Harga',
+      width: '150px',
+      render: (value) => formatPrice(value),
+    },
+  ];
+
+  const actions: TableAction[] = [
+    {
+      type: 'view',
+      label: 'Lihat Detail',
+      color: 'blue',
+      onClick: handleView,
+    },
+    {
+      type: 'edit',
+      label: 'Edit Paket',
+      color: 'orange',
+      onClick: handleEdit,
+    },
+    {
+      type: 'delete',
+      label: 'Hapus Paket',
+      color: 'red',
+      onClick: handleDelete,
+    },
+  ];
 
   return (
     <AdminLayout title="Manajemen Paket">
-      <section className="bg-white rounded-2xl p-[18px] sm:p-[14px] shadow-[0_18px_38px_rgba(15,23,42,0.12)] border border-[#f0e8ff]">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-[14px]">
-          <h2 className="m-0 text-lg text-[#2a2a2a]">Daftar Paket</h2>
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-[10px] sm:gap-[10px] w-full sm:w-auto flex-wrap sm:justify-end">
-            <div className="flex items-center gap-2 bg-white border border-[#e7dff4] px-[10px] py-[7px] rounded-lg min-w-0 w-full sm:w-[320px] sm:max-w-[320px] h-10 sm:flex-[0_0_auto] shadow-[inset_0_0_0_1px_#f5eefc]">
-              <svg
-                viewBox="0 0 24 24"
-                aria-hidden="true"
-                className="w-4 h-4 flex-shrink-0"
+      <AdminTable
+        title="Daftar Paket"
+        columns={columns}
+        data={filtered}
+        actions={actions}
+        loading={loading}
+        emptyMessage={query ? 'Tidak ada paket yang cocok' : 'Belum ada data paket'}
+        searchValue={query}
+        onSearch={setQuery}
+        searchPlaceholder="Cari Paket"
+        onAdd={handleAdd}
+        addButtonText="+ Tambahkan Paket"
+      />
+
+      {/* Delete Confirmation Modal */}
+      {confirmId && (
+        <div className="fixed inset-0 bg-black/50 z-[100] grid place-items-center p-4">
+          <div className="bg-white rounded-2xl p-6 max-w-[420px] w-full shadow-[0_20px_50px_rgba(0,0,0,0.3)]">
+            <div className="text-center mb-6">
+              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                Konfirmasi Hapus
+              </h3>
+              <p className="text-gray-600">
+                Apakah Anda yakin ingin menghapus paket ini? Tindakan ini tidak dapat dibatalkan.
+              </p>
+            </div>
+            <div className="flex gap-3 justify-center">
+              <button
+                onClick={() => setConfirmId(null)}
+                className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
               >
-                <circle
-                  cx="11"
-                  cy="11"
-                  r="6"
-                  stroke="#a6a6a6"
-                  strokeWidth="2"
-                  fill="none"
-                />
-                <path
-                  d="m15 15 4.5 4.5"
-                  stroke="#a6a6a6"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                />
-              </svg>
-              <input
-                type="text"
-                placeholder="Cari Paket"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                className="border-0 outline-none w-full text-sm bg-transparent text-[#2f2f2f]"
-              />
+                Batal
+              </button>
+              <button
+                onClick={confirmDelete}
+                className="px-6 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+              >
+                Hapus
+              </button>
             </div>
-            <button
-              type="button"
-              className="border-0 bg-[#22c6b6] text-white rounded-xl px-[14px] py-[10px] font-extrabold inline-flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap w-full sm:w-auto"
-              onClick={() => navigate('/admin/packages/new')}
-            >
-              <IconPlus />
-              Tambahkan Paket
-            </button>
           </div>
         </div>
+      )}
 
-        <div className="w-full overflow-x-auto">
-          <div className="grid gap-2 min-w-[980px] lg:min-w-0">
-            <div className="hidden lg:grid grid-cols-[0.5fr_2fr_1.6fr_2fr_1.6fr_1.3fr_1fr] bg-[#b28be2] text-white font-extrabold px-[14px] py-3 rounded-xl shadow-[0_12px_24px_rgba(130,94,197,0.2)]">
-              <span>ID</span>
-              <span>Nama Paket</span>
-              <span>Lokasi</span>
-              <span>Keberangkatan</span>
-              <span>Maskapai</span>
-              <span>Harga</span>
-              <span>Aksi</span>
+      {/* Success Modal */}
+      {deleteSuccess && (
+        <div className="fixed inset-0 bg-black/50 z-[100] grid place-items-center p-4">
+          <div className="bg-white rounded-2xl p-6 max-w-[380px] w-full shadow-[0_20px_50px_rgba(0,0,0,0.3)]">
+            <div className="text-center mb-6">
+              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">Berhasil!</h3>
+              <p className="text-gray-600">Paket berhasil dihapus</p>
             </div>
-            {loading ? (
-              <div className="grid lg:grid-cols-[0.5fr_2fr_1.6fr_2fr_1.6fr_1.3fr_1fr] grid-cols-1 lg:items-center bg-white border border-[#f0d7e1] rounded-xl px-[14px] py-3 shadow-[0_10px_18px_rgba(15,23,42,0.08)] text-[#323232] font-semibold gap-2">
-                <span data-label="ID">Memuat data...</span>
-              </div>
-            ) : filtered.length === 0 ? (
-              <div className="grid lg:grid-cols-[0.5fr_2fr_1.6fr_2fr_1.6fr_1.3fr_1fr] grid-cols-1 lg:items-center bg-white border border-[#f0d7e1] rounded-xl px-[14px] py-3 shadow-[0_10px_18px_rgba(15,23,42,0.08)] text-[#323232] font-semibold gap-2">
-                <span data-label="ID">Belum ada paket</span>
-              </div>
-            ) : (
-              filtered.map((p) => (
-                <div
-                  className="grid lg:grid-cols-[0.5fr_2fr_1.6fr_2fr_1.6fr_1.3fr_1fr] grid-cols-1 lg:items-center bg-white border border-[#f0d7e1] rounded-xl px-[14px] sm:px-3 py-3 shadow-[0_10px_18px_rgba(15,23,42,0.08)] text-[#323232] font-semibold gap-2 lg:gap-2"
-                  key={p.id}
-                >
-                  <span
-                    data-label="ID"
-                    className="overflow-hidden text-ellipsis lg:whitespace-nowrap whitespace-normal before:content-[attr(data-label)':_'] before:font-bold before:text-[#5a5275] lg:before:content-none"
-                  >
-                    {p.id}
-                  </span>
-                  <span
-                    data-label="Nama Paket"
-                    className="overflow-hidden text-ellipsis lg:whitespace-nowrap whitespace-normal before:content-[attr(data-label)':_'] before:font-bold before:text-[#5a5275] lg:before:content-none"
-                  >
-                    {p.name}
-                  </span>
-                  <span
-                    data-label="Lokasi"
-                    className="overflow-hidden text-ellipsis lg:whitespace-nowrap whitespace-normal before:content-[attr(data-label)':_'] before:font-bold before:text-[#5a5275] lg:before:content-none"
-                  >
-                    {p.location}
-                  </span>
-                  <span
-                    data-label="Keberangkatan"
-                    className="overflow-hidden text-ellipsis lg:whitespace-nowrap whitespace-normal before:content-[attr(data-label)':_'] before:font-bold before:text-[#5a5275] lg:before:content-none"
-                  >
-                    {p.periode_start}
-                  </span>
-                  <span
-                    data-label="Maskapai"
-                    className="overflow-hidden text-ellipsis lg:whitespace-nowrap whitespace-normal before:content-[attr(data-label)':_'] before:font-bold before:text-[#5a5275] lg:before:content-none"
-                  >
-                    {p.maskapai}
-                  </span>
-                  <span
-                    data-label="Harga"
-                    className="overflow-hidden text-ellipsis lg:whitespace-nowrap whitespace-normal before:content-[attr(data-label)':_'] before:font-bold before:text-[#5a5275] lg:before:content-none"
-                  >
-                    {p.price ? `Rp${p.price.toLocaleString('id-ID')}` : '-'}
-                  </span>
-                  <span
-                    className="inline-flex items-center gap-2 lg:justify-end justify-start before:content-[attr(data-label)':_'] before:font-bold before:text-[#5a5275] lg:before:content-none"
-                    data-label="Aksi"
-                  >
-                    <button
-                      type="button"
-                      className="w-[34px] h-[34px] sm:w-8 sm:h-8 rounded-[10px] border border-[#d6eaff] bg-[#f4f9ff] grid place-items-center cursor-pointer shadow-[0_8px_16px_rgba(0,0,0,0.08)] text-sm"
-                      aria-label="Lihat paket"
-                      onClick={() => navigate(`/admin/packages/${p.id}`)}
-                    >
-                      <IconEye />
-                    </button>
-                    <button
-                      type="button"
-                      className="w-[34px] h-[34px] sm:w-8 sm:h-8 rounded-[10px] border border-[#ffeec2] bg-[#fffaf0] grid place-items-center cursor-pointer shadow-[0_8px_16px_rgba(0,0,0,0.08)] text-sm"
-                      aria-label="Edit paket"
-                      onClick={() => navigate(`/admin/packages/${p.id}`)}
-                    >
-                      <IconPencil />
-                    </button>
-                    <button
-                      type="button"
-                      className="w-[34px] h-[34px] sm:w-8 sm:h-8 rounded-[10px] border border-[#ffd6d6] bg-[#fff5f5] grid place-items-center cursor-pointer shadow-[0_8px_16px_rgba(0,0,0,0.08)] text-sm"
-                      aria-label="Hapus paket"
-                      onClick={() => handleDelete(Number(p.id))}
-                    >
-                      <IconTrash />
-                    </button>
-                  </span>
-                </div>
-              ))
-            )}
+            <div className="flex justify-center">
+              <button
+                onClick={() => setDeleteSuccess(false)}
+                className="px-6 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+              >
+                OK
+              </button>
+            </div>
           </div>
         </div>
+      )}
 
-        {confirmId !== null && (
-          <div className="fixed inset-0 bg-black/35 grid place-items-center p-4 z-50">
-            <div className="bg-white rounded-[18px] px-5 py-6 max-w-[480px] w-full text-center shadow-[0_20px_40px_rgba(15,23,42,0.2)]">
-              <div className="w-[92px] h-[92px] rounded-full grid place-items-center mx-auto mb-4 text-[46px] font-extrabold text-white bg-[#f7b5c2]">
-                !
+      {/* Error Modal */}
+      {deleteError && (
+        <div className="fixed inset-0 bg-black/50 z-[100] grid place-items-center p-4">
+          <div className="bg-white rounded-2xl p-6 max-w-[380px] w-full shadow-[0_20px_50px_rgba(0,0,0,0.3)]">
+            <div className="text-center mb-6">
+              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
               </div>
-              <h3 className="m-0 mb-[10px] text-[22px] text-[#414141]">
-                Hapus Paket?
-              </h3>
-              <p className="m-0 mb-4 text-[#5a5a5a] text-base">
-                Paket ini akan terhapus dari daftar.
-              </p>
-              <div className="flex justify-center gap-[10px] flex-wrap">
-                <button
-                  type="button"
-                  className="border-0 rounded-xl px-[22px] py-3 font-extrabold cursor-pointer text-white min-w-[140px] text-[15px] bg-[#f87171]"
-                  onClick={() => setConfirmId(null)}
-                >
-                  Batal
-                </button>
-                <button
-                  type="button"
-                  className="border-0 rounded-xl px-[22px] py-3 font-extrabold cursor-pointer text-white min-w-[140px] text-[15px] bg-[#22c6b6]"
-                  onClick={confirmDelete}
-                >
-                  Hapus
-                </button>
-              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">Error!</h3>
+              <p className="text-gray-600">{errorMessage}</p>
+            </div>
+            <div className="flex justify-center">
+              <button
+                onClick={() => setDeleteError(false)}
+                className="px-6 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+              >
+                OK
+              </button>
             </div>
           </div>
-        )}
-
-        {deleteSuccess && (
-          <div className="fixed inset-0 bg-black/35 grid place-items-center p-4 z-50">
-            <div className="bg-white rounded-[18px] px-5 py-6 max-w-[480px] w-full text-center shadow-[0_20px_40px_rgba(15,23,42,0.2)]">
-              <div className="w-[92px] h-[92px] rounded-full grid place-items-center mx-auto mb-4 text-[46px] font-extrabold text-white bg-[#22c6b6]">
-                <IconCheck />
-              </div>
-              <h3 className="m-0 mb-[10px] text-[22px] text-[#414141]">
-                Paket Berhasil Dihapus
-              </h3>
-              <p className="m-0 mb-4 text-[#5a5a5a] text-base">
-                Paket telah dihapus dari daftar.
-              </p>
-              <div className="flex justify-center gap-[10px] flex-wrap">
-                <button
-                  type="button"
-                  className="border-0 rounded-xl px-[22px] py-3 font-extrabold cursor-pointer text-white min-w-[140px] text-[15px] bg-[#22c6b6]"
-                  onClick={() => setDeleteSuccess(false)}
-                >
-                  Selanjutnya
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-      </section>
+        </div>
+      )}
     </AdminLayout>
   );
 }

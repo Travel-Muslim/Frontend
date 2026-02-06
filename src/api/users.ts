@@ -32,12 +32,16 @@ export interface AdminUserUpdate {
 
 // Interface untuk user data
 export interface AdminUser {
-  id: number;
-  name: string;
+  id: string | number;
+  name?: string;
+  namaLengkap?: string; // API field name
   email: string;
-  phone: string;
-  role: string;
-  registered: string;
+  phone?: string;
+  telepon?: string; // API field name
+  role?: string;
+  registered?: string;
+  tanggalDaftar?: string; // API field name
+  password?: string;
 }
 
 export interface UploadAvatarPayload {
@@ -153,6 +157,27 @@ export async function updateProfile(
   }
 }
 
+// Fungsi untuk membuat user baru (hanya untuk admin)
+export async function createUser(payload: {
+  namaLengkap: string;
+  email: string;
+  password: string;
+  telepon: string;
+}): Promise<boolean> {
+  try {
+    await api.post(apiRoutes.users, {
+      fullname: payload.namaLengkap,
+      email: payload.email,
+      password: payload.password,
+      phone: payload.telepon,
+    });
+    return true;
+  } catch (error) {
+    console.error('Gagal membuat pengguna baru', error);
+    return false;
+  }
+}
+
 // Fungsi untuk mengambil semua user (hanya untuk admin)
 export async function fetchUsers(): Promise<AdminUser[]> {
   try {
@@ -163,22 +188,28 @@ export async function fetchUsers(): Promise<AdminUser[]> {
     if (data?.results && Array.isArray(data.results)) {
       return data.results.map((user: any) => ({
         id: user.id,
-        name: user.fullname || user.nama || user.name || '-',
+        name: user.namaLengkap || user.fullname || user.nama || user.name || '-',
         email: user.email || '-',
-        phone: user.phone || user.telephone || '-',
+        phone: user.telepon || user.phone || user.telephone || '-',
         role: user.role || user.roles || 'user',
-        registered:
-          user.created_at || user.registered_at || user.createdAt || '-',
+        registered: user.tanggalDaftar || user.created_at || user.registered_at || user.createdAt || '-',
+        // Keep original fields for compatibility
+        namaLengkap: user.namaLengkap,
+        telepon: user.telepon,
+        tanggalDaftar: user.tanggalDaftar,
       }));
     } else if (data?.data && Array.isArray(data.data)) {
       return data.data.map((user: any) => ({
         id: user.id,
-        name: user.fullname || user.nama || user.name || '-',
+        name: user.namaLengkap || user.fullname || user.nama || user.name || '-',
         email: user.email || '-',
-        phone: user.phone || user.telephone || '-',
+        phone: user.telepon || user.phone || user.telephone || '-',
         role: user.role || user.roles || 'user',
-        registered:
-          user.created_at || user.registered_at || user.createdAt || '-',
+        registered: user.tanggalDaftar || user.created_at || user.registered_at || user.createdAt || '-',
+        // Keep original fields for compatibility
+        namaLengkap: user.namaLengkap,
+        telepon: user.telepon,
+        tanggalDaftar: user.tanggalDaftar,
       }));
     } else {
       return [];

@@ -138,16 +138,29 @@ export async function fetchBookingStatus(): Promise<BookingStatus | null> {
   }
 }
 
+// Fungsi untuk mengambil perjalanan terbaru
+export async function fetchRecentTrips(): Promise<TripRow[]> {
+  try {
+    const res = await api.get(`${apiRoutes.admin}/recent-trips`); // endpoint backend adalah /admin/recent-trips
+    const trips = handlePaginatedResponse<TripRow>(res.data);
+    return Array.isArray(trips) ? trips : [];
+  } catch (error) {
+    console.error('Gagal memuat perjalanan terbaru', error);
+    return [];
+  }
+}
+
 // Fungsi umum untuk mengambil semua data dashboard (kompatibilitas dengan kode lama)
 export async function fetchDashboard(): Promise<DashboardPayload> {
   try {
     // Karena endpoint /admin/dashboard tidak sesuai dengan backend,
     // kita kumpulkan data dari endpoint yang sesuai
-    const [stats, packages, buyers, status] = await Promise.allSettled([
+    const [stats, packages, buyers, status, trips] = await Promise.allSettled([
       fetchAdminDashboardStats(),
       fetchTopPackages(),
       fetchTopBuyers(),
       fetchBookingStatus(),
+      fetchRecentTrips(),
     ]);
 
     return {
@@ -155,6 +168,7 @@ export async function fetchDashboard(): Promise<DashboardPayload> {
       packages: packages.status === 'fulfilled' && packages.value !== null ? packages.value : [],
       buyers: buyers.status === 'fulfilled' && buyers.value !== null ? buyers.value : [],
       status: status.status === 'fulfilled' && status.value !== null ? status.value : undefined,
+      trips: trips.status === 'fulfilled' && trips.value !== null ? trips.value : [],
     };
   } catch (error) {
     console.error('Gagal memuat dashboard', error);

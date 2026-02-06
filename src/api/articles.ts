@@ -80,7 +80,8 @@ const normalizeArticle = (raw: any): Article => {
     raw?.published_at ??
     raw?.createdAt ??
     raw?.created_at ??
-    '';
+    raw?.publishedAt ??
+    new Date().toISOString();
   const publishedAt =
     raw?.publishedAt ?? raw?.published_at ?? raw?.tanggalTerbit;
 
@@ -123,8 +124,8 @@ const normalizeArticle = (raw: any): Article => {
     views: raw?.views ? Number(raw.views) : 0,
     readTime: raw?.read_time ?? raw?.readTime,
     isPublished: raw?.is_published ?? raw?.status === 'Selesai',
-    createdAt: raw?.created_at ?? raw?.createdAt,
-    updatedAt: raw?.updated_at ?? raw?.updatedAt,
+    createdAt: raw?.created_at ?? raw?.createdAt ?? date,
+    updatedAt: raw?.updated_at ?? raw?.updatedAt ?? date,
     publishedAt,
 
     // API response fields
@@ -139,7 +140,7 @@ const normalizeArticle = (raw: any): Article => {
     displayDate: raw?.displayDate ?? raw?.tanggal ?? formatDisplayDate(date),
     date,
     time: raw?.time ?? raw?.published_time ?? '',
-    status: raw?.status ?? raw?.state ?? 'Draft',
+    status: raw?.status ?? raw?.state ?? (raw?.is_published ? 'Selesai' : 'Draft'),
     image: imageUrl,
     gallery,
     link: raw?.link ?? raw?.url ?? '',

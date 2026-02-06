@@ -1,39 +1,16 @@
-import React, { useEffect, useState, useCallback, useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Link, NavLink, useNavigate, matchPath } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { AvatarDefaultIcon, ProfileOutlineIcon } from '@/assets/icon';
-import { getProfile, type User } from '@api/auth';
+import { useAuth } from '../../../contexts/AuthContext';
 import DropdownProfile from '../../ui/dropdown/DropdownProfile';
 import Button from '../../ui/button/Button';
 
 export default function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [user, setUser] = useState<User | null>(null);
-  const [loadingUser, setLoadingUser] = useState(true);
   const navigate = useNavigate();
-
-  const fetchUser = useCallback(async () => {
-    try {
-      setLoadingUser(true);
-      const userData = await getProfile();
-      setUser(userData);
-    } catch (error) {
-      setUser(null);
-    } finally {
-      setLoadingUser(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      fetchUser();
-    } else {
-      setUser(null);
-      setLoadingUser(false);
-    }
-  }, [fetchUser]);
+  const { user, loading: loadingUser, setUser } = useAuth();
 
   useEffect(() => {
     const path = location.pathname;
@@ -73,12 +50,22 @@ export default function Header() {
     {
       id: 'wishlist',
       label: 'Wishlist',
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+        </svg>
+      ),
       action: 'custom' as const,
       onClick: () => navigate('/wishlist'),
     },
     {
       id: 'riwayat',
       label: 'Riwayat',
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      ),
       action: 'custom' as const,
       onClick: () => navigate('/riwayat'),
     },

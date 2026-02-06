@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
-import { getUserById, updateUserById } from '../../api/users';
+import { createUser } from '../../api/users';
 import AdminLayout from '../../components/admin/AdminLayout';
 import Button from '../../components/ui/button/Button';
 import Input from '../../components/ui/input/Input';
@@ -13,93 +13,35 @@ interface UserForm {
   telepon: string;
 }
 
-export default function AdminUserEdit() {
+export default function AdminUserCreate() {
   const [form, setForm] = useState<UserForm>({
     namaLengkap: '',
     email: '',
     password: '',
     telepon: '',
   });
-  const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [successModal, setSuccessModal] = useState(false);
   const [errorModal, setErrorModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
-  const params = useParams<{ id: string }>();
-
-  useEffect(() => {
-    if (!params.id) {
-      navigate('/admin/users', { replace: true });
-      return;
-    }
-
-    let active = true;
-    setLoading(true);
-
-    getUserById(params.id)
-      .then((userData) => {
-        if (!active) return;
-
-        if (userData) {
-          const user = userData.data || userData.results || userData;
-          setForm({
-            namaLengkap: user.namaLengkap || user.fullname || user.name || '',
-            email: user.email || '',
-            telepon: user.telepon || user.phone || user.telephone || '',
-            password: '', // Don't populate password for security
-          });
-        } else {
-          setErrorMessage('User tidak ditemukan');
-          setTimeout(() => navigate('/admin/users', { replace: true }), 2000);
-        }
-      })
-      .catch((error) => {
-        console.error('Error fetching user:', error);
-        if (active) {
-          setErrorMessage('Gagal memuat data user');
-          setTimeout(() => navigate('/admin/users', { replace: true }), 2000);
-        }
-      })
-      .finally(() => {
-        if (active) setLoading(false);
-      });
-
-    return () => {
-      active = false;
-    };
-  }, [params.id, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!params.id) return;
-
     setSubmitting(true);
 
     try {
-      const payload: any = {
-        fullname: form.namaLengkap,
-        email: form.email,
-        phone: form.telepon,
-      };
-
-      // Only include password if it's not empty
-      if (form.password && form.password.trim() !== '') {
-        payload.password = form.password;
-      }
-
-      const success = await updateUserById(params.id, payload);
-
+      const success = await createUser(form);
+      
       if (success) {
         setSuccessModal(true);
       } else {
-        setErrorMessage('Gagal memperbarui user');
+        setErrorMessage('Gagal membuat user');
         setErrorModal(true);
       }
     } catch (error) {
-      console.error('Error updating user:', error);
-      setErrorMessage('Terjadi kesalahan saat memperbarui user');
+      console.error('Error creating user:', error);
+      setErrorMessage('Terjadi kesalahan saat membuat user');
       setErrorModal(true);
     } finally {
       setSubmitting(false);
@@ -120,32 +62,8 @@ export default function AdminUserEdit() {
     navigate('/admin/users');
   };
 
-  if (loading) {
-    return (
-      <AdminLayout title="Edit User">
-        <div className="bg-white rounded-[18px] px-7 py-6 shadow-[0_8px_24px_rgba(15,23,42,0.12)] border border-[#f0f0f0] max-w-[1000px] w-full mx-auto">
-          <div className="flex items-center justify-center py-12">
-            <div className="text-gray-500">Memuat data user...</div>
-          </div>
-        </div>
-      </AdminLayout>
-    );
-  }
-
-  if (errorMessage && !form.namaLengkap) {
-    return (
-      <AdminLayout title="Edit User">
-        <div className="bg-white rounded-[18px] px-7 py-6 shadow-[0_8px_24px_rgba(15,23,42,0.12)] border border-[#f0f0f0] max-w-[1000px] w-full mx-auto">
-          <div className="flex items-center justify-center py-12">
-            <div className="text-red-500">{errorMessage}</div>
-          </div>
-        </div>
-      </AdminLayout>
-    );
-  }
-
   return (
-    <AdminLayout title="Edit User">
+    <AdminLayout title="Tambah User">
       <div className="bg-white rounded-[18px] px-7 py-6 shadow-[0_8px_24px_rgba(15,23,42,0.12)] border border-[#f0f0f0] max-w-[1000px] w-full mx-auto">
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">
@@ -155,7 +73,7 @@ export default function AdminUserEdit() {
           >
             <ArrowLeft className="w-5 h-5 text-gray-600" />
           </button>
-          <h1 className="text-2xl font-bold text-gray-900">Edit User</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Tambah User</h1>
         </div>
 
         {/* Form */}
@@ -190,8 +108,9 @@ export default function AdminUserEdit() {
               name="password"
               value={form.password}
               onChange={handleInputChange}
-              placeholder="Kosongkan jika tidak ingin mengubah"
+              placeholder="Masukkan password"
               showPasswordToggle
+              required
             />
 
             {/* Nomor Telepon */}
@@ -222,7 +141,7 @@ export default function AdminUserEdit() {
               variant="light-teal-hover-dark-teal"
               className="px-8"
             >
-              {submitting ? 'Menyimpan...' : 'Edit User'}
+              {submitting ? 'Menyimpan...' : 'Tambah User'}
             </Button>
           </div>
         </form>
@@ -239,7 +158,7 @@ export default function AdminUserEdit() {
                 </svg>
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-2">Berhasil!</h3>
-              <p className="text-gray-600">User berhasil diperbarui</p>
+              <p className="text-gray-600">User berhasil dibuat</p>
             </div>
             <div className="flex justify-center">
               <button
